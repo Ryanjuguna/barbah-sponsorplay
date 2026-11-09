@@ -4,6 +4,7 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 Direct function & agent verification suite (fast, resilient, zero-socket dependency)
 """
 
+import os
 import sys
 from app.models.schemas import CampaignBrief, DeliverableSubmission
 from app.models.database import db
@@ -13,24 +14,51 @@ from app.agents.financial_agent import financial_agent
 from app.agents.verification_agent import verification_agent
 from app.agents.guardian_agent import guardian_agent
 from app.agents.impact_agent import impact_agent
+from app.agents.vision_engine import vision_engine
+from app.integrations.barbah_client import barbah_client
 from app.integrations.paypal_client import paypal_client
 from app.integrations.etims_client import etims_client
 
 def run_e2e_test():
-    print("=" * 75)
+    print("=" * 80)
     print("BARBAH SPONSORPLAY: END-TO-END AUTOMATED VERIFICATION TEST")
     print("PayPal AI Hackathon - Challenge 02: Sponsor Play (Barbah Games Kenya)")
-    print("=" * 75)
+    print("=" * 80)
 
     # 1. System & Seed Data Verification
     print("\n[STEP 1] Verifying System State & Preloaded Kenyan Talent Graph...")
-    creators = db.get_all_creators()
-    assert len(creators) >= 5, f"Expected at least 5 creators, found {len(creators)}"
-    print(f"  [+] Loaded {len(creators)} Kenyan esports creators and communities:")
-    for c in creators[:4]:
+    initial_creators = db.get_all_creators()
+    assert len(initial_creators) >= 5, f"Expected at least 5 creators, found {len(initial_creators)}"
+    print(f"  [+] Loaded {len(initial_creators)} baseline Kenyan esports creators and communities:")
+    for c in initial_creators[:3]:
         print(f"      - {c.name} ({c.gamer_tag}) | {c.type} | {c.location} | Safety: {c.brand_safety_score}%")
 
-    # 2. Agent 1: Talent Scout Analysis
+    # 1B. Real-Time Barbah Games Gateway & Webhook Ingestion
+    print("\n[STEP 1B] Ingesting Real-Time Webhook Signals from Barbah Games & Tournament Brackets...")
+    wh_player = barbah_client.process_webhook_event("PLAYER_REGISTERED", {
+        "name": "Kevin 'Kayole King' Mwangi",
+        "gamer_tag": "KayoleKing_254",
+        "type": "PRO_PLAYER_STREAMER",
+        "primary_game": "EA FC 25",
+        "platform": "YouTube Gaming",
+        "location": "Kayole, Nairobi East",
+        "monthly_reach": 9500,
+        "avg_concurrent_viewers": 420,
+        "base_rate_usd": 160.0
+    })
+    print(f"  [+] Ingested Webhook Player: {wh_player['player_id']} (Status: {wh_player['status']})")
+
+    wh_hub = barbah_client.process_webhook_event("GAMING_HUB_ADDED", {
+        "hub_name": "Eldoret Rift Gaming Arena",
+        "hub_tag": "EldoretRift_Hub",
+        "location": "Eldoret CBD",
+        "monthly_reach": 12000,
+        "avg_concurrent_viewers": 550
+    })
+    print(f"  [+] Ingested Webhook Hub: {wh_hub['hub_id']} (Status: {wh_hub['status']})")
+    print(f"  [+] Total creators now active in registry: {len(db.creators)}")
+
+    # 2. Agent 1: Talent Scout Analysis with Claude Brain
     print("\n[STEP 2] Submitting Brand Brief to Agent 1 (Scout)...")
     brief = CampaignBrief(
         id="CAMP-SAFARICOM-001",
@@ -99,15 +127,32 @@ def run_e2e_test():
     print(f"  [+] Competitor Collisions: {chat_audit['competitor_collisions_detected']}")
     assert chat_audit["guardian_approved"] is True, "Brand Guardian flagged violation"
 
-    # 6. Agent 3: Multimodal Proof-of-Play Verification
-    print("\n[STEP 6] Ingesting Live Stream VOD & Verifying via Agent 3 (Proof-of-Play)...")
+    # 6A. Real OpenCV Computer Vision Engine Unit Verification
+    print("\n[STEP 6A] Testing OpenCV Computer Vision Logo Localization & Area Ratio...")
+    cv_pass = vision_engine.analyze_frame("generate", brand_name="Safaricom")
+    print(f"  [+] OpenCV Detected Box: {cv_pass['bounding_box']}")
+    print(f"  [+] Frame Dimensions: {cv_pass['frame_resolution']['width']}x{cv_pass['frame_resolution']['height']}")
+    print(f"  [+] Screen Occupancy Area: {cv_pass['screen_occupancy_percent']}% (Required >= {cv_pass['min_required_occupancy_percent']}%)")
+    print(f"  [+] Confidence Score: {cv_pass['confidence_percent']}%")
+    print(f"  [+] Annotated Image File: {cv_pass['proof_image_filename']}")
+    assert cv_pass["meets_threshold"] is True, "OpenCV failed to detect compliant logo occupancy"
+    assert os.path.exists(os.path.join(os.path.dirname(__file__), "app", "static", "proofs", cv_pass["proof_image_filename"])), "Annotated proof image not saved"
+
+    # Test sub-threshold scenario to ensure OpenCV catches violations
+    cv_fail_path = vision_engine.generate_synthetic_esports_frame(brand_name="Safaricom", scenario="LOW_OCCUPANCY")
+    cv_fail = vision_engine.analyze_frame(cv_fail_path, brand_name="Safaricom")
+    print(f"  [+] Testing Sub-threshold Frame: Occupancy is {cv_fail['screen_occupancy_percent']}% -> Status: {cv_fail['status']}")
+    assert cv_fail["meets_threshold"] is False, "OpenCV failed to catch low occupancy"
+
+    # 6B. Agent 3: Multimodal Proof-of-Play Verification
+    print("\n[STEP 6B] Ingesting Live Stream VOD & Verifying via Agent 3 (Proof-of-Play)...")
     submission = DeliverableSubmission(
         milestone_id=proposal.milestones[0].id,
         creator_id=proposal.creators[0].id,
         deliverable_type="LIVE_STREAM_VOD",
-        media_url="https://twitch.tv/videos/safaricom_esports_lan_finals",
+        media_url=cv_pass["proof_image_filename"],
         simulated_metrics={
-            "logo_screen_ratio_percent": 8.4,
+            "logo_screen_ratio_percent": cv_pass["screen_occupancy_percent"],
             "airtime_seconds": 11400,
             "verbal_slogans_detected": ["Powered by Safaricom 5G", "Safaricom youth gaming"],
             "audio_confidence": 0.94,
@@ -117,9 +162,10 @@ def run_e2e_test():
     cert = verification_agent.verify_deliverable(submission, required_brand_name="Safaricom")
     db.save_certificate(cert)
     print(f"  [+] Certificate ID: {cert.certificate_id}")
-    print(f"      - Computer Vision Logo Area: {cert.logo_screen_ratio_percent}% (Threshold: >=3.5%) -> PASS")
+    print(f"      - OpenCV Verified Logo Area: {cert.logo_screen_ratio_percent}% (Threshold: >=3.5%) -> PASS")
     print(f"      - Airtime Logged: {(cert.airtime_seconds / 3600):.2f} hours -> PASS")
     print(f"      - Whisper STT Brand Slogans: {cert.verbal_slogans_detected} -> PASS")
+    print(f"      - Proof Image URL: {cert.proof_image_url}")
     print(f"      - Overall Verification Confidence: {cert.overall_confidence_percent}%")
     print(f"      - Verification Decision: {cert.verification_decision}")
     print(f"      - Cryptographic Proof Seal: {cert.cryptographic_hash[:32]}...")
@@ -149,9 +195,9 @@ def run_e2e_test():
     print(f"  [+] Female Gamer Inclusion Rate: {impact.female_gamer_inclusion_percent}%")
     print(f"  [+] Cryptographic ESG Assurance Hash: {impact.metatwin_verified_hash[:32]}...")
 
-    print("\n" + "=" * 75)
-    print(">>> SUCCESS: ALL 8 STEPS OF THE HACKATHON MVP WORKFLOW VERIFIED! <<<")
-    print("=" * 75)
+    print("\n" + "=" * 80)
+    print(">>> SUCCESS: ALL MULTI-AGENT LIFECYCLE TESTS PASSED CLEANLY! <<<")
+    print("=" * 80)
 
 if __name__ == "__main__":
     run_e2e_test()

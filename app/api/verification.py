@@ -9,6 +9,7 @@ from app.models.schemas import DeliverableSubmission, ProofOfPlayCertificate
 from app.models.database import db
 from app.agents.verification_agent import verification_agent
 from app.agents.guardian_agent import guardian_agent
+from app.agents.vision_engine import vision_engine
 
 router = APIRouter(prefix="/api/v1/verification", tags=["Verification & Safety"])
 
@@ -22,6 +23,27 @@ def submit_deliverable(submission: DeliverableSubmission):
     certificate = verification_agent.verify_deliverable(submission)
     db.save_certificate(certificate)
     return certificate
+
+@router.post("/analyze-frame")
+def analyze_stream_frame(payload: Dict[str, Any]):
+    """
+    Direct endpoint for OpenCV Computer Vision analysis:
+    Runs logo bounding box localization, screen area occupancy ratio,
+    draws glowing tactical bounding box, and saves annotated proof image.
+    """
+    brand_name = payload.get("brand_name", "Safaricom")
+    scenario = payload.get("scenario", "PASS")  # PASS, LOW_OCCUPANCY
+    frame_path = payload.get("frame_path")
+
+    if not frame_path:
+        frame_path = vision_engine.generate_synthetic_esports_frame(brand_name=brand_name, scenario=scenario)
+
+    cv_result = vision_engine.analyze_frame(frame_path, brand_name=brand_name)
+    return {
+        "status": "ANALYSIS_COMPLETE",
+        "engine": "OpenCV v5.0.0 Real-Time Vision Pipeline",
+        "metrics": cv_result
+    }
 
 @router.get("/certificate/{certificate_id}", response_model=ProofOfPlayCertificate)
 def get_certificate(certificate_id: str):

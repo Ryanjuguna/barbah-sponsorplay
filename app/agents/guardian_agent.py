@@ -4,11 +4,12 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
 from typing import List, Dict, Any
+from app.agents.claude_brain import claude_brain
 
 class GuardianAgent:
     def __init__(self):
         self.name = "Real-Time Brand Safety & Live Chat Guardian Agent"
-        self.version = "1.0.0"
+        self.version = "2.0.0-claude-enhanced"
         self.toxic_lexicon = ["hate", "racist", "scam", "trash", "fraud", "fake"]
 
     def audit_live_stream_chat(
@@ -19,7 +20,23 @@ class GuardianAgent:
         """
         Audits live stream chat and speech for brand safety violations,
         hate speech, and direct competitor product collisions.
+        Uses Claude Sonnet cultural Sheng/Swahili reasoning if available,
+        with fast deterministic fallback.
         """
+        # Try Claude cognitive cultural analysis
+        claude_audit = claude_brain.reason_chat_brand_safety(chat_messages)
+        if claude_audit:
+            competitor_mentions = []
+            for msg in chat_messages:
+                for comp in competitor_brands:
+                    if comp.lower() in msg.lower():
+                        competitor_mentions.append(comp)
+            
+            claude_audit["competitor_collisions_detected"] = list(set(competitor_mentions))
+            claude_audit["action_required"] = "None. Environment verified by Claude cultural brain." if claude_audit.get("guardian_approved") else "Flagged for moderator review."
+            return claude_audit
+
+        # Fast deterministic fallback
         toxic_count = 0
         competitor_mentions = []
 

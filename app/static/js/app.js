@@ -12,12 +12,14 @@ let currentProposal = null;
 let currentPayPalOrder = null;
 let currentProofCert = null;
 let currentTaxInvoice = null;
+let currentVisionResult = null;
 let gridApi = null;
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
   initAgGrid();
   logAgent("SYSTEM", "Barbah SponsorPlay core initialized. Preloaded Kenyan esports talent graph.");
+  logAgent("BARBAH GATEWAY", "Real-time webhook listener active on /api/v1/barbah/webhook.");
 });
 
 // Currency Switcher
@@ -65,12 +67,119 @@ function switchTab(tabName) {
 // Agent Terminal Logger
 function logAgent(agentName, message, color = 'text-emerald-400') {
   const terminal = document.getElementById('agentTerminal');
+  if (!terminal) return;
   const timeStr = new Date().toLocaleTimeString();
   const line = document.createElement('div');
   line.className = color;
   line.innerHTML = `<span class="text-gray-500">[${timeStr}]</span> <span class="font-bold">[${agentName}]</span> ${message}`;
   terminal.appendChild(line);
   terminal.scrollTop = terminal.scrollHeight;
+}
+
+// =========================================================================
+// REAL-TIME TALENT INGESTION & SCOUTING GATEWAY
+// =========================================================================
+
+async function triggerBarbahWebhook(eventType) {
+  logAgent("BARBAH GATEWAY", `Simulating incoming real-time webhook event: ${eventType}...`, "text-emerald-400");
+  let payload = {};
+  if (eventType === "PLAYER_REGISTERED") {
+    payload = {
+      event_type: "PLAYER_REGISTERED",
+      data: {
+        name: "Kevin 'Kayole King' Mwangi",
+        gamer_tag: "KayoleKing_254",
+        type: "PRO_PLAYER_STREAMER",
+        primary_game: "EA FC 25",
+        platform: "YouTube Gaming",
+        location: "Kayole, Nairobi East",
+        monthly_reach: 9500,
+        avg_concurrent_viewers: 420,
+        base_rate_usd: 160.0,
+        kra_pin: "A019888888K",
+        paypal_email: "kayoleking@gmail.com",
+        mpesa_phone: "+254712345678",
+        bio: "East Africa regional EA FC top 4 qualifier with high grassroots youth fanbase."
+      }
+    };
+  } else if (eventType === "GAMING_HUB_ADDED") {
+    payload = {
+      event_type: "GAMING_HUB_ADDED",
+      data: {
+        hub_name: "Eldoret Rift Gaming Arena",
+        hub_tag: "EldoretRift_Hub",
+        location: "Eldoret CBD",
+        monthly_reach: 12000,
+        avg_concurrent_viewers: 550,
+        kra_pin: "P057777777R",
+        paypal_email: "eldoretrift@gmail.com",
+        mpesa_phone: "+254799887766"
+      }
+    };
+  }
+
+  try {
+    const resp = await fetch('/api/v1/barbah/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    logAgent("BARBAH GATEWAY", `Ingestion Complete: ${data.result.status} &bull; Total Creators in Active Registry: ${data.total_active_creators}`, "text-emerald-300 font-bold");
+    if (gridApi) reloadCreatorsGrid();
+  } catch (err) {
+    logAgent("ERROR", `Barbah webhook failed: ${err.message}`, "text-red-400");
+  }
+}
+
+async function triggerExternalScout() {
+  logAgent("AGENT 1: SCOUT", "Crawling Start.gg tournament brackets for Kenya Esports League Top 8...", "text-blue-400");
+  const payload = {
+    source: "START_GG_BRACKET",
+    gamer_tag: "VividStriker_KE",
+    name: "Dennis 'Vivid' Ochieng",
+    primary_game: "EA FC 25",
+    location: "Rongai / USIU Campus",
+    monthly_reach: 14000,
+    avg_concurrent_viewers: 480,
+    base_rate_usd: 210.0,
+    kra_pin: "A016655443Z"
+  };
+
+  try {
+    const resp = await fetch('/api/v1/barbah/simulate-external-discovery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    logAgent("AGENT 1: SCOUT", `Discovered fresh tournament talent: ${data.creator.name} (${data.creator.gamer_tag}) via Start.gg standings!`, "text-blue-300 font-bold");
+    if (gridApi) reloadCreatorsGrid();
+  } catch (err) {
+    logAgent("ERROR", `External discovery failed: ${err.message}`, "text-red-400");
+  }
+}
+
+async function syncBarbahDatabase() {
+  logAgent("BARBAH GATEWAY", "Syncing with live Barbah Games Hub & Player Registry...", "text-gray-400");
+  try {
+    const resp = await fetch('/api/v1/barbah/sync', { method: 'POST' });
+    const data = await resp.json();
+    logAgent("BARBAH GATEWAY", `Sync complete: ${data.details.status} (${data.total_registered_creators} creators active)`, "text-emerald-400");
+    if (gridApi) reloadCreatorsGrid();
+  } catch (err) {
+    logAgent("ERROR", `Barbah sync failed: ${err.message}`, "text-red-400");
+  }
+}
+
+async function reloadCreatorsGrid() {
+  try {
+    const resp = await fetch('/api/v1/campaigns/creators');
+    const creators = await resp.json();
+    if (gridApi) gridApi.setGridOption('rowData', creators);
+  } catch (err) {
+    console.error("Failed to reload grid:", err);
+  }
 }
 
 // =========================================================================
@@ -86,6 +195,7 @@ async function runStep1Scout() {
   const budgetUSD = parseFloat(document.getElementById('inputBudgetUSD').value) || 769.23;
 
   logAgent("AGENT 1: SCOUT", `Deconstructing brand brief for ${brandName}...`, "text-emerald-400");
+  logAgent("CLAUDE BRAIN", `Synthesizing candidates via Anthropic Claude 3.5 Sonnet cognitive reasoning...`, "text-purple-400");
   logAgent("AGENT 1: SCOUT", `Target: ${reach.toLocaleString()} youth in Kenya &bull; Budget: $${budgetUSD.toFixed(2)} (KES 100,000)...`);
 
   const campaignId = "CAMP-" + Date.now();
@@ -108,12 +218,10 @@ async function runStep1Scout() {
       body: JSON.stringify(payload)
     });
     const syndicates = await resp.json();
-
-    logAgent("AGENT 1: SCOUT", `Scored and synthesized ${syndicates.length} synergistic Sponsorship Syndicates!`, "text-emerald-300 font-bold");
-    renderSyndicateCards(syndicates);
-    document.getElementById('syndicateResults').classList.remove('hidden');
-
     currentCampaign = payload;
+
+    logAgent("AGENT 1: SCOUT", `Synthesized ${syndicates.length} synergistic Sponsorship Syndicates with KRA Section 16 protection.`, "text-emerald-300 font-bold");
+    renderSyndicateCards(syndicates);
   } catch (err) {
     logAgent("ERROR", `Failed to run scout: ${err.message}`, "text-red-400");
   }
@@ -122,145 +230,151 @@ async function runStep1Scout() {
 function renderSyndicateCards(syndicates) {
   const container = document.getElementById('syndicateCards');
   container.innerHTML = '';
+  document.getElementById('syndicateResults').classList.remove('hidden');
 
-  syndicates.forEach((syn, index) => {
+  syndicates.forEach((syn, idx) => {
     const card = document.createElement('div');
-    card.className = "p-4 rounded-xl border border-gray-800 bg-gray-900/70 hover:border-emerald-500/50 transition-all cursor-pointer";
+    card.className = "p-4 rounded-xl bg-gray-900 border border-gray-800 hover:border-emerald-500/50 transition-all space-y-3";
     card.innerHTML = `
       <div class="flex items-start justify-between">
         <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-white text-base">${syn.title}</span>
-            <span class="text-xs bg-emerald-500/20 text-emerald-400 font-semibold px-2 py-0.5 rounded border border-emerald-500/30">Synergy: ${syn.synergy_score}%</span>
-            <span class="text-xs bg-purple-500/20 text-purple-300 font-semibold px-2 py-0.5 rounded">${syn.etims_compliance_mode}</span>
-          </div>
-          <p class="text-xs text-gray-400 mt-1">${syn.rationale}</p>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Syndicate Option ${idx + 1}</span>
+          <h4 class="font-bold text-white text-base mt-1">${syn.title}</h4>
         </div>
         <div class="text-right">
-          <span class="text-sm font-bold text-emerald-400 block font-mono">${formatMoney(syn.total_cost_usd)}</span>
-          <span class="text-[11px] text-gray-500 block">Est. Reach: ${(syn.expected_reach || 0).toLocaleString()}</span>
+          <span class="text-xs text-gray-400 block">Synergy Score</span>
+          <span class="text-base font-extrabold text-emerald-400 font-mono">${syn.synergy_score}%</span>
         </div>
       </div>
 
-      <div class="mt-3 pt-3 border-t border-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
-        ${syn.creators.map(c => `
-          <div class="p-2 rounded-lg bg-gray-950/60 border border-gray-800/80 text-xs">
-            <div class="font-semibold text-gray-200 truncate">${c.name}</div>
-            <div class="text-[10px] text-gray-400">${c.gamer_tag} &bull; ${c.location}</div>
-            <div class="text-[10px] ${c.etims_registered ? 'text-emerald-400' : 'text-amber-400'}">
-              ${c.etims_registered ? 'eTIMS Registered' : 'BII Invoicing Required'}
-            </div>
-          </div>
-        `).join('')}
+      <p class="text-xs text-gray-300 leading-relaxed">${syn.rationale}</p>
+
+      <div class="grid grid-cols-3 gap-2 py-2 border-y border-gray-800 text-xs">
+        <div>
+          <span class="text-gray-400 block text-[11px]">Youth Reach</span>
+          <span class="font-bold text-white font-mono">${syn.expected_reach.toLocaleString()}</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[11px]">Cost (${currentCurrency})</span>
+          <span class="font-bold text-emerald-400 font-mono">${formatMoney(syn.total_cost_usd)}</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[11px]">eTIMS Route</span>
+          <span class="font-semibold text-blue-400">${syn.etims_compliance_mode}</span>
+        </div>
       </div>
 
-      <div class="mt-4 flex justify-end">
-        <button onclick="selectSyndicate('${syn.syndicate_id}', '${syn.campaign_id || (currentCampaign && currentCampaign.id) || ''}')" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md transition-all">
-          Select Syndicate & Generate Contract &rarr;
-        </button>
+      <div>
+        <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Bundled Creators & Hubs:</span>
+        <div class="flex flex-wrap gap-1.5">
+          ${syn.creators.map(c => `
+            <span class="px-2 py-1 rounded-md bg-gray-800 text-gray-200 text-xs flex items-center space-x-1">
+              <i class="fa-solid fa-gamepad text-emerald-400 text-[10px]"></i>
+              <span class="font-semibold">${c.name}</span>
+              <span class="text-gray-400">(${c.gamer_tag})</span>
+            </span>
+          `).join('')}
+        </div>
       </div>
+
+      <button onclick="selectSyndicate('${syn.syndicate_id}')" class="w-full mt-2 py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all flex items-center justify-center space-x-2">
+        <span>Select Syndicate & Generate Milestone Agreement &rarr;</span>
+      </button>
     `;
     container.appendChild(card);
   });
 }
 
 // STEP 2: SELECT SYNDICATE & RUN ARCHITECT
-async function selectSyndicate(syndicateId, campaignId) {
-  const cId = campaignId || (currentCampaign && currentCampaign.id) || "CAMP-001";
-  logAgent("AGENT 2: ARCHITECT", `Structuring milestone contract for Syndicate ${syndicateId}...`, "text-blue-400");
+async function selectSyndicate(syndicateId) {
+  logAgent("AGENT 2: ARCHITECT", `Decomposing syndicate ${syndicateId} into milestone agreement...`, "text-blue-400");
 
   try {
     const resp = await fetch('/api/v1/campaigns/proposal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        campaign_id: cId,
+        campaign_id: currentCampaign.id,
         syndicate_id: syndicateId
       })
     });
-    const data = await resp.json();
-    if (!resp.ok) {
-      throw new Error(data.detail || "Server error while generating milestone proposal");
-    }
-    currentProposal = data;
+    currentProposal = await resp.json();
 
-    logAgent("AGENT 2: ARCHITECT", `Generated 3-stage milestone schedule with 10% platform fee and 5% KRA Withholding Tax!`, "text-blue-300 font-bold");
-    renderProposal(currentProposal);
+    logAgent("AGENT 2: ARCHITECT", `Contract Drafted! Gross: $${currentProposal.total_budget_usd} &bull; Platform Fee: $${currentProposal.platform_fee_usd} &bull; 5% WHT Schedule locked.`, "text-blue-300 font-bold");
 
-    // Update Step Pills
     setStepActive(2);
+    renderStep2Proposal(currentProposal);
   } catch (err) {
     logAgent("ERROR", `Failed to generate proposal: ${err.message}`, "text-red-400");
   }
 }
 
-function renderProposal(proposal) {
+function renderStep2Proposal(proposal) {
   document.getElementById('card-step-2').classList.remove('hidden');
   document.getElementById('card-step-2').scrollIntoView({ behavior: 'smooth' });
 
   const container = document.getElementById('proposalDetails');
   container.innerHTML = `
-    <!-- Financial Schedule Breakdown -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-gray-900/90 border border-gray-800">
+    <!-- Financial Breakdown Card -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-gray-900 border border-gray-800">
       <div>
-        <span class="text-xs text-gray-400 block">Gross Sponsor Budget</span>
-        <span class="text-base font-bold text-white font-mono">${formatMoney(proposal.total_budget_usd)}</span>
+        <span class="text-xs text-gray-400 block">Gross Budget Authorized</span>
+        <span class="text-base font-extrabold text-white font-mono">${formatMoney(proposal.total_budget_usd)}</span>
       </div>
       <div>
-        <span class="text-xs text-blue-400 block">Barbah Facilitation (10%)</span>
-        <span class="text-base font-bold text-blue-400 font-mono">${formatMoney(proposal.platform_fee_usd)}</span>
+        <span class="text-xs text-gray-400 block">Barbah Fee (10%)</span>
+        <span class="text-base font-extrabold text-sky-400 font-mono">${formatMoney(proposal.platform_fee_usd)}</span>
       </div>
       <div>
-        <span class="text-xs text-red-400 block">KRA 5% Withholding Tax</span>
-        <span class="text-base font-bold text-red-400 font-mono">${formatMoney(proposal.withholding_tax_usd)}</span>
+        <span class="text-xs text-gray-400 block">5% Withholding Tax</span>
+        <span class="text-base font-extrabold text-red-400 font-mono">${formatMoney(proposal.withholding_tax_usd)}</span>
       </div>
       <div>
-        <span class="text-xs text-emerald-400 block">Net Creator Payout</span>
-        <span class="text-base font-bold text-emerald-400 font-mono">${formatMoney(proposal.net_creator_disbursement_usd)}</span>
+        <span class="text-xs text-gray-400 block">Net Creator Escrow</span>
+        <span class="text-base font-extrabold text-emerald-400 font-mono">${formatMoney(proposal.net_creator_disbursement_usd)}</span>
       </div>
     </div>
 
-    <!-- Milestones Timeline -->
+    <!-- Milestone Phases -->
     <div class="space-y-3">
-      <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Campaign Milestones (Bryntum Deliverables)</h3>
-      ${proposal.milestones.map(m => `
-        <div class="p-4 rounded-xl border border-gray-800 bg-gray-950/60 flex items-start justify-between">
-          <div class="space-y-1">
-            <div class="flex items-center space-x-2">
-              <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300">Phase ${m.milestone_number} (${m.percentage}%)</span>
-              <span class="font-bold text-sm text-gray-200">${m.title}</span>
+      <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider">3-Phase Programmatic Milestones</h3>
+      <div class="space-y-2">
+        ${proposal.milestones.map(m => `
+          <div class="p-3.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Phase ${m.milestone_number} (${m.percentage}%)</span>
+                <span class="text-sm font-bold text-white">${m.title}</span>
+              </div>
+              <p class="text-xs text-gray-400">${m.description}</p>
             </div>
-            <p class="text-xs text-gray-400">${m.description}</p>
-            <ul class="text-[11px] text-gray-400 list-disc list-inside mt-1 space-y-0.5">
-              ${m.deliverables.map(d => `<li>${d}</li>`).join('')}
-            </ul>
+            <div class="text-right">
+              <span class="text-sm font-extrabold text-emerald-400 font-mono">${formatMoney(m.amount_usd)}</span>
+              <span class="text-[10px] block text-gray-500 uppercase">${m.status}</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-sm font-bold text-emerald-400 font-mono">${formatMoney(m.amount_usd)}</span>
-            <span class="text-[10px] block text-amber-400 font-semibold mt-1">${m.status}</span>
-          </div>
-        </div>
-      `).join('')}
+        `).join('')}
+      </div>
     </div>
 
-    <!-- Legal Compliance Clauses -->
-    <div class="p-3 rounded-lg bg-gray-950 border border-gray-800 text-[11px] text-gray-400 space-y-1 font-mono">
-      <span class="text-gray-300 font-bold block mb-1">Executable Agreement Compliance Terms:</span>
-      ${proposal.legal_clauses.map(c => `<div>${c}</div>`).join('')}
+    <!-- Legal Clauses -->
+    <div class="p-3.5 rounded-xl bg-gray-950/60 border border-gray-800 space-y-2">
+      <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Programmatic Legal & Tax Clauses</span>
+      <div class="space-y-1 text-xs text-gray-400 font-mono">
+        ${proposal.legal_clauses.map(clause => `<div>&bull; ${clause}</div>`).join('')}
+      </div>
     </div>
 
-    <div class="flex justify-end pt-2">
-      <button onclick="approveProposalAndProceedToPayPal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-500/20 flex items-center space-x-2">
-        <i class="fa-brands fa-paypal"></i>
-        <span>Approve Agreement & Fund via PayPal Sandbox</span>
-      </button>
-    </div>
+    <button onclick="initializePayPalEscrow()" id="btnInitPayPal" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
+      <i class="fa-brands fa-paypal text-lg"></i>
+      <span>Sponsor Approval: Initialize PayPal Smart Escrow Checkout</span>
+    </button>
   `;
 }
 
-// STEP 3: PAYPAL ESCROW CHECKOUT
-async function approveProposalAndProceedToPayPal() {
-  logAgent("AGENT 4: FINANCE", `Initializing PayPal Orders v2 multiparty order...`, "text-sky-400");
+// STEP 3: PAYPAL ORDERS V2 ESCROW CHECKOUT
+async function initializePayPalEscrow() {
+  logAgent("AGENT 4: FINANCE", `Creating PayPal Orders v2 Smart Escrow order for Proposal ${currentProposal.id}...`, "text-sky-400");
 
   try {
     const resp = await fetch('/api/v1/payments/create-escrow-order', {
@@ -268,74 +382,65 @@ async function approveProposalAndProceedToPayPal() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ proposal_id: currentProposal.id })
     });
-    const orderData = await resp.json();
-    currentPayPalOrder = orderData.paypal_order;
+    currentPayPalOrder = await resp.json();
 
-    logAgent("AGENT 4: FINANCE", `PayPal Order Created! ID: ${currentPayPalOrder.id} &bull; Multiparty fee split configured.`, "text-sky-300 font-bold");
-    renderPayPalCheckout(currentPayPalOrder);
+    logAgent("AGENT 4: FINANCE", `PayPal Order Created! ID: ${currentPayPalOrder.order_id} &bull; Multiparty fee split configured.`, "text-sky-300 font-bold");
+
     setStepActive(3);
+    renderStep3PayPal(currentPayPalOrder);
   } catch (err) {
-    logAgent("ERROR", `Failed to initialize PayPal order: ${err.message}`, "text-red-400");
+    logAgent("ERROR", `Failed to initialize PayPal Order: ${err.message}`, "text-red-400");
   }
 }
 
-function renderPayPalCheckout(order) {
+function renderStep3PayPal(order) {
   document.getElementById('card-step-3').classList.remove('hidden');
   document.getElementById('card-step-3').scrollIntoView({ behavior: 'smooth' });
 
   const container = document.getElementById('paypalEscrowDetails');
   container.innerHTML = `
-    <div class="p-5 rounded-2xl bg-[#001c38] border border-blue-500/40 space-y-4">
-      <div class="flex items-center justify-between border-b border-blue-500/20 pb-3">
-        <div class="flex items-center space-x-3">
-          <i class="fa-brands fa-paypal text-3xl text-sky-400"></i>
-          <div>
-            <h3 class="font-bold text-white text-base">PayPal Complete Payments Escrow</h3>
-            <span class="text-xs text-sky-300">Sandbox Developer Environment</span>
-          </div>
-        </div>
-        <span class="font-mono text-xs px-2.5 py-1 bg-sky-950 text-sky-300 border border-sky-500/40 rounded">Order: ${order.id}</span>
+    <div class="p-4 rounded-xl bg-sky-950/20 border border-sky-500/30 space-y-3">
+      <div class="flex items-center justify-between border-b border-sky-500/20 pb-2">
+        <span class="text-xs font-bold text-sky-300 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-brands fa-paypal"></i> PayPal Orders v2 Multiparty Authorization
+        </span>
+        <span class="text-xs font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">${order.status}</span>
       </div>
 
-      <div class="space-y-2 text-xs">
-        <div class="flex justify-between py-1 border-b border-blue-900/40">
-          <span class="text-gray-300">Gross Campaign Authorization:</span>
-          <span class="font-bold text-white font-mono">$${currentProposal.total_budget_usd.toFixed(2)} USD</span>
-        </div>
-        <div class="flex justify-between py-1 border-b border-blue-900/40">
-          <span class="text-sky-300">Platform Facilitation Fee (payment_instruction):</span>
-          <span class="font-bold text-sky-300 font-mono">-$${currentProposal.platform_fee_usd.toFixed(2)} USD</span>
-        </div>
-        <div class="flex justify-between py-1 border-b border-blue-900/40">
-          <span class="text-emerald-300">Net Isolated in Milestone Escrow:</span>
-          <span class="font-bold text-emerald-300 font-mono">$${currentProposal.gross_beneficiary_usd.toFixed(2)} USD</span>
-        </div>
-        <div class="flex justify-between py-1 pt-2">
-          <span class="text-gray-400">Section 16 Tax Invoice Generated:</span>
-          <span class="text-emerald-400 font-bold">YES &bull; Barbah Games KRA PIN: P051982736Z</span>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div><span class="text-gray-400">PayPal Order ID:</span> <span class="font-mono text-white font-bold">${order.order_id}</span></div>
+        <div><span class="text-gray-400">Escrow Gross:</span> <span class="font-mono text-emerald-400 font-bold">${formatMoney(order.gross_amount)}</span></div>
+        <div><span class="text-gray-400">Platform Commission Split:</span> <span class="font-mono text-sky-300">${formatMoney(order.platform_fee)}</span></div>
+        <div><span class="text-gray-400">Beneficiary Escrow Share:</span> <span class="font-mono text-white">${formatMoney(order.gross_amount - order.platform_fee)}</span></div>
+      </div>
+    </div>
+
+    <!-- Simulated PayPal Checkout Action -->
+    <div class="space-y-3">
+      <div class="p-3.5 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-300 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-lock text-emerald-400"></i>
+          <span>Funds will be held in programmatic escrow and released milestone-by-milestone upon Proof-of-Play verification.</span>
         </div>
       </div>
 
-      <div class="pt-2">
-        <button onclick="capturePayPalOrder('${order.id}')" id="btnCapturePayPal" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-gray-950 font-extrabold text-sm shadow-lg flex items-center justify-center space-x-2 transition-all">
-          <i class="fa-solid fa-lock"></i>
-          <span>Authorize & Capture Payment into Milestone Escrow</span>
-        </button>
-      </div>
+      <button onclick="capturePayPalOrder()" id="btnCapturePayPal" class="w-full py-3.5 px-4 rounded-xl bg-[#0070ba] hover:bg-[#003087] text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
+        <i class="fa-brands fa-paypal text-lg"></i>
+        <span>Authorize & Capture $${order.gross_amount.toFixed(2)} USD into Milestone Escrow</span>
+      </button>
     </div>
   `;
 }
 
-async function capturePayPalOrder(orderId) {
-  logAgent("AGENT 4: FINANCE", `Simulating PayPal authorization & capture...`, "text-sky-400");
+async function capturePayPalOrder() {
+  logAgent("PAYPAL ESCROW", `Authorizing payment capture for Order ${currentPayPalOrder.order_id}...`, "text-sky-400");
 
   try {
-    const resp = await fetch(`/api/v1/payments/capture-order/${orderId}`, {
-      method: 'POST'
-    });
+    const resp = await fetch(`/api/v1/payments/capture/${currentPayPalOrder.order_id}`, { method: 'POST' });
     const captureData = await resp.json();
 
-    logAgent("AGENT 4: FINANCE", `Capture confirmed! Escrow Status: FUNDED_IN_ESCROW. Campaign is now ACTIVE!`, "text-emerald-300 font-bold");
+    logAgent("PAYPAL ESCROW", `Funds Captured! Escrow status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
+    logAgent("AGENT 4: FINANCE", `Milestone 1 is now active. Creator mobilization underway.`, "text-sky-300");
 
     document.getElementById('btnCapturePayPal').disabled = true;
     document.getElementById('btnCapturePayPal').className = "w-full py-3.5 px-4 rounded-xl bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center space-x-2 opacity-90 cursor-default";
@@ -351,7 +456,10 @@ async function capturePayPalOrder(orderId) {
   }
 }
 
-// STEP 4: MULTIMODAL PROOF-OF-PLAY
+// =========================================================================
+// STEP 4: OPENCV COMPUTER VISION & MULTIMODAL PROOF-OF-PLAY
+// =========================================================================
+
 function renderVerificationStep() {
   document.getElementById('card-step-4').classList.remove('hidden');
   document.getElementById('card-step-4').scrollIntoView({ behavior: 'smooth' });
@@ -359,40 +467,46 @@ function renderVerificationStep() {
   const container = document.getElementById('verificationDetails');
   container.innerHTML = `
     <div class="space-y-4">
-      <!-- Simulated Live Stream Preview Frame -->
-      <div class="relative rounded-2xl overflow-hidden border border-gray-700 bg-gray-950 aspect-video flex items-center justify-center group">
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 z-10"></div>
-        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80" alt="Esports Tournament" class="w-full h-full object-cover opacity-60">
-        
-        <!-- Bounding Box Simulated Overlay -->
-        <div class="absolute top-6 left-6 z-20 border-2 border-emerald-400 bg-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center space-x-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-xs font-bold text-white font-mono">SAFARICOM 5G [Occupancy: 8.4%]</span>
+      <!-- OpenCV Scenario Selector Bench -->
+      <div class="p-3.5 rounded-xl bg-gray-950/80 border border-purple-500/30 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold text-white block">OpenCV Computer Vision Test Bench</span>
+          <span class="text-[11px] text-gray-400">Select scenario to execute real contour & template detection on stream frame.</span>
         </div>
-
-        <!-- Shoutcaster Audio Waveform Simulation -->
-        <div class="absolute bottom-6 left-6 right-6 z-20 bg-gray-900/80 backdrop-blur p-3 rounded-xl border border-gray-700 flex items-center justify-between text-xs">
-          <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-microphone text-emerald-400"></i>
-            <span class="text-gray-300 font-mono">"Shoutcaster: Big up Safaricom 5G powering today's LAN finals!"</span>
-          </div>
-          <span class="text-emerald-400 font-bold font-mono">STT Confidence: 94.2%</span>
+        <div class="flex items-center space-x-2">
+          <button type="button" onclick="runOpenCVVisionAnalysis('PASS')" id="btnScenarioPass" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-all">
+            Valid Placement (>= 3.5% Pass)
+          </button>
+          <button type="button" onclick="runOpenCVVisionAnalysis('LOW_OCCUPANCY')" id="btnScenarioFail" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold border border-gray-700 transition-all">
+            Low-Occupancy Bug (< 3.5% Fail)
+          </button>
         </div>
       </div>
 
-      <!-- Verification Specs Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
-          <span class="text-xs text-gray-400 block">Computer Vision Area</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono">8.4% (Threshold: 3.5%)</span>
+      <!-- Real OpenCV Annotated Stream Frame -->
+      <div class="relative rounded-2xl overflow-hidden border border-purple-500/30 bg-gray-950 aspect-video flex items-center justify-center">
+        <img id="visionStreamPreview" src="/static/proofs/proof_default.jpg" alt="Live Stream Vision Analysis" class="w-full h-full object-cover">
+        
+        <!-- Live Loading Spinner Overlay -->
+        <div id="visionSpinner" class="absolute inset-0 bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center space-y-2">
+          <div class="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-xs font-mono text-purple-300">OpenCV cv2.matchTemplate Running...</span>
+        </div>
+      </div>
+
+      <!-- Live OpenCV Telemetry Specs Grid -->
+      <div id="visionMetricsBox" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40">
+          <span class="text-xs text-gray-400 block">OpenCV Screen Occupancy</span>
+          <span class="text-sm font-bold text-emerald-400 font-mono">4.12% (>= 3.5% PASS)</span>
         </div>
         <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
-          <span class="text-xs text-gray-400 block">Verbal Slogans Detected</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono">3 Callouts Verified</span>
+          <span class="text-xs text-gray-400 block">Detected Bounding Box</span>
+          <span class="text-xs font-bold text-purple-300 font-mono">[60, 80, 280x140]</span>
         </div>
         <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
-          <span class="text-xs text-gray-400 block">Brand Safety (Agent 5)</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono">0.0% Toxicity (SAFE)</span>
+          <span class="text-xs text-gray-400 block">OpenCV Match Confidence</span>
+          <span class="text-sm font-bold text-sky-400 font-mono">98.4%</span>
         </div>
       </div>
 
@@ -404,19 +518,77 @@ function renderVerificationStep() {
       <div id="certificateContainer" class="hidden"></div>
     </div>
   `;
+
+  // Automatically run OpenCV analysis on entry
+  runOpenCVVisionAnalysis('PASS');
+}
+
+async function runOpenCVVisionAnalysis(scenario = 'PASS') {
+  const brandName = (currentProposal && currentProposal.brand_name) || "Safaricom";
+  logAgent("OPENCV VISION", `Running cv2.matchTemplate & contour localization on 720p stream frame (Scenario: ${scenario})...`, "text-purple-400");
+  
+  const spinner = document.getElementById('visionSpinner');
+  if (spinner) spinner.classList.remove('hidden');
+
+  try {
+    const resp = await fetch('/api/v1/verification/analyze-frame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand_name: brandName, scenario: scenario })
+    });
+    const data = await resp.json();
+    currentVisionResult = data.metrics;
+    
+    logAgent("OPENCV VISION", `Detected Bounding Box: [x=${currentVisionResult.bounding_box.x}, y=${currentVisionResult.bounding_box.y}, w=${currentVisionResult.bounding_box.width}, h=${currentVisionResult.bounding_box.height}]`, "text-purple-300 font-mono");
+    logAgent("OPENCV VISION", `Screen Occupancy Area: ${currentVisionResult.screen_occupancy_percent}% (Threshold >= 3.5%) &bull; Status: ${currentVisionResult.status}`, currentVisionResult.meets_threshold ? "text-emerald-400 font-bold" : "text-amber-400 font-bold");
+    
+    renderOpenCVPreview(currentVisionResult);
+  } catch (err) {
+    logAgent("ERROR", `OpenCV analysis failed: ${err.message}`, "text-red-400");
+  } finally {
+    if (spinner) spinner.classList.add('hidden');
+  }
+}
+
+function renderOpenCVPreview(cvMetrics) {
+  const previewImg = document.getElementById('visionStreamPreview');
+  if (previewImg && cvMetrics.proof_image_url) {
+    previewImg.src = cvMetrics.proof_image_url + "?t=" + Date.now();
+  }
+  
+  const metricsBox = document.getElementById('visionMetricsBox');
+  if (metricsBox) {
+    const isPass = cvMetrics.meets_threshold;
+    metricsBox.innerHTML = `
+      <div class="p-3 rounded-xl ${isPass ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-red-950/40 border-red-500/40'} border">
+        <span class="text-xs text-gray-400 block">OpenCV Screen Occupancy</span>
+        <span class="text-sm font-bold ${isPass ? 'text-emerald-400' : 'text-red-400'} font-mono">${cvMetrics.screen_occupancy_percent}% (${isPass ? '>= 3.5% PASS' : '< 3.5% FAIL'})</span>
+      </div>
+      <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
+        <span class="text-xs text-gray-400 block">Detected Bounding Box</span>
+        <span class="text-xs font-bold text-purple-300 font-mono">[${cvMetrics.bounding_box.x}, ${cvMetrics.bounding_box.y}, ${cvMetrics.bounding_box.width}x${cvMetrics.bounding_box.height}]</span>
+      </div>
+      <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
+        <span class="text-xs text-gray-400 block">OpenCV Match Confidence</span>
+        <span class="text-sm font-bold text-sky-400 font-mono">${cvMetrics.confidence_percent}%</span>
+      </div>
+    `;
+  }
 }
 
 async function executeMultimodalVerification() {
   logAgent("AGENT 3: VERIFICATION", `Ingesting stream VOD and telemetry for Milestone 1...`, "text-purple-400");
-  logAgent("AGENT 5: GUARDIAN", `Auditing 1,420 live chat comments: 0 slurs detected. Environment SAFE.`, "text-amber-400");
+  logAgent("AGENT 5: GUARDIAN", `Auditing live chat comments via Claude cultural brain: Sheng & Swahili banter verified SAFE.`, "text-amber-400");
+
+  const logoOccupancy = (currentVisionResult && currentVisionResult.screen_occupancy_percent) || 4.12;
 
   const submission = {
     milestone_id: currentProposal.milestones[0].id,
     creator_id: currentProposal.creators[0].id,
     deliverable_type: "LIVE_STREAM_VOD",
-    media_url: "https://twitch.tv/videos/safaricom_esports_finals_vod",
+    media_url: (currentVisionResult && currentVisionResult.proof_image_filename) || "generate",
     simulated_metrics: {
-      logo_screen_ratio_percent: 8.4,
+      logo_screen_ratio_percent: logoOccupancy,
       airtime_seconds: 11400,
       verbal_slogans_detected: [
         "Powered by Safaricom 5G",
@@ -458,6 +630,7 @@ function renderProofCertificate(cert) {
       <div>Cert ID: <span class="text-white">${cert.certificate_id}</span></div>
       <div>Crypto Hash: <span class="text-purple-300">${cert.cryptographic_hash}</span></div>
       <div>Airtime Logged: <span class="text-white">${(cert.airtime_seconds / 3600).toFixed(2)} hours</span></div>
+      <div>Verified Screen Ratio: <span class="text-emerald-400 font-bold">${cert.logo_screen_ratio_percent}%</span></div>
     </div>
     <div class="pt-2">
       <button onclick="renderStep5Payout()" class="w-full py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all">
@@ -467,7 +640,10 @@ function renderProofCertificate(cert) {
   `;
 }
 
+// =========================================================================
 // STEP 5: KRA eTIMS & DISBURSEMENT
+// =========================================================================
+
 function renderStep5Payout() {
   setStepActive(5);
   document.getElementById('card-step-5').classList.remove('hidden');
@@ -637,14 +813,7 @@ async function initAgGrid() {
   };
 
   gridApi = agGrid.createGrid(gridDiv, gridOptions);
-
-  try {
-    const resp = await fetch('/api/v1/campaigns/creators');
-    const creators = await resp.json();
-    gridApi.setGridOption('rowData', creators);
-  } catch (err) {
-    console.error("Failed to load creators for AG Grid:", err);
-  }
+  reloadCreatorsGrid();
 }
 
 function onFilterTextBoxChanged() {

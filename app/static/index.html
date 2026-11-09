@@ -75,7 +75,7 @@
         </div>
         <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/40 text-purple-300 text-xs font-medium">
           <i class="fa-solid fa-brain text-purple-400"></i>
-          <span>Agentic AI Swarm</span>
+          <span>Claude Sonnet 4.6 Swarm</span>
         </div>
       </div>
 
@@ -176,6 +176,41 @@
               <span class="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">Agent 1: Scout</span>
             </div>
 
+            <!-- REAL-TIME TALENT INGESTION RADAR -->
+            <div class="mb-5 p-3.5 rounded-xl bg-gray-950/80 border border-emerald-500/30">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span class="text-xs font-bold text-gray-200">Real-Time Talent Pipeline & Scouting Radar</span>
+                </div>
+                <div class="flex items-center space-x-2 text-[11px] font-mono">
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Barbah Gateway: LIVE</span>
+                  <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">Claude Sonnet 4.6: ACTIVE</span>
+                </div>
+              </div>
+              <p class="text-[11px] text-gray-400 mb-3 leading-relaxed">
+                Agent 1 streams live telemetry across 4 feeds: Barbah Games official registry, esports tournament brackets (Start.gg/Challonge), live stream channels (Twitch/YouTube), and physical LAN estate dens.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="triggerBarbahWebhook('PLAYER_REGISTERED')" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-600/50 text-[11px] text-emerald-300 font-semibold flex items-center space-x-1.5 transition-all">
+                  <i class="fa-solid fa-satellite-dish"></i>
+                  <span>Simulate Barbah Webhook (New Gamer)</span>
+                </button>
+                <button type="button" onclick="triggerBarbahWebhook('GAMING_HUB_ADDED')" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-600/50 text-[11px] text-emerald-300 font-semibold flex items-center space-x-1.5 transition-all">
+                  <i class="fa-solid fa-gamepad"></i>
+                  <span>Simulate Barbah Webhook (New Hub)</span>
+                </button>
+                <button type="button" onclick="triggerExternalScout()" class="px-2.5 py-1.5 rounded-lg bg-blue-950/50 hover:bg-blue-900/60 border border-blue-600/50 text-[11px] text-blue-300 font-semibold flex items-center space-x-1.5 transition-all">
+                  <i class="fa-solid fa-trophy"></i>
+                  <span>Scout Start.gg Bracket (Top 8)</span>
+                </button>
+                <button type="button" onclick="syncBarbahDatabase()" class="px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-[11px] text-gray-300 font-semibold flex items-center space-x-1.5 transition-all">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                  <span>Sync Barbah DB</span>
+                </button>
+              </div>
+            </div>
+
             <div class="space-y-4">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -267,7 +302,7 @@
                   <i class="fa-solid fa-video text-purple-400"></i>
                   <span>Multimodal Proof-of-Play Verification Engine</span>
                 </h2>
-                <p class="text-sm text-gray-400">Computer Vision (Logo Screen Ratio) + Whisper STT (Verbal Brand Callouts) + Brand Safety Audit.</p>
+                <p class="text-sm text-gray-400">Real OpenCV Computer Vision (Logo Screen Area >= 3.5%) + Whisper STT + Chat Safety Audit.</p>
               </div>
               <span class="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-semibold">Agent 3: Verifier</span>
             </div>
@@ -305,14 +340,14 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                 <span>Autonomous Agent Swarm</span>
               </span>
-              <span class="text-[10px] text-gray-500 font-mono">LangGraph StateEngine</span>
+              <span class="text-[10px] text-gray-500 font-mono">Cognitive Core</span>
             </div>
 
             <!-- Agent Swarm Status Indicators -->
             <div class="space-y-2 mb-4">
               <div id="agent-badge-1" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
                 <span class="font-semibold text-emerald-400"><i class="fa-solid fa-magnifying-glass mr-1.5"></i> Agent 1: Talent Scout</span>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">READY</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">CLAUDE READY</span>
               </div>
               <div id="agent-badge-2" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
                 <span class="font-semibold text-blue-400"><i class="fa-solid fa-pen-ruler mr-1.5"></i> Agent 2: Architect</span>
@@ -324,7 +359,7 @@
               </div>
               <div id="agent-badge-3" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
                 <span class="font-semibold text-purple-400"><i class="fa-solid fa-eye mr-1.5"></i> Agent 3: Proof-of-Play</span>
-                <span class="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">STANDBY</span>
+                <span class="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">OPENCV READY</span>
               </div>
               <div id="agent-badge-5" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
                 <span class="font-semibold text-amber-400"><i class="fa-solid fa-shield-halved mr-1.5"></i> Agent 5: Brand Guardian</span>

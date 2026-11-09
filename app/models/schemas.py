@@ -123,6 +123,8 @@ class ProofOfPlayCertificate(BaseModel):
     overall_confidence_percent: float
     verification_decision: str  # PASSED, REQUIRES_REVISION, REJECTED
     cryptographic_hash: str
+    proof_image_url: Optional[str] = None
+    bounding_box: Optional[Dict[str, int]] = None
 
 class eTIMSInvoice(BaseModel):
     cu_invoice_number: str
