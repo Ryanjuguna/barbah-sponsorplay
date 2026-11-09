@@ -4,13 +4,13 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
 import os
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Load local environment variables from .env file
 load_dotenv()
 
-class Settings(BaseSettings):
+class Settings(BaseModel):
     APP_NAME: str = "Barbah SponsorPlay"
     APP_VERSION: str = "2.0.0-hackathon-final"
     ENV: str = os.getenv("ENV", "development")
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     PAYPAL_MODE: str = os.getenv("PAYPAL_MODE", "sandbox")  # sandbox or live
     PAYPAL_CLIENT_ID: str = os.getenv("PAYPAL_CLIENT_ID", "")
     PAYPAL_CLIENT_SECRET: str = os.getenv("PAYPAL_CLIENT_SECRET", "")
-    PAYPAL_BASE_URL: str = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
+    PAYPAL_BASE_URL: str = "https://api-m.sandbox.paypal.com" if os.getenv("PAYPAL_MODE", "sandbox") == "sandbox" else "https://api-m.paypal.com"
     PAYPAL_PARTNER_ATTRIBUTION_ID: str = "BarbahGames_SponsorPlay_Marketplace"
     
     # Anthropic Claude Configuration (Cognitive Brain for Multi-Agent Swarm)
