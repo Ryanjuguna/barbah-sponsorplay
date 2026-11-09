@@ -1,0 +1,86 @@
+/* Barbah SponsorPlay - Global Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --primary: #0070ba;
+  --primary-hover: #005ea6;
+  --accent: #00cf8d;
+  --dark-bg: #0b0f19;
+  --card-bg: #111827;
+  --border-color: #1f2937;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--dark-bg);
+  color: #f3f4f6;
+  overflow-x: hidden;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.glass-panel {
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #00cf8d 0%, #0070ba 50%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge-etims {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: white;
+}
+
+.badge-paypal {
+  background: linear-gradient(135deg, #0070ba 0%, #003087 100%);
+  color: white;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
+/* AG Grid Dark Overrides */
+.ag-theme-alpine-dark {
+  --ag-background-color: #111827;
+  --ag-header-background-color: #1a2234;
+  --ag-row-hover-color: #1f293d;
+  --ag-border-color: #242f45;
+  --ag-font-family: 'Plus Jakarta Sans', sans-serif;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Agent Pulse Animation */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 207, 141, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 207, 141, 0.5);
+  }
+}
+
+.agent-active {
+  animation: pulseGlow 2s infinite ease-in-out;
+}

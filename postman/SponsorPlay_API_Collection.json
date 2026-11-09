@@ -1,0 +1,253 @@
+{
+  "info": {
+    "name": "Barbah SponsorPlay API Collection - PayPal AI Hackathon",
+    "_postman_id": "sp-paypal-hackathon-v1",
+    "description": "Comprehensive API collection for Barbah SponsorPlay - Multi-Agent AI Sponsorship Marketplace with PayPal Orders v2 Escrow and KRA eTIMS Tax Compliance.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health & Configuration",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Talent Discovery & Matching",
+      "item": [
+        {
+          "name": "List All Kenyan Esports Creators",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/campaigns/creators",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "campaigns", "creators"]
+            }
+          }
+        },
+        {
+          "name": "Submit Brand Brief (Agent 1: Scout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand_name\": \"Safaricom 5G Gaming\",\n  \"corporate_pin\": \"P051234567A\",\n  \"brief\": \"Reaching 10,000 university gamers and community gaming dens in Nairobi and Eldoret.\",\n  \"target_audience\": \"16-25 urban youth\",\n  \"target_reach\": 10000,\n  \"budget_usd\": 769.23,\n  \"preferred_locations\": [\"Nairobi\", \"Eldoret\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/campaigns/brief",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "campaigns", "brief"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Campaign Architect & Contracts",
+      "item": [
+        {
+          "name": "Generate Proposal Agreement (Agent 2: Architect)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campaign_id\": \"CAMP-001\",\n  \"syndicate_id\": \"SYN-SAMPLE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/campaigns/proposal",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "campaigns", "proposal"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. PayPal Escrow & Multiparty Orders",
+      "item": [
+        {
+          "name": "Create PayPal Multiparty Escrow Order (Agent 4: Finance)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proposal_id\": \"{{proposal_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/create-escrow-order",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "create-escrow-order"]
+            }
+          }
+        },
+        {
+          "name": "Capture PayPal Order into Escrow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/capture-order/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "capture-order", "{{order_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Multimodal Proof-of-Play & Deliverable Verification",
+      "item": [
+        {
+          "name": "Verify Stream Deliverable (Agent 3: Verifier)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"milestone_id\": \"MLS-01\",\n  \"creator_id\": \"creator-001\",\n  \"deliverable_type\": \"LIVE_STREAM_VOD\",\n  \"media_url\": \"https://twitch.tv/videos/safaricom_lan_finals\",\n  \"simulated_metrics\": {\n    \"logo_screen_ratio_percent\": 8.4,\n    \"airtime_seconds\": 11400,\n    \"verbal_slogans_detected\": [\"Powered by Safaricom 5G\"],\n    \"audio_confidence\": 0.94,\n    \"brand_safety_status\": \"SAFE\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/verification/submit-deliverable",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "verification", "submit-deliverable"]
+            }
+          }
+        },
+        {
+          "name": "Audit Live Chat Stream (Agent 5: Guardian)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    \"Wueh Brian The Beast anapiga watu vibaya sana!\",\n    \"Safaricom 5G is super fast today\",\n    \"GG guys great match\"\n  ],\n  \"competitors\": [\"Airtel\", \"Telkom\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/verification/chat-audit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "verification", "chat-audit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. KRA eTIMS Tax Invoicing & Automated Payout",
+      "item": [
+        {
+          "name": "Disburse Milestone & Issue KRA eTIMS Invoice (Agent 4)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proposal_id\": \"{{proposal_id}}\",\n  \"milestone_id\": \"{{milestone_id}}\",\n  \"certificate_id\": \"{{certificate_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/disburse-milestone",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "disburse-milestone"]
+            }
+          }
+        },
+        {
+          "name": "List All KRA eTIMS Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/invoices",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "invoices"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. MetaTwin ESG & Social Impact",
+      "item": [
+        {
+          "name": "Get MetaTwin ESG Impact Dossier (Agent 6)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/impact/metatwin/{{proposal_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "impact", "metatwin", "{{proposal_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "proposal_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    },
+    {
+      "key": "milestone_id",
+      "value": ""
+    },
+    {
+      "key": "certificate_id",
+      "value": ""
+    }
+  ]
+}

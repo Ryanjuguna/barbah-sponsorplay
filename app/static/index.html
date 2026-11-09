@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barbah SponsorPlay | AI Esports Sponsorship & PayPal Escrow Platform</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#00cf8d',
+              600: '#059669',
+            },
+            paypal: {
+              DEFAULT: '#0070ba',
+              dark: '#003087',
+              light: '#0079C1'
+            },
+            etims: {
+              DEFAULT: '#dc2626',
+              dark: '#991b1b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- AG Grid Enterprise/Community CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-theme-alpine.css">
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/dist/ag-grid-community.min.js"></script>
+
+  <!-- FontAwesome & QR Code CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-[#0b0f19] text-gray-100 min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="border-b border-gray-800 bg-[#111827]/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i class="fa-solid fa-gamepad text-white text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-xl tracking-tight">BARBAH <span class="gradient-text">SPONSORPLAY</span></span>
+            <span class="text-xs bg-emerald-500/20 text-emerald-400 font-semibold px-2 py-0.5 rounded border border-emerald-500/30">Kenya</span>
+          </div>
+          <p class="text-xs text-gray-400">PayPal AI Hackathon &bull; Challenge 02: Sponsor Play</p>
+        </div>
+      </div>
+
+      <!-- Center Badges -->
+      <div class="hidden md:flex items-center space-x-3">
+        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-500/40 text-blue-300 text-xs font-medium">
+          <i class="fa-brands fa-paypal text-blue-400"></i>
+          <span>PayPal Orders v2 Escrow</span>
+        </div>
+        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-red-900/30 border border-red-500/40 text-red-300 text-xs font-medium">
+          <i class="fa-solid fa-file-invoice text-red-400"></i>
+          <span>KRA eTIMS Section 16 Valid</span>
+        </div>
+        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/40 text-purple-300 text-xs font-medium">
+          <i class="fa-solid fa-brain text-purple-400"></i>
+          <span>Agentic AI Swarm</span>
+        </div>
+      </div>
+
+      <!-- Currency Switcher & Actions -->
+      <div class="flex items-center space-x-3">
+        <div class="bg-gray-800 p-1 rounded-lg flex items-center text-xs font-semibold">
+          <button id="btnCurrencyUSD" class="px-2.5 py-1 rounded bg-blue-600 text-white shadow" onclick="setCurrency('USD')">USD ($)</button>
+          <button id="btnCurrencyKES" class="px-2.5 py-1 rounded text-gray-400 hover:text-white" onclick="setCurrency('KES')">KES (Sh)</button>
+        </div>
+        <a href="/docs" target="_blank" class="text-xs text-gray-400 hover:text-white flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-gray-700 bg-gray-800/60">
+          <i class="fa-solid fa-code"></i>
+          <span>API Docs</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <div class="border-b border-gray-800 bg-[#0f1523]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8">
+      <button onclick="switchTab('demo')" id="tab-demo" class="py-3 px-1 border-b-2 border-emerald-500 text-emerald-400 font-semibold text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Live Hackathon MVP Demo</span>
+      </button>
+      <button onclick="switchTab('explorer')" id="tab-explorer" class="py-3 px-1 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-users"></i>
+        <span>AG Grid Creator Explorer</span>
+      </button>
+      <button onclick="switchTab('invoices')" id="tab-invoices" class="py-3 px-1 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-receipt"></i>
+        <span>eTIMS Tax Receipts</span>
+      </button>
+      <button onclick="switchTab('impact')" id="tab-impact" class="py-3 px-1 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-earth-africa"></i>
+        <span>Barbah MetaTwin ESG</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: LIVE HACKATHON MVP DEMO WIZARD      -->
+    <!-- ========================================== -->
+    <div id="view-demo" class="space-y-6">
+      
+      <!-- Stepper Indicator -->
+      <div class="grid grid-cols-5 gap-2 sm:gap-4">
+        <div id="step-pill-1" class="p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/20 text-center transition-all">
+          <span class="text-xs text-emerald-400 font-semibold uppercase tracking-wider block">Step 1</span>
+          <span class="text-sm font-bold text-gray-200 flex items-center justify-center gap-1 mt-1">
+            <i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i> AI Scout
+          </span>
+        </div>
+        <div id="step-pill-2" class="p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all">
+          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wider block">Step 2</span>
+          <span class="text-sm font-bold text-gray-300 flex items-center justify-center gap-1 mt-1">
+            <i class="fa-solid fa-file-contract text-blue-400"></i> Contract
+          </span>
+        </div>
+        <div id="step-pill-3" class="p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all">
+          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wider block">Step 3</span>
+          <span class="text-sm font-bold text-gray-300 flex items-center justify-center gap-1 mt-1">
+            <i class="fa-brands fa-paypal text-sky-400"></i> PayPal Escrow
+          </span>
+        </div>
+        <div id="step-pill-4" class="p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all">
+          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wider block">Step 4</span>
+          <span class="text-sm font-bold text-gray-300 flex items-center justify-center gap-1 mt-1">
+            <i class="fa-solid fa-video text-purple-400"></i> Proof-of-Play
+          </span>
+        </div>
+        <div id="step-pill-5" class="p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all">
+          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wider block">Step 5</span>
+          <span class="text-sm font-bold text-gray-300 flex items-center justify-center gap-1 mt-1">
+            <i class="fa-solid fa-qrcode text-red-400"></i> eTIMS & Payout
+          </span>
+        </div>
+      </div>
+
+      <!-- MAIN WIZARD CARDS -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left 2 Cols: Dynamic Step Card -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- STEP 1: CAMPAIGN BRIEF & AI SCOUT -->
+          <div id="card-step-1" class="glass-panel p-6 rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-bullseye text-emerald-400"></i>
+                  <span>Brand Sponsorship Brief (Challenge Prompt Scenario)</span>
+                </h2>
+                <p class="text-sm text-gray-400">A consumer brand wants to reach 10,000 young gamers in Kenya via collegiate tournaments & streams.</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">Agent 1: Scout</span>
+            </div>
+
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 mb-1">Corporate Brand Name</label>
+                  <input type="text" id="inputBrandName" value="Safaricom 5G Home Gaming" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 mb-1">Brand Corporate KRA PIN (for Section 16)</label>
+                  <input type="text" id="inputCorporatePIN" value="P051234567A" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 mb-1">Natural Language Campaign Brief</label>
+                <textarea id="inputBrief" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">We want to promote our low-latency 5G Home Internet to university gamers and grassroots esports communities across Nairobi and Eldoret. Need tournament broadcast integration, logo overlay, shoutcaster verbal callouts, and campus derby activations. Target: 10,000 youth reached.</textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 mb-1">Target Reach</label>
+                  <input type="number" id="inputTargetReach" value="10000" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 mb-1">Total Budget (USD)</label>
+                  <input type="number" id="inputBudgetUSD" value="769.23" step="0.01" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white font-mono">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 mb-1">Budget Equivalent (KES @ 130)</label>
+                  <input type="text" id="inputBudgetKES" value="KES 100,000.00" disabled class="w-full bg-gray-900/60 border border-gray-800 rounded-lg px-3 py-2 text-sm text-emerald-400 font-mono font-bold">
+                </div>
+              </div>
+
+              <button onclick="runStep1Scout()" id="btnRunScout" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-gray-950 font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 transition-all">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>Agent 1: Deconstruct Brief & Assemble Syndicates</span>
+              </button>
+            </div>
+
+            <!-- Recommendations Container -->
+            <div id="syndicateResults" class="mt-6 space-y-4 hidden">
+              <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider">AI Recommended Sponsorship Syndicates</h3>
+              <div id="syndicateCards" class="grid grid-cols-1 gap-4">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: CAMPAIGN ARCHITECT & CONTRACT -->
+          <div id="card-step-2" class="glass-panel p-6 rounded-2xl hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-file-contract text-blue-400"></i>
+                  <span>Milestone Agreement & Financial Schedule</span>
+                </h2>
+                <p class="text-sm text-gray-400">Programmatic milestone decomposition, dynamic pricing, and Section 16 tax protection.</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold">Agent 2: Architect</span>
+            </div>
+
+            <div id="proposalDetails" class="space-y-6">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- STEP 3: PAYPAL ESCROW CHECKOUT -->
+          <div id="card-step-3" class="glass-panel p-6 rounded-2xl hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-brands fa-paypal text-sky-400"></i>
+                  <span>PayPal Developer Platform: Orders v2 Smart Escrow</span>
+                </h2>
+                <p class="text-sm text-gray-400">Multiparty checkout with automated platform commission split (`payment_instruction`).</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-semibold">Agent 4: Finance</span>
+            </div>
+
+            <div id="paypalEscrowDetails" class="space-y-6">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- STEP 4: MULTIMODAL PROOF-OF-PLAY VERIFICATION -->
+          <div id="card-step-4" class="glass-panel p-6 rounded-2xl hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-video text-purple-400"></i>
+                  <span>Multimodal Proof-of-Play Verification Engine</span>
+                </h2>
+                <p class="text-sm text-gray-400">Computer Vision (Logo Screen Ratio) + Whisper STT (Verbal Brand Callouts) + Brand Safety Audit.</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-semibold">Agent 3: Verifier</span>
+            </div>
+
+            <div id="verificationDetails" class="space-y-6">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- STEP 5: KRA eTIMS INVOICING & PAYOUT RELEASE -->
+          <div id="card-step-5" class="glass-panel p-6 rounded-2xl hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-receipt text-red-400"></i>
+                  <span>KRA eTIMS Tax Fiscalization & Payout Execution</span>
+                </h2>
+                <p class="text-sm text-gray-400">Section 16 electronic tax receipting via BII + PayPal Payouts to beneficiary M-Pesa wallet.</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">Agent 4: Tax Engine</span>
+            </div>
+
+            <div id="etimsPayoutDetails" class="space-y-6">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right 1 Col: Autonomous Agent Swarm Console -->
+        <div class="space-y-6">
+          <div class="glass-panel p-5 rounded-2xl">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Autonomous Agent Swarm</span>
+              </span>
+              <span class="text-[10px] text-gray-500 font-mono">LangGraph StateEngine</span>
+            </div>
+
+            <!-- Agent Swarm Status Indicators -->
+            <div class="space-y-2 mb-4">
+              <div id="agent-badge-1" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
+                <span class="font-semibold text-emerald-400"><i class="fa-solid fa-magnifying-glass mr-1.5"></i> Agent 1: Talent Scout</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">READY</span>
+              </div>
+              <div id="agent-badge-2" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
+                <span class="font-semibold text-blue-400"><i class="fa-solid fa-pen-ruler mr-1.5"></i> Agent 2: Architect</span>
+                <span class="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">STANDBY</span>
+              </div>
+              <div id="agent-badge-4" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
+                <span class="font-semibold text-sky-400"><i class="fa-brands fa-paypal mr-1.5"></i> Agent 4: Escrow & Tax</span>
+                <span class="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">STANDBY</span>
+              </div>
+              <div id="agent-badge-3" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
+                <span class="font-semibold text-purple-400"><i class="fa-solid fa-eye mr-1.5"></i> Agent 3: Proof-of-Play</span>
+                <span class="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">STANDBY</span>
+              </div>
+              <div id="agent-badge-5" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
+                <span class="font-semibold text-amber-400"><i class="fa-solid fa-shield-halved mr-1.5"></i> Agent 5: Brand Guardian</span>
+                <span class="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">STANDBY</span>
+              </div>
+              <div id="agent-badge-6" class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800 text-xs">
+                <span class="font-semibold text-rose-400"><i class="fa-solid fa-heart-pulse mr-1.5"></i> Agent 6: MetaTwin ESG</span>
+                <span class="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">STANDBY</span>
+              </div>
+            </div>
+
+            <!-- Terminal Reasoning Stream -->
+            <div class="border-t border-gray-800 pt-3">
+              <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Live Agent Reasoning Stream</span>
+              <div id="agentTerminal" class="h-64 bg-black/70 rounded-xl p-3 font-mono text-xs overflow-y-auto space-y-2 text-emerald-400 border border-gray-800/80">
+                <div class="text-gray-500">[SYSTEM] Barbah SponsorPlay initialized. Ready for brand brief.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: AG GRID CREATOR EXPLORER            -->
+    <!-- ========================================== -->
+    <div id="view-explorer" class="space-y-4 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">Kenyan Gaming Talent & Community Directory</h2>
+          <p class="text-sm text-gray-400">Discover verified pro-gamers, university esports clubs, and grassroots console gaming dens.</p>
+        </div>
+        <div class="flex space-x-2">
+          <input type="text" id="agGridQuickFilter" placeholder="Search creators, games, locations..." class="bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 w-64" oninput="onFilterTextBoxChanged()">
+        </div>
+      </div>
+      <div id="myGrid" class="ag-theme-alpine-dark w-full h-[550px]"></div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: eTIMS TAX RECEIPTS VIEWER           -->
+    <!-- ========================================== -->
+    <div id="view-invoices" class="space-y-4 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">KRA eTIMS Tax Compliance Vault</h2>
+          <p class="text-sm text-gray-400">Section 16(1)(c) verified electronic tax invoices and Buyer-Initiated Invoicing (BII) receipts.</p>
+        </div>
+      </div>
+      <div id="invoicesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: BARBAH METATWIN ESG IMPACT          -->
+    <!-- ========================================== -->
+    <div id="view-impact" class="space-y-6 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">Barbah MetaTwin ESG Social Impact Assurance</h2>
+          <p class="text-sm text-gray-400">Translating gaming activity into ISO/GRI-aligned youth development indicators.</p>
+        </div>
+      </div>
+      <div id="impactDossier" class="space-y-6">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-800 bg-[#0d121f] py-4 text-center text-xs text-gray-500">
+    <p>Barbah SponsorPlay &bull; Barbah PlayEconomy Ecosystem (Coach2Earn, SponsorPlay, ArenaPay, Play2Pro) &bull; Built for PayPal AI Hackathon</p>
+  </footer>
+
+  <!-- App Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

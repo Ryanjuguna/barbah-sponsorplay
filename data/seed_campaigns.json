@@ -1,0 +1,28 @@
+[
+  {
+    "id": "camp-001",
+    "brand_name": "Safaricom 5G Gaming",
+    "corporate_pin": "P051234567A",
+    "brief": "We want to reach 10,000 young gamers in Kenya to promote our low-latency 5G Home Internet and MobiPlay gaming packages. Looking for a mix of university esports teams, community gaming dens, and high-energy streamers across Nairobi and Eldoret.",
+    "target_audience": "16-25 urban youth, university students, and grassroots mobile/console gamers",
+    "target_reach": 10000,
+    "budget_usd": 769.23,
+    "budget_kes": 100000.0,
+    "preferred_locations": ["Nairobi", "Eldoret"],
+    "required_activities": ["Live stream logo overlay", "Verbal shoutcaster callout", "Campus LAN tournament banner", "Highlight clips"],
+    "created_at": "2026-11-09T10:00:00Z"
+  },
+  {
+    "id": "camp-002",
+    "brand_name": "Monster Energy East Africa",
+    "corporate_pin": "P052847591B",
+    "brief": "Energizing grassroots competitive fighting game tournaments (Tekken 8) and mobile COD tournaments with high-intensity brand activations, campus shoutouts, and creator-led community derbies.",
+    "target_audience": "18-28 competitive esports athletes and fighting game fans",
+    "target_reach": 15000,
+    "budget_usd": 1200.0,
+    "budget_kes": 156000.0,
+    "preferred_locations": ["Nairobi"],
+    "required_activities": ["Tournament title sponsorship", "Stream overlay 10%+ screen presence", "Branded apparel display"],
+    "created_at": "2026-11-09T14:30:00Z"
+  }
+]
