@@ -40,7 +40,7 @@ class Settings(BaseModel):
     BARBAH_PARTNER_KEY: str = os.getenv("BARBAH_PARTNER_KEY", "barbah_partner_sponsorplay_live")
     
     # KRA eTIMS Configuration
-    ETIMS_BASE_URL: str = os.getenv("ETIMS_BASE_URL", "https://etims-sbx.kra.go.ke/api/v1")
+    ETIMS_BASE_URL: str = os.getenv("ETIMS_BASE_URL", "https://mock-etims.sponsorplay.local/api/v1")
     ETIMS_DEVICE_SERIAL: str = "VSCU-KENYA-BARBAH-001"
     BARBAH_KRA_PIN: str = "P051982736Z"
     BARBAH_BUSINESS_NAME: str = "Barbah Games Limited"
