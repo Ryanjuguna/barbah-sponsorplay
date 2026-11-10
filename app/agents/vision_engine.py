@@ -113,7 +113,8 @@ class ComputerVisionEngine:
         if isinstance(frame_input, str):
             if not os.path.exists(frame_input):
                 # Auto-generate a synthetic frame if path doesn't exist
-                frame_input = self.generate_synthetic_esports_frame(brand_name, "PASS")
+                cand = os.path.join(PROOFS_DIR, frame_input) if os.path.exists(os.path.join(PROOFS_DIR, frame_input)) else None
+                frame_input = cand if cand else self.generate_synthetic_esports_frame(brand_name, "PASS")
             frame = cv2.imread(frame_input)
         elif isinstance(frame_input, np.ndarray):
             frame = frame_input.copy()

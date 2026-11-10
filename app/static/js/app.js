@@ -371,11 +371,10 @@ async function runStep1Deconstruct() {
   const budgetUSD = parseFloat(document.getElementById('inputBudgetUSD').value) || 769.23;
   const prefRadio = document.querySelector('input[name="strategyPref"]:checked');
   const strategyPref = prefRadio ? prefRadio.value : "AUTO";
-  const beneficiaryEmail = document.getElementById('inputBeneficiaryEmail')?.value || "creator@barbahgames.com";
 
   logAgent("AGENT 1: SCOUT", `Deconstructing brand brief for ${brandName}...`, "text-emerald-400");
   logAgent("CLAUDE BRAIN", `Cognitive analysis: evaluating reach target (${reach.toLocaleString()}) vs budget ($${budgetUSD.toFixed(2)})...`, "text-purple-400");
-  logAgent("AGENT 1: SCOUT", `Strategy preference: ${strategyPref} | Beneficiary Email: ${beneficiaryEmail}`, "text-gray-400");
+  logAgent("AGENT 1: SCOUT", `Strategy preference: ${strategyPref} | AI talent matching engaged`, "text-gray-400");
 
   const campaignId = "CAMP-" + Date.now();
   const payload = {
@@ -634,9 +633,8 @@ function renderSoloCards(soloMatches) {
 
 // STEP 2: SELECT SYNDICATE & RUN ARCHITECT
 async function selectSyndicate(syndicateId) {
-  const beneficiaryEmail = document.getElementById('inputBeneficiaryEmail')?.value || "creator@barbahgames.com";
   logAgent("AGENT 2: ARCHITECT", `Decomposing syndicate ${syndicateId} into milestone agreement...`, "text-blue-400");
-  logAgent("EMAIL SERVICE", `Queuing automated proposal notification to: ${beneficiaryEmail}...`, "text-sky-400");
+  logAgent("EMAIL SERVICE", `Resolving verified talent registry contacts for syndicate creators...`, "text-sky-400");
 
   try {
     const resp = await fetch('/api/v1/campaigns/proposal', {
@@ -644,8 +642,7 @@ async function selectSyndicate(syndicateId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         campaign_id: currentCampaign ? currentCampaign.id : null,
-        syndicate_id: syndicateId,
-        beneficiary_email: beneficiaryEmail
+        syndicate_id: syndicateId
       })
     });
     currentProposal = await resp.json();
@@ -664,10 +661,9 @@ async function selectSyndicate(syndicateId) {
 async function sponsorSoloCreator(creatorId) {
   const brandName = document.getElementById('inputBrandName')?.value || "Safaricom 5G Home Gaming";
   const corporatePIN = document.getElementById('inputCorporatePIN')?.value || "P051234567A";
-  const beneficiaryEmail = document.getElementById('inputBeneficiaryEmail')?.value || "creator@barbahgames.com";
 
   logAgent("AGENT 2: ARCHITECT", `Structuring direct solo creator milestone contract for Creator ID: ${creatorId}...`, "text-blue-400");
-  logAgent("EMAIL SERVICE", `Dispatching proposal email to: ${beneficiaryEmail}...`, "text-sky-400");
+  logAgent("EMAIL SERVICE", `Resolving verified creator registry contact for Creator ID: ${creatorId}...`, "text-sky-400");
   
   try {
     const resp = await fetch('/api/v1/campaigns/proposal', {
@@ -677,8 +673,7 @@ async function sponsorSoloCreator(creatorId) {
         campaign_id: currentCampaign ? currentCampaign.id : null,
         creator_id: creatorId,
         brand_name: brandName,
-        corporate_pin: corporatePIN,
-        beneficiary_email: beneficiaryEmail
+        corporate_pin: corporatePIN
       })
     });
     

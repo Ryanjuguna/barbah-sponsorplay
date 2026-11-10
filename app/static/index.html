@@ -253,38 +253,33 @@
                 </div>
               </div>
 
-              <!-- STRATEGY PREFERENCE & BENEFICIARY NOTIFICATION EMAIL -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 border-t border-gray-800/80">
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 mb-1.5">Strategy Preference</label>
-                  <div class="grid grid-cols-3 gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-800 text-xs text-center font-medium">
+              <!-- STRATEGY PREFERENCE -->
+              <div class="pt-2 border-t border-gray-800/80">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-300">Scouting Strategy Preference</label>
+                    <p class="text-[11px] text-gray-500">Allow Agent 1 to evaluate whether a Syndicate bundle or a Solo creator delivers higher reach efficiency.</p>
+                  </div>
+                  <div class="grid grid-cols-3 gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-800 text-xs text-center font-medium w-full sm:w-auto">
                     <label class="cursor-pointer">
                       <input type="radio" name="strategyPref" value="AUTO" checked class="peer sr-only">
-                      <div class="py-1.5 px-2 rounded-md text-gray-400 peer-checked:bg-emerald-600 peer-checked:text-white transition-all font-semibold">
+                      <div class="py-1.5 px-3 rounded-md text-gray-400 peer-checked:bg-emerald-600 peer-checked:text-white transition-all font-semibold">
                         Auto (AI Picks)
                       </div>
                     </label>
                     <label class="cursor-pointer">
                       <input type="radio" name="strategyPref" value="SYNDICATE" class="peer sr-only">
-                      <div class="py-1.5 px-2 rounded-md text-gray-400 peer-checked:bg-emerald-600 peer-checked:text-white transition-all font-semibold">
+                      <div class="py-1.5 px-3 rounded-md text-gray-400 peer-checked:bg-emerald-600 peer-checked:text-white transition-all font-semibold">
                         Syndicate
                       </div>
                     </label>
                     <label class="cursor-pointer">
                       <input type="radio" name="strategyPref" value="SOLO" class="peer sr-only">
-                      <div class="py-1.5 px-2 rounded-md text-gray-400 peer-checked:bg-sky-600 peer-checked:text-white transition-all font-semibold">
+                      <div class="py-1.5 px-3 rounded-md text-gray-400 peer-checked:bg-sky-600 peer-checked:text-white transition-all font-semibold">
                         Solo Creator
                       </div>
                     </label>
                   </div>
-                </div>
-
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 mb-1">
-                    <i class="fa-solid fa-paper-plane text-sky-400"></i> Beneficiary Proposal Notification Email(s)
-                  </label>
-                  <input type="text" id="inputBeneficiaryEmail" value="creator@barbahgames.com" placeholder="e.g. your-email@gmail.com, team@..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
-                  <p class="text-[10px] text-gray-500 mt-1">Dispatches official proposal email to your inbox when agreement is drafted.</p>
                 </div>
               </div>
 
