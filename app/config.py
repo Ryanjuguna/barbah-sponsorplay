@@ -15,6 +15,8 @@ class Settings(BaseModel):
     APP_VERSION: str = "2.0.0-hackathon-final"
     ENV: str = os.getenv("ENV", "development")
     DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
+    HOST: str = os.getenv("HOST", "127.0.0.1")
+    PORT: int = int(os.getenv("PORT", "8000"))
     
     # Financial Configuration
     USD_TO_KES_RATE: float = float(os.getenv("USD_TO_KES_RATE", "130.0"))
