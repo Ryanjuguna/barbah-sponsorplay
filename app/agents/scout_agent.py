@@ -5,8 +5,11 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
 import uuid
-from typing import List, Dict, Any
-from app.models.schemas import CampaignBrief, CreatorProfile, SyndicateRecommendation
+from typing import List, Dict, Any, Optional
+from app.models.schemas import (
+    CampaignBrief, CreatorProfile, SyndicateRecommendation,
+    BriefDeconstructionResult, SoloCreatorMatch, AIStrategicAnalysis
+)
 from app.models.database import db
 from app.config import settings
 from app.agents.claude_brain import claude_brain
@@ -14,7 +17,7 @@ from app.agents.claude_brain import claude_brain
 class ScoutAgent:
     def __init__(self):
         self.name = "Talent Discovery & Micro-Syndicate Scout Agent"
-        self.version = "2.0.0-claude-powered"
+        self.version = "2.1.0-dual-pathway-intelligence"
 
     def analyze_brief_and_match(self, brief: CampaignBrief) -> List[SyndicateRecommendation]:
         """
@@ -128,5 +131,141 @@ class ScoutAgent:
         recommendations.append(rec_2)
 
         return recommendations
+
+    def deconstruct_brief_and_match(self, brief: CampaignBrief) -> BriefDeconstructionResult:
+        """
+        Comprehensive Agent 1 Entrypoint:
+        1. Deconstructs the brand's natural language brief.
+        2. Generates top Syndicate Bundles (multi-creator).
+        3. Identifies top matching Solo Creators (individual ambassadors).
+        4. Synthesizes an AI Strategic Recommendation comparing reach, synergy, and suitability.
+        """
+        if not brief.id:
+            brief.id = f"CAMP-{uuid.uuid4().hex[:6].upper()}"
+        db.save_campaign(brief)
+
+        syndicates = self.analyze_brief_and_match(brief)
+        all_creators = db.get_all_creators()
+        brief_lower = (brief.brief + " " + brief.brand_name + " " + brief.target_audience).lower()
+
+        # Check for explicit solo preference in brief text or settings
+        has_solo_intent = (
+            brief.strategy_preference == "SOLO" or
+            any(w in brief_lower for w in ["solo", "single creator", "single streamer", "one gamer", "individual creator", "just one"])
+        )
+
+        # Rank creators for solo match
+        scored_creators = []
+        for c in all_creators:
+            score = float(c.brand_safety_score)
+            match_reasons = []
+
+            # Check game alignment
+            games = [g.strip().lower() for g in c.primary_game.replace("/", ",").split(",")]
+            for g in games:
+                if g in brief_lower:
+                    score += 5.0
+                    match_reasons.append(f"Primary Game match: {c.primary_game}")
+                    break
+
+            # Check location alignment
+            loc_clean = c.location.lower()
+            for pref_loc in brief.preferred_locations:
+                if pref_loc.lower() in loc_clean or pref_loc.lower() in brief_lower:
+                    score += 3.0
+                    match_reasons.append(f"Geographic focus: {c.location}")
+                    break
+
+            # Budget viability check
+            if c.base_rate_usd <= brief.budget_usd:
+                score += 4.0
+                match_reasons.append(f"Budget compatible (${c.base_rate_usd:.0f} <= ${brief.budget_usd:.0f})")
+            else:
+                score -= 10.0
+
+            if not match_reasons:
+                match_reasons.append(f"High brand safety ({c.brand_safety_score}%) with active youth following")
+
+            normalized_score = min(99.4, round(score, 1))
+            scored_creators.append((normalized_score, c, "; ".join(match_reasons)))
+
+        # Sort top solo creators
+        scored_creators.sort(key=lambda x: x[0], reverse=True)
+        top_solo_entries = scored_creators[:3]
+
+        solo_matches: List[SoloCreatorMatch] = []
+        for s_score, c, rationale in top_solo_entries:
+            cost_usd = c.base_rate_usd
+            cost_kes = cost_usd * settings.USD_TO_KES_RATE
+            solo_matches.append(
+                SoloCreatorMatch(
+                    creator=c,
+                    match_score=s_score,
+                    match_rationale=rationale,
+                    recommended_deliverables=[
+                        "Live stream banner & logo overlay (>= 3.5% screen occupancy)",
+                        "Dedicated tournament match shoutcaster callout",
+                        "Post-stream replay clip with #SponsorPlay tag"
+                    ],
+                    total_cost_usd=cost_usd,
+                    total_cost_kes=cost_kes
+                )
+            )
+
+        # AI Comparative Synthesis
+        top_syn = syndicates[0] if syndicates else None
+        top_solo = solo_matches[0] if solo_matches else None
+
+        syn_reach = top_syn.expected_reach if top_syn else 0
+        solo_reach = top_solo.creator.monthly_reach if top_solo else 0
+        reach_multiple = round(syn_reach / max(1, solo_reach), 1)
+
+        if has_solo_intent:
+            rec_path = "SOLO"
+            rec_title = "Solo Creator Sponsorship Recommended (Brand Intent Match)"
+            verdict = (
+                f"Based on your preference for an individual ambassador, Agent 1 recommends "
+                f"{top_solo.creator.name} (@{top_solo.creator.gamer_tag}). Sponsoring solo provides 100% focused airtime, "
+                f"unmatched {top_solo.creator.brand_safety_score}% brand safety, and immediate turnaround for ${top_solo.total_cost_usd:,.2f} USD."
+            )
+        elif syn_reach > solo_reach * 1.4:
+            rec_path = "SYNDICATE"
+            rec_title = f"Syndicate Bundle Recommended ({reach_multiple}x Greater Community Reach)"
+            verdict = (
+                f"For {brief.brand_name}'s target reach of {brief.target_reach:,} gamers, the '{top_syn.title}' "
+                f"syndicate delivers {syn_reach:,} verified touchpoints across campus esports and grassroots dens. "
+                f"A syndicate delivers {reach_multiple}x higher distribution efficiency per dollar than a single creator."
+            )
+        else:
+            rec_path = "SYNDICATE"
+            rec_title = "Syndicate Bundle Recommended (Balanced Micro-Creator Network)"
+            verdict = (
+                f"A blended syndicate combines competitive tactical authority with grassroots youth engagement, "
+                f"giving {brief.brand_name} diversified campus presence under a single KRA Section 16 compliant contract."
+            )
+
+        ai_analysis = AIStrategicAnalysis(
+            target_summary=f"Targeting {brief.target_reach:,} gamers with budget ${brief.budget_usd:,.2f} USD ({brief.target_audience})",
+            detected_intent="SOLO" if has_solo_intent else ("SYNDICATE" if brief.strategy_preference == "SYNDICATE" else "AUTO"),
+            recommended_path=rec_path,
+            recommendation_title=rec_title,
+            verdict_rationale=verdict,
+            syndicate_score=top_syn.synergy_score if top_syn else 95.0,
+            solo_score=top_solo.match_score if top_solo else 90.0,
+            reach_comparison={
+                "syndicate_reach": syn_reach,
+                "solo_reach": solo_reach,
+                "syndicate_cost_usd": top_syn.total_cost_usd if top_syn else 0,
+                "solo_cost_usd": top_solo.total_cost_usd if top_solo else 0
+            }
+        )
+
+        return BriefDeconstructionResult(
+            campaign_id=brief.id,
+            brand_name=brief.brand_name,
+            ai_analysis=ai_analysis,
+            syndicates=syndicates,
+            solo_matches=solo_matches
+        )
 
 scout_agent = ScoutAgent()

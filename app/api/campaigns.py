@@ -6,7 +6,10 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 import uuid
 from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any, Optional
-from app.models.schemas import CreatorProfile, CampaignBrief, SyndicateRecommendation, Proposal
+from app.models.schemas import (
+    CreatorProfile, CampaignBrief, SyndicateRecommendation,
+    Proposal, BriefDeconstructionResult
+)
 from app.models.database import db
 from app.agents.scout_agent import scout_agent
 from app.agents.architect_agent import architect_agent
@@ -31,6 +34,20 @@ def list_seed_campaigns():
     """Returns sample preloaded corporate brand briefs (Safaricom, Monster Energy)."""
     return list(db.campaigns.values())
 
+@router.post("/deconstruct", response_model=BriefDeconstructionResult)
+def deconstruct_brief(brief: CampaignBrief):
+    """
+    Submits a campaign brief for Agent 1 unified cognitive deconstruction.
+    Returns:
+    1. AI Strategic Analysis with verdict & recommendation
+    2. Bundled Syndicates
+    3. Top Solo Creator Matches
+    """
+    if not brief.id:
+        brief.id = f"CAMP-{uuid.uuid4().hex[:6].upper()}"
+    db.save_campaign(brief)
+    return scout_agent.deconstruct_brief_and_match(brief)
+
 @router.post("/brief", response_model=List[SyndicateRecommendation])
 def submit_brief(brief: CampaignBrief):
     """
@@ -49,12 +66,21 @@ def create_proposal(payload: Dict[str, Any]):
     """
     Accepts campaign_id and EITHER syndicate_id (for bundled sponsorship)
     OR creator_id (for solo individual creator sponsorship).
+    Extracts optional beneficiary email(s) and dispatches automated proposal notifications.
     Agent 2 (Architect) generates the executable milestone contract and fee splits.
     """
     campaign_id = payload.get("campaign_id")
     syndicate_id = payload.get("syndicate_id")
     creator_id = payload.get("creator_id")
     
+    # Extract recipient emails
+    raw_email = payload.get("beneficiary_email") or payload.get("beneficiary_notification_email")
+    beneficiary_emails: List[str] = []
+    if raw_email:
+        beneficiary_emails = [e.strip() for e in str(raw_email).split(",") if "@" in e]
+    elif payload.get("beneficiary_emails"):
+        beneficiary_emails = [e.strip() for e in payload.get("beneficiary_emails") if "@" in e]
+
     campaign = db.get_campaign(campaign_id)
     if not campaign:
         # Create a default campaign on the fly if not yet submitted
@@ -73,7 +99,7 @@ def create_proposal(payload: Dict[str, Any]):
         creator = db.get_creator(creator_id)
         if not creator:
             raise HTTPException(status_code=404, detail=f"Creator {creator_id} not found")
-        proposal = architect_agent.draft_solo_proposal(campaign, creator)
+        proposal = architect_agent.draft_solo_proposal(campaign, creator, beneficiary_emails=beneficiary_emails)
         db.save_proposal(proposal)
         return proposal
 
@@ -83,7 +109,7 @@ def create_proposal(payload: Dict[str, Any]):
         recs = scout_agent.analyze_brief_and_match(campaign)
         syndicate = next((r for r in recs if r.syndicate_id == syndicate_id), recs[0])
 
-    proposal = architect_agent.draft_proposal(campaign, syndicate)
+    proposal = architect_agent.draft_proposal(campaign, syndicate, beneficiary_emails=beneficiary_emails)
     db.save_proposal(proposal)
     return proposal
 

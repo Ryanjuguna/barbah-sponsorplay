@@ -76,28 +76,36 @@ def run_e2e_test():
     )
     db.save_campaign(brief)
     
-    syndicates = scout_agent.analyze_brief_and_match(brief)
-    assert len(syndicates) >= 1, "Agent 1 returned no syndicates"
-    chosen_syn = syndicates[0]
-    print(f"  [+] Agent 1 analyzed brief and synthesized {len(syndicates)} Sponsorship Syndicates:")
-    print(f"      - Selected: '{chosen_syn.title}' (Synergy Score: {chosen_syn.synergy_score}%)")
+    # Unified Deconstruction
+    deconstruct_res = scout_agent.deconstruct_brief_and_match(brief)
+    print(f"  [+] Unified Deconstruction AI Verdict: {deconstruct_res.ai_analysis.recommendation_title}")
+    print(f"      - Recommended Path: {deconstruct_res.ai_analysis.recommended_path}")
+    print(f"      - Rationale: {deconstruct_res.ai_analysis.verdict_rationale[:110]}...")
+    print(f"      - Available Pathways: {len(deconstruct_res.syndicates)} Syndicates &bull; {len(deconstruct_res.solo_matches)} Solo Creator Matches")
+    assert len(deconstruct_res.syndicates) >= 1, "Agent 1 returned no syndicates"
+    assert len(deconstruct_res.solo_matches) >= 1, "Agent 1 returned no solo matches"
+
+    chosen_syn = deconstruct_res.syndicates[0]
+    print(f"  [+] Selected Syndicate Option: '{chosen_syn.title}' (Synergy Score: {chosen_syn.synergy_score}%)")
     print(f"      - Estimated Youth Reach: {chosen_syn.expected_reach:,} gamers")
     print(f"      - Cost: ${chosen_syn.total_cost_usd:.2f} (KES {chosen_syn.total_cost_kes:,.2f})")
     print(f"      - Compliance Route: {chosen_syn.etims_compliance_mode}")
 
     # 2B. Direct Solo Creator Sponsorship Test
     print("\n[STEP 2B] Testing Direct Solo Creator Sponsorship Workflow...")
-    solo_creator = db.get_creator("creator-001")  # Brian The Beast
-    solo_proposal = architect_agent.draft_solo_proposal(brief, solo_creator)
+    solo_creator = deconstruct_res.solo_matches[0].creator
+    solo_proposal = architect_agent.draft_solo_proposal(brief, solo_creator, beneficiary_emails=["team@barbahgames.com"])
     print(f"  [+] Solo Proposal Generated: {solo_proposal.id} for {solo_creator.name} (${solo_proposal.total_budget_usd:.2f})")
     print(f"      - Barbah Platform Fee (10%): ${solo_proposal.platform_fee_usd:.2f}")
     print(f"      - KRA 5% Withholding Tax: ${solo_proposal.withholding_tax_usd:.2f}")
     print(f"      - Net Creator Disbursement: ${solo_proposal.net_creator_disbursement_usd:.2f}")
+    print(f"      - Beneficiary Notification Email Dispatched: {solo_proposal.email_dispatch_id} -> {solo_proposal.beneficiary_emails}")
     assert len(solo_proposal.creators) == 1, "Solo proposal should have exactly 1 creator"
+    assert solo_proposal.email_dispatch_id is not None, "Email dispatch record missing"
 
     # 3. Agent 2: Syndicate Milestone Agreement Generation
     print("\n[STEP 3] Generating Executable Syndicate Agreement via Agent 2 (Architect)...")
-    proposal = architect_agent.draft_proposal(brief, chosen_syn)
+    proposal = architect_agent.draft_proposal(brief, chosen_syn, beneficiary_emails=["creators-team@barbahgames.com", "captain@strathmore.edu"])
     db.save_proposal(proposal)
     print(f"  [+] Proposal Generated ID: {proposal.id}")
     print(f"      - Gross Budget Authorized: ${proposal.total_budget_usd:.2f} (KES {proposal.total_budget_kes:,.2f})")
@@ -105,7 +113,12 @@ def run_e2e_test():
     print(f"      - Gross Beneficiary Escrow: ${proposal.gross_beneficiary_usd:.2f} (KES {proposal.gross_beneficiary_kes:,.2f})")
     print(f"      - KRA 5% Withholding Tax: ${proposal.withholding_tax_usd:.2f} (KES {proposal.withholding_tax_kes:,.2f})")
     print(f"      - Net Creator Disbursement: ${proposal.net_creator_disbursement_usd:.2f} (KES {proposal.net_creator_disbursement_kes:,.2f})")
+    print(f"      - Beneficiary Proposal Email Dispatched: {proposal.email_dispatch_id} -> {proposal.beneficiary_emails}")
     print(f"      - Milestones Structured: {len(proposal.milestones)} phases")
+    assert proposal.email_dispatch_id is not None, "Syndicate email dispatch record missing"
+    email_rec = db.get_email(proposal.email_dispatch_id)
+    assert email_rec is not None, "Dispatched email not stored in db"
+    assert "Safaricom" in email_rec.rendered_html, "HTML proposal does not contain brand name"
     for m in proposal.milestones:
         print(f"        * Phase {m.milestone_number} ({m.percentage}%): {m.title} -> ${m.amount_usd:.2f}")
 

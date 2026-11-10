@@ -7,6 +7,7 @@ import uuid
 from typing import List, Optional
 from app.models.schemas import CampaignBrief, SyndicateRecommendation, Proposal, Milestone, CreatorProfile
 from app.config import settings
+from app.services.email_service import email_service
 
 class ArchitectAgent:
     def __init__(self):
@@ -16,7 +17,8 @@ class ArchitectAgent:
     def draft_proposal(
         self,
         campaign: CampaignBrief,
-        syndicate: SyndicateRecommendation
+        syndicate: SyndicateRecommendation,
+        beneficiary_emails: Optional[List[str]] = None
     ) -> Proposal:
         """
         Structures an executable milestone contract for a multi-creator syndicate bundle,
@@ -134,12 +136,19 @@ class ArchitectAgent:
             status="DRAFT"
         )
 
+        # Dispatch Proposal Notification Email to Beneficiary
+        try:
+            email_service.send_proposal_email(proposal, override_recipients=beneficiary_emails)
+        except Exception as e:
+            print(f"[ArchitectAgent] Email dispatch warning: {e}")
+
         return proposal
 
     def draft_solo_proposal(
         self,
         campaign: CampaignBrief,
-        creator: CreatorProfile
+        creator: CreatorProfile,
+        beneficiary_emails: Optional[List[str]] = None
     ) -> Proposal:
         """
         Structures an executable milestone contract for a SINGLE solo creator or gaming hub.
@@ -253,6 +262,12 @@ class ArchitectAgent:
             legal_clauses=legal_clauses,
             status="DRAFT"
         )
+
+        # Dispatch Proposal Notification Email to Solo Creator
+        try:
+            email_service.send_proposal_email(proposal, override_recipients=beneficiary_emails)
+        except Exception as e:
+            print(f"[ArchitectAgent] Solo email dispatch warning: {e}")
 
         return proposal
 

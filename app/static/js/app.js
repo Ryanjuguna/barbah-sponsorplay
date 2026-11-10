@@ -254,17 +254,22 @@ async function reloadCreatorsGrid() {
 // TAB 1: 5-STEP WIZARD LOGIC
 // =========================================================================
 
-// STEP 1: RUN TALENT SCOUT
-async function runStep1Scout() {
+let currentDeconstructionResult = null;
+
+// STEP 1: UNIFIED AGENT 1 DECONSTRUCT & TALENT MATCH
+async function runStep1Deconstruct() {
   const brandName = document.getElementById('inputBrandName').value;
   const corporatePIN = document.getElementById('inputCorporatePIN').value;
   const briefText = document.getElementById('inputBrief').value;
   const reach = parseInt(document.getElementById('inputTargetReach').value) || 10000;
   const budgetUSD = parseFloat(document.getElementById('inputBudgetUSD').value) || 769.23;
+  const prefRadio = document.querySelector('input[name="strategyPref"]:checked');
+  const strategyPref = prefRadio ? prefRadio.value : "AUTO";
+  const beneficiaryEmail = document.getElementById('inputBeneficiaryEmail')?.value || "creator@barbahgames.com";
 
   logAgent("AGENT 1: SCOUT", `Deconstructing brand brief for ${brandName}...`, "text-emerald-400");
-  logAgent("CLAUDE BRAIN", `Synthesizing candidates via Anthropic Claude 3.5 Sonnet cognitive reasoning...`, "text-purple-400");
-  logAgent("AGENT 1: SCOUT", `Target: ${reach.toLocaleString()} youth in Kenya &bull; Budget: $${budgetUSD.toFixed(2)} (KES 100,000)...`);
+  logAgent("CLAUDE BRAIN", `Cognitive analysis: evaluating reach target (${reach.toLocaleString()}) vs budget ($${budgetUSD.toFixed(2)})...`, "text-purple-400");
+  logAgent("AGENT 1: SCOUT", `Strategy preference: ${strategyPref} | Beneficiary Email: ${beneficiaryEmail}`, "text-gray-400");
 
   const campaignId = "CAMP-" + Date.now();
   const payload = {
@@ -276,29 +281,131 @@ async function runStep1Scout() {
     target_reach: reach,
     budget_usd: budgetUSD,
     budget_kes: budgetUSD * USD_TO_KES_RATE,
-    preferred_locations: ["Nairobi", "Eldoret"]
+    preferred_locations: ["Nairobi", "Eldoret"],
+    strategy_preference: strategyPref,
+    beneficiary_notification_email: beneficiaryEmail
   };
 
   try {
-    const resp = await fetch('/api/v1/campaigns/brief', {
+    const resp = await fetch('/api/v1/campaigns/deconstruct', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const syndicates = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(`Deconstruction API returned HTTP ${resp.status}`);
+    }
+
+    const result = await resp.json();
+    currentDeconstructionResult = result;
     currentCampaign = payload;
 
-    logAgent("AGENT 1: SCOUT", `Synthesized ${syndicates.length} synergistic Sponsorship Syndicates with KRA Section 16 protection.`, "text-emerald-300 font-bold");
-    renderSyndicateCards(syndicates);
+    const analysis = result.ai_analysis;
+    logAgent("AGENT 1: SCOUT", `AI Recommendation: ${analysis.recommendation_title}`, "text-emerald-300 font-bold");
+    logAgent("CLAUDE BRAIN", `${analysis.verdict_rationale}`, "text-purple-300 text-xs");
+
+    renderDeconstructionResults(result);
   } catch (err) {
-    logAgent("ERROR", `Failed to run scout: ${err.message}`, "text-red-400");
+    logAgent("ERROR", `Failed to deconstruct brief: ${err.message}`, "text-red-400");
+  }
+}
+
+// Renders the AI Verdict Banner and both pathways (Syndicates + Solo Creators)
+function renderDeconstructionResults(result) {
+  const container = document.getElementById('syndicateResults');
+  container.classList.remove('hidden');
+
+  const analysis = result.ai_analysis;
+  const verdictContainer = document.getElementById('aiDeconstructVerdict');
+
+  const isSoloRec = analysis.recommended_path === 'SOLO';
+
+  verdictContainer.innerHTML = `
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-800 pb-3">
+      <div class="flex items-center space-x-2.5">
+        <span class="w-3 h-3 rounded-full ${isSoloRec ? 'bg-sky-400' : 'bg-emerald-400'} animate-pulse"></span>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider font-mono ${isSoloRec ? 'text-sky-400' : 'text-emerald-400'}">
+            Agent 1 Cognitive Synthesis
+          </span>
+          <h4 class="text-base font-extrabold text-white mt-0.5">${analysis.recommendation_title}</h4>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3 text-xs font-mono">
+        <span class="px-2.5 py-1 rounded bg-gray-800 text-gray-300 border border-gray-700">
+          Syndicate Score: <strong class="text-emerald-400">${analysis.syndicate_score}%</strong>
+        </span>
+        <span class="px-2.5 py-1 rounded bg-gray-800 text-gray-300 border border-gray-700">
+          Solo Match: <strong class="text-sky-400">${analysis.solo_score}%</strong>
+        </span>
+      </div>
+    </div>
+
+    <p class="text-xs text-gray-300 leading-relaxed pt-1">
+      ${analysis.verdict_rationale}
+    </p>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px] font-mono border-t border-gray-800/60">
+      <div>
+        <span class="text-gray-400 block">Syndicate Reach:</span>
+        <strong class="text-emerald-400 text-sm">${analysis.reach_comparison.syndicate_reach.toLocaleString()} gamers</strong>
+      </div>
+      <div>
+        <span class="text-gray-400 block">Top Solo Reach:</span>
+        <strong class="text-sky-400 text-sm">${analysis.reach_comparison.solo_reach.toLocaleString()} gamers</strong>
+      </div>
+      <div>
+        <span class="text-gray-400 block">Target Budget:</span>
+        <strong class="text-white text-sm">$${currentCampaign.budget_usd.toFixed(2)}</strong>
+      </div>
+      <div>
+        <span class="text-gray-400 block">Tax Protection:</span>
+        <strong class="text-blue-400 text-sm">KRA Section 16</strong>
+      </div>
+    </div>
+  `;
+
+  // Render Syndicates
+  renderSyndicateCards(result.syndicates);
+
+  // Render Solo Creators
+  renderSoloCards(result.solo_matches);
+
+  // Activate recommended tab
+  if (isSoloRec) {
+    switchPathwayTab('solo');
+  } else {
+    switchPathwayTab('syndicates');
+  }
+
+  container.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Pathway tab switching (Syndicates vs Solo)
+function switchPathwayTab(tab) {
+  const btnSyn = document.getElementById('btnPathwaySyndicates');
+  const btnSolo = document.getElementById('btnPathwaySolo');
+  const contSyn = document.getElementById('pathwaySyndicatesContainer');
+  const contSolo = document.getElementById('pathwaySoloContainer');
+
+  if (tab === 'syndicates') {
+    btnSyn.className = 'py-2 px-3 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center space-x-2 transition-all';
+    btnSolo.className = 'py-2 px-3 rounded-lg text-gray-400 hover:text-white text-xs font-semibold flex items-center space-x-2 transition-all';
+    contSyn.classList.remove('hidden');
+    contSolo.classList.add('hidden');
+  } else {
+    btnSolo.className = 'py-2 px-3 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold flex items-center space-x-2 transition-all';
+    btnSyn.className = 'py-2 px-3 rounded-lg text-gray-400 hover:text-white text-xs font-semibold flex items-center space-x-2 transition-all';
+    contSolo.classList.remove('hidden');
+    contSyn.classList.add('hidden');
   }
 }
 
 function renderSyndicateCards(syndicates) {
   const container = document.getElementById('syndicateCards');
   container.innerHTML = '';
-  document.getElementById('syndicateResults').classList.remove('hidden');
+  document.getElementById('badgeSyndicateCount').innerText = syndicates.length;
 
   syndicates.forEach((syn, idx) => {
     const card = document.createElement('div');
@@ -346,7 +453,73 @@ function renderSyndicateCards(syndicates) {
       </div>
 
       <button onclick="selectSyndicate('${syn.syndicate_id}')" class="w-full mt-2 py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-file-contract"></i>
         <span>Select Syndicate & Generate Milestone Agreement &rarr;</span>
+      </button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Renders top Solo Creator Matches
+function renderSoloCards(soloMatches) {
+  const container = document.getElementById('soloCards');
+  container.innerHTML = '';
+  document.getElementById('badgeSoloCount').innerText = soloMatches.length;
+
+  soloMatches.forEach((entry, idx) => {
+    const c = entry.creator;
+    const card = document.createElement('div');
+    card.className = "p-4 rounded-xl bg-gray-900 border border-gray-800 hover:border-sky-500/50 transition-all space-y-3";
+    card.innerHTML = `
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 font-bold font-mono">
+            #${idx + 1}
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h4 class="font-bold text-white text-base">${c.name}</h4>
+              <span class="text-xs text-sky-400 font-mono">@${c.gamer_tag}</span>
+            </div>
+            <span class="text-xs text-gray-400">${c.type} &bull; ${c.location} &bull; ${c.primary_game}</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-gray-400 block">Match Score</span>
+          <span class="text-base font-extrabold text-sky-400 font-mono">${entry.match_score}%</span>
+        </div>
+      </div>
+
+      <div class="p-2.5 rounded-lg bg-gray-950/70 border border-gray-800 text-xs text-gray-300">
+        <strong class="text-sky-300">Fit Rationale:</strong> ${entry.match_rationale}
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 py-2 border-y border-gray-800 text-xs">
+        <div>
+          <span class="text-gray-400 block text-[11px]">Monthly Reach</span>
+          <span class="font-bold text-white font-mono">${c.monthly_reach.toLocaleString()}</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[11px]">Solo Rate (${currentCurrency})</span>
+          <span class="font-bold text-emerald-400 font-mono">${formatMoney(c.base_rate_usd)}</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[11px]">Brand Safety</span>
+          <span class="font-semibold text-emerald-400">${c.brand_safety_score}%</span>
+        </div>
+      </div>
+
+      <div>
+        <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Recommended Solo Deliverables:</span>
+        <ul class="text-xs text-gray-400 space-y-0.5 list-disc list-inside">
+          ${entry.recommended_deliverables.map(d => `<li>${d}</li>`).join('')}
+        </ul>
+      </div>
+
+      <button onclick="sponsorSoloCreator('${c.id}')" class="w-full mt-2 py-2.5 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow transition-all flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-user-check"></i>
+        <span>Sponsor ${c.name} Solo & Generate Agreement &rarr;</span>
       </button>
     `;
     container.appendChild(card);
@@ -355,20 +528,24 @@ function renderSyndicateCards(syndicates) {
 
 // STEP 2: SELECT SYNDICATE & RUN ARCHITECT
 async function selectSyndicate(syndicateId) {
+  const beneficiaryEmail = document.getElementById('inputBeneficiaryEmail')?.value || "creator@barbahgames.com";
   logAgent("AGENT 2: ARCHITECT", `Decomposing syndicate ${syndicateId} into milestone agreement...`, "text-blue-400");
+  logAgent("EMAIL SERVICE", `Queuing automated proposal notification to: ${beneficiaryEmail}...`, "text-sky-400");
 
   try {
     const resp = await fetch('/api/v1/campaigns/proposal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        campaign_id: currentCampaign.id,
-        syndicate_id: syndicateId
+        campaign_id: currentCampaign ? currentCampaign.id : null,
+        syndicate_id: syndicateId,
+        beneficiary_email: beneficiaryEmail
       })
     });
     currentProposal = await resp.json();
 
-    logAgent("AGENT 2: ARCHITECT", `Contract Drafted! Gross: $${currentProposal.total_budget_usd} &bull; Platform Fee: $${currentProposal.platform_fee_usd} &bull; 5% WHT Schedule locked.`, "text-blue-300 font-bold");
+    logAgent("AGENT 2: ARCHITECT", `Contract Drafted! Gross: $${currentProposal.total_budget_usd} &bull; Platform Fee: $${currentProposal.platform_fee_usd} &bull; 5% WHT locked.`, "text-blue-300 font-bold");
+    logAgent("EMAIL SERVICE", `Proposal dispatched to ${currentProposal.beneficiary_emails.join(', ')} (ID: ${currentProposal.email_dispatch_id})`, "text-emerald-300 font-bold");
 
     setStepActive(2);
     renderStep2Proposal(currentProposal);
@@ -379,10 +556,12 @@ async function selectSyndicate(syndicateId) {
 
 // SOLO CREATOR SPONSORSHIP HANDLER
 async function sponsorSoloCreator(creatorId) {
-  logAgent("AGENT 2: ARCHITECT", `Structuring direct solo creator milestone contract for Creator ID: ${creatorId}...`, "text-blue-400");
-  
   const brandName = document.getElementById('inputBrandName')?.value || "Safaricom 5G Home Gaming";
   const corporatePIN = document.getElementById('inputCorporatePIN')?.value || "P051234567A";
+  const beneficiaryEmail = document.getElementById('inputBeneficiaryEmail')?.value || "creator@barbahgames.com";
+
+  logAgent("AGENT 2: ARCHITECT", `Structuring direct solo creator milestone contract for Creator ID: ${creatorId}...`, "text-blue-400");
+  logAgent("EMAIL SERVICE", `Dispatching proposal email to: ${beneficiaryEmail}...`, "text-sky-400");
   
   try {
     const resp = await fetch('/api/v1/campaigns/proposal', {
@@ -392,7 +571,8 @@ async function sponsorSoloCreator(creatorId) {
         campaign_id: currentCampaign ? currentCampaign.id : null,
         creator_id: creatorId,
         brand_name: brandName,
-        corporate_pin: corporatePIN
+        corporate_pin: corporatePIN,
+        beneficiary_email: beneficiaryEmail
       })
     });
     
@@ -405,7 +585,8 @@ async function sponsorSoloCreator(creatorId) {
     currentSyndicate = null;
     
     logAgent("AGENT 2: ARCHITECT", `Solo Contract Drafted for ${currentProposal.creators[0].name} (${currentProposal.creators[0].gamer_tag})! Rate: $${currentProposal.total_budget_usd} USD.`, "text-blue-300 font-bold");
-    
+    logAgent("EMAIL SERVICE", `Proposal dispatched to ${currentProposal.beneficiary_emails.join(', ')} (ID: ${currentProposal.email_dispatch_id})`, "text-emerald-300 font-bold");
+
     switchTab('demo');
     setStepActive(2);
     renderStep2Proposal(currentProposal);
@@ -420,8 +601,39 @@ function renderStep2Proposal(proposal) {
 
   const container = document.getElementById('proposalDetails');
   const isSolo = proposal.creators && proposal.creators.length === 1;
+  const emailsList = (proposal.beneficiary_emails && proposal.beneficiary_emails.length) 
+    ? proposal.beneficiary_emails.join(', ') 
+    : 'Beneficiary Inboxes';
 
   container.innerHTML = `
+    <!-- BENEFICIARY PROPOSAL EMAIL DISPATCH NOTIFICATION BANNER -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-950/70 via-gray-900 to-[#0b1528] border border-emerald-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-paper-plane text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono">Proposal Dispatched via Email</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-[10px] text-emerald-300 border border-emerald-500/30 font-mono">${proposal.email_dispatch_id || 'DISPATCHED'}</span>
+          </div>
+          <p class="text-xs text-gray-300 mt-0.5">
+            Official sponsorship offer delivered to: <strong class="text-white font-mono">${emailsList}</strong>
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <button onclick="openEmailPreview('${proposal.email_dispatch_id}')" class="flex-1 sm:flex-none py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-gray-950 font-extrabold text-xs flex items-center justify-center space-x-1.5 transition-all shadow-md">
+          <i class="fa-solid fa-envelope-open-text"></i>
+          <span>View Dispatched Email</span>
+        </button>
+        <button onclick="promptForwardEmail('${proposal.id}')" class="py-2 px-3 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs border border-gray-700 flex items-center justify-center space-x-1.5 transition-all">
+          <i class="fa-solid fa-share text-sky-400"></i>
+          <span>Forward</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Target Beneficiary Notice -->
     <div class="p-3.5 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-between">
       <div>
@@ -1132,5 +1344,70 @@ async function loadImpactDossier() {
     `;
   } catch (err) {
     container.innerHTML = `<div class="text-xs text-red-400">Failed to load impact report: ${err.message}</div>`;
+  }
+}
+
+// =========================================================================
+// BENEFICIARY PROPOSAL EMAIL MODAL HANDLERS
+// =========================================================================
+
+function openEmailPreview(emailId) {
+  if (!emailId && currentProposal && currentProposal.email_dispatch_id) {
+    emailId = currentProposal.email_dispatch_id;
+  }
+  const modal = document.getElementById('modalEmailPreview');
+  const frame = document.getElementById('emailPreviewFrame');
+  const meta = document.getElementById('modalEmailMeta');
+  const statusBadge = document.getElementById('modalEmailStatusBadge');
+
+  if (emailId) {
+    frame.src = `/api/v1/notifications/email-preview/${emailId}`;
+    if (meta && currentProposal) {
+      meta.innerHTML = `Proposal ID: <strong class="text-emerald-400 font-mono">${currentProposal.id}</strong> &bull; Beneficiaries: <span class="text-white">${(currentProposal.beneficiary_emails || []).join(', ')}</span>`;
+    }
+  }
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+
+function closeEmailModal() {
+  const modal = document.getElementById('modalEmailPreview');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+async function promptForwardEmail(proposalId) {
+  const targetEmail = prompt("Enter email address to forward this official sponsorship proposal:", "team@barbahgames.com");
+  if (!targetEmail || !targetEmail.includes("@")) return;
+
+  logAgent("EMAIL SERVICE", `Forwarding proposal ${proposalId} to ${targetEmail}...`, "text-sky-400");
+  try {
+    const resp = await fetch('/api/v1/notifications/resend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        proposal_id: proposalId,
+        recipients: [targetEmail.trim()]
+      })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      logAgent("EMAIL SERVICE", `Proposal successfully delivered to ${targetEmail} (ID: ${data.email_id})`, "text-emerald-300 font-bold");
+      alert(`Proposal successfully dispatched to ${targetEmail}!`);
+    } else {
+      throw new Error(`Server returned HTTP ${resp.status}`);
+    }
+  } catch (err) {
+    logAgent("ERROR", `Failed to forward email: ${err.message}`, "text-red-400");
+  }
+}
+
+function forwardCurrentProposalEmail() {
+  if (currentProposal) {
+    promptForwardEmail(currentProposal.id);
   }
 }

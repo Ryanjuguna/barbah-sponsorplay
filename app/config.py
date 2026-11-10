@@ -45,4 +45,13 @@ class Settings(BaseModel):
     BARBAH_KRA_PIN: str = "P051982736Z"
     BARBAH_BUSINESS_NAME: str = "Barbah Games Limited"
 
+    # Beneficiary Notification Service (Email & SMTP)
+    SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_SENDER_NAME: str = os.getenv("SMTP_SENDER_NAME", "Barbah SponsorPlay")
+    SMTP_SENDER_EMAIL: str = os.getenv("SMTP_SENDER_EMAIL", "proposals@barbahgames.com")
+    BENEFICIARY_DEFAULT_EMAIL: str = os.getenv("BENEFICIARY_DEFAULT_EMAIL", "team@barbahgames.com")
+
 settings = Settings()

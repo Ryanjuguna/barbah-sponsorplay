@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 from app.models.schemas import (
     CreatorProfile, CampaignBrief, SyndicateRecommendation,
     Proposal, Milestone, ProofOfPlayCertificate, eTIMSInvoice,
-    MetaTwinReport
+    MetaTwinReport, EmailDispatchRecord
 )
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
@@ -24,6 +24,7 @@ class Database:
         self.invoices: Dict[str, eTIMSInvoice] = {}
         self.impact_reports: Dict[str, MetaTwinReport] = {}
         self.paypal_orders: Dict[str, Dict] = {}
+        self.emails: Dict[str, EmailDispatchRecord] = {}
         self._load_seed_data()
 
     def _load_seed_data(self):
@@ -113,5 +114,15 @@ class Database:
 
     def get_impact_report(self, campaign_id: str) -> Optional[MetaTwinReport]:
         return self.impact_reports.get(campaign_id)
+
+    def save_email(self, record: EmailDispatchRecord) -> EmailDispatchRecord:
+        self.emails[record.email_id] = record
+        return record
+
+    def get_email(self, email_id: str) -> Optional[EmailDispatchRecord]:
+        return self.emails.get(email_id)
+
+    def get_all_emails(self) -> List[EmailDispatchRecord]:
+        return list(self.emails.values())
 
 db = Database()

@@ -42,6 +42,8 @@ class CampaignBrief(BaseModel):
         "Verbal shoutcaster callout",
         "Campus LAN tournament banner"
     ]
+    strategy_preference: Optional[str] = "AUTO"  # "AUTO", "SYNDICATE", "SOLO"
+    beneficiary_notification_email: Optional[str] = None
 
 class SyndicateRecommendation(BaseModel):
     syndicate_id: str
@@ -86,6 +88,43 @@ class Proposal(BaseModel):
     milestones: List[Milestone]
     legal_clauses: List[str]
     status: str = "DRAFT"  # DRAFT, APPROVED_BY_SPONSOR, FUNDED, ACTIVE, COMPLETED
+    beneficiary_emails: List[str] = []
+    email_dispatch_id: Optional[str] = None
+
+class SoloCreatorMatch(BaseModel):
+    creator: CreatorProfile
+    match_score: float
+    match_rationale: str
+    recommended_deliverables: List[str]
+    total_cost_usd: float
+    total_cost_kes: float
+
+class AIStrategicAnalysis(BaseModel):
+    target_summary: str
+    detected_intent: str  # "AUTO", "SYNDICATE", "SOLO"
+    recommended_path: str  # "SYNDICATE" or "SOLO"
+    recommendation_title: str
+    verdict_rationale: str
+    syndicate_score: float
+    solo_score: float
+    reach_comparison: Dict[str, Any]
+
+class BriefDeconstructionResult(BaseModel):
+    campaign_id: str
+    brand_name: str
+    ai_analysis: AIStrategicAnalysis
+    syndicates: List[SyndicateRecommendation]
+    solo_matches: List[SoloCreatorMatch]
+
+class EmailDispatchRecord(BaseModel):
+    email_id: str
+    proposal_id: str
+    recipients: List[str]
+    subject: str
+    status: str  # "DELIVERED_SMTP", "DISPATCHED_TO_BENEFICIARY", "SAVED_LOCAL_STORE"
+    sent_at: str
+    html_preview_url: Optional[str] = None
+    rendered_html: str
 
 class PayPalOrderRequest(BaseModel):
     proposal_id: str
