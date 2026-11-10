@@ -24,59 +24,136 @@ document.addEventListener('DOMContentLoaded', () => {
   logAgent("SCOUT RADAR", "Multi-Channel Talent Radar initialized (Twitch, Start.gg, WhatsApp, TikTok).");
 });
 
-// Three.js Interactive 3D Polygonal Arena Background
+// Three.js Interactive 3D Kenyan Cyber-Esports Constellation & Arena Mesh
 function initThreeCanvas() {
   const canvas = document.getElementById('threeCanvas');
   if (!canvas || typeof THREE === 'undefined') return;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 25;
+  camera.position.set(0, 4, 30);
 
   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  // Holographic Wireframe Arena Sphere
-  const geometry = new THREE.IcosahedronGeometry(13, 2);
-  const wireframeMaterial = new THREE.MeshBasicMaterial({
+  // Central Holographic Esports Arena Core
+  const coreGeometry = new THREE.IcosahedronGeometry(10, 2);
+  const coreMaterial = new THREE.MeshBasicMaterial({
     color: 0x00cf8d,
     wireframe: true,
     transparent: true,
-    opacity: 0.16
+    opacity: 0.22
   });
-  const sphere = new THREE.Mesh(geometry, wireframeMaterial);
-  scene.add(sphere);
+  const arenaCore = new THREE.Mesh(coreGeometry, coreMaterial);
+  scene.add(arenaCore);
 
-  // Outer Cyan Orbital Ring
-  const ringGeom = new THREE.TorusGeometry(17, 0.08, 16, 100);
-  const ringMat = new THREE.MeshBasicMaterial({ color: 0x0070ba, transparent: true, opacity: 0.22 });
-  const ring1 = new THREE.Mesh(ringGeom, ringMat);
-  ring1.rotation.x = Math.PI / 3;
-  scene.add(ring1);
+  // Concentric Tactical Gyro Rings
+  const ring1Geom = new THREE.TorusGeometry(14, 0.08, 16, 120);
+  const ring1Mat = new THREE.MeshBasicMaterial({ color: 0x0070ba, transparent: true, opacity: 0.38 });
+  const gyroRing1 = new THREE.Mesh(ring1Geom, ring1Mat);
+  gyroRing1.rotation.x = Math.PI / 4;
+  scene.add(gyroRing1);
 
-  // Floating Node Particles (representing 16 gaming nodes across Nairobi, Eldoret, Mombasa)
-  const particlesCount = 140;
+  const ring2Geom = new THREE.TorusGeometry(18, 0.06, 16, 140);
+  const ring2Mat = new THREE.MeshBasicMaterial({ color: 0x00cf8d, transparent: true, opacity: 0.28 });
+  const gyroRing2 = new THREE.Mesh(ring2Geom, ring2Mat);
+  gyroRing2.rotation.y = Math.PI / 3;
+  scene.add(gyroRing2);
+
+  const ring3Geom = new THREE.TorusGeometry(22, 0.04, 16, 160);
+  const ring3Mat = new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.22 });
+  const gyroRing3 = new THREE.Mesh(ring3Geom, ring3Mat);
+  gyroRing3.rotation.z = Math.PI / 6;
+  scene.add(gyroRing3);
+
+  // Kenyan Regional Esports Hub Nodes (Nairobi, Kibera, Eldoret, Mombasa, Kisumu)
+  const hubs = [
+    { name: "Nairobi Hub", pos: new THREE.Vector3(0, 1, 0), color: 0x00cf8d, size: 0.9 },
+    { name: "Kibera Den", pos: new THREE.Vector3(-6, -3, 3), color: 0xf59e0b, size: 0.7 },
+    { name: "Eldoret Arena", pos: new THREE.Vector3(-9, 5, -4), color: 0x06b6d4, size: 0.75 },
+    { name: "Mombasa Base", pos: new THREE.Vector3(9, -2, -3), color: 0xec4899, size: 0.75 },
+    { name: "Kisumu Lakeside", pos: new THREE.Vector3(-10, 0, 4), color: 0x3b82f6, size: 0.7 }
+  ];
+
+  const hubMeshes = [];
+  hubs.forEach(hub => {
+    // Glowing core sphere
+    const nodeGeom = new THREE.SphereGeometry(hub.size, 16, 16);
+    const nodeMat = new THREE.MeshBasicMaterial({ color: hub.color, transparent: true, opacity: 0.85 });
+    const nodeMesh = new THREE.Mesh(nodeGeom, nodeMat);
+    nodeMesh.position.copy(hub.pos);
+    scene.add(nodeMesh);
+
+    // Outer orbital pulse ring
+    const nodeRingGeom = new THREE.RingGeometry(hub.size * 1.3, hub.size * 1.5, 24);
+    const nodeRingMat = new THREE.MeshBasicMaterial({ color: hub.color, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
+    const nodeRing = new THREE.Mesh(nodeRingGeom, nodeRingMat);
+    nodeRing.position.copy(hub.pos);
+    nodeRing.rotation.x = Math.PI / 2;
+    scene.add(nodeRing);
+
+    hubMeshes.push({ mesh: nodeMesh, ring: nodeRing, basePos: hub.pos });
+  });
+
+  // Cybernetic Spline Energy Curves connecting Nairobi Hub to all satellite hubs
+  const nairobiPos = hubs[0].pos;
+  const linesGroup = new THREE.Group();
+  const packetParticles = [];
+
+  for (let i = 1; i < hubs.length; i++) {
+    const targetPos = hubs[i].pos;
+    const midPoint = new THREE.Vector3(
+      (nairobiPos.x + targetPos.x) / 2,
+      (nairobiPos.y + targetPos.y) / 2 + 2,
+      (nairobiPos.z + targetPos.z) / 2
+    );
+    const curve = new THREE.QuadraticBezierCurve3(nairobiPos, midPoint, targetPos);
+    const points = curve.getPoints(30);
+    const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
+    const lineMat = new THREE.LineBasicMaterial({ color: hubs[i].color, transparent: true, opacity: 0.4 });
+    const line = new THREE.Line(lineGeom, lineMat);
+    linesGroup.add(line);
+
+    // Traveling Energy Packet
+    const packetGeom = new THREE.SphereGeometry(0.25, 8, 8);
+    const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const packetMesh = new THREE.Mesh(packetGeom, packetMat);
+    scene.add(packetMesh);
+    packetParticles.push({ mesh: packetMesh, curve: curve, progress: Math.random() });
+  }
+  scene.add(linesGroup);
+
+  // Digital Talent Data Starfield (220 background telemetry points)
+  const particlesCount = 220;
   const positions = new Float32Array(particlesCount * 3);
   for (let i = 0; i < particlesCount * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 65;
+    positions[i] = (Math.random() - 0.5) * 80;
   }
   const particleGeometry = new THREE.BufferGeometry();
   particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   const particleMaterial = new THREE.PointsMaterial({
-    color: 0x00e5ff,
-    size: 0.45,
+    color: 0x38bdf8,
+    size: 0.38,
     transparent: true,
     opacity: 0.65
   });
   const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
   scene.add(particleSystem);
 
-  // Mouse interaction
+  // Perspective Cyber Grid Floor
+  const gridHelper = new THREE.GridHelper(70, 35, 0x0070ba, 0x1e293b);
+  gridHelper.position.y = -12;
+  gridHelper.material.transparent = true;
+  gridHelper.material.opacity = 0.25;
+  scene.add(gridHelper);
+
+  // Smooth mouse interaction with damping
+  let targetMouseX = 0, targetMouseY = 0;
   let mouseX = 0, mouseY = 0;
   window.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX - window.innerWidth / 2) * 0.0004;
-    mouseY = (e.clientY - window.innerHeight / 2) * 0.0004;
+    targetMouseX = (e.clientX - window.innerWidth / 2) * 0.0006;
+    targetMouseY = (e.clientY - window.innerHeight / 2) * 0.0006;
   });
 
   window.addEventListener('resize', () => {
@@ -85,12 +162,41 @@ function initThreeCanvas() {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
+  let clock = new THREE.Clock();
   function animate() {
     requestAnimationFrame(animate);
-    sphere.rotation.y += 0.002 + mouseX * 0.05;
-    sphere.rotation.x += 0.001 + mouseY * 0.05;
-    ring1.rotation.z += 0.003;
-    particleSystem.rotation.y -= 0.0008;
+    const delta = clock.getDelta();
+    const elapsedTime = clock.getElapsedTime();
+
+    // Mouse interpolation
+    mouseX += (targetMouseX - mouseX) * 0.05;
+    mouseY += (targetMouseY - mouseY) * 0.05;
+
+    camera.position.x = mouseX * 20;
+    camera.position.y = 4 - mouseY * 15;
+    camera.lookAt(0, 0, 0);
+
+    // Rotations
+    arenaCore.rotation.y += 0.003;
+    arenaCore.rotation.x += 0.001;
+    gyroRing1.rotation.z += 0.005;
+    gyroRing2.rotation.x -= 0.004;
+    gyroRing3.rotation.y += 0.003;
+    particleSystem.rotation.y -= 0.0005;
+
+    // Pulse nodes
+    hubMeshes.forEach((item, idx) => {
+      const pulse = 1 + 0.15 * Math.sin(elapsedTime * 3 + idx);
+      item.ring.scale.set(pulse, pulse, pulse);
+    });
+
+    // Animate energy packets along curves
+    packetParticles.forEach(pkt => {
+      pkt.progress = (pkt.progress + delta * 0.45) % 1;
+      const pt = pkt.curve.getPoint(pkt.progress);
+      pkt.mesh.position.copy(pt);
+    });
+
     renderer.render(scene, camera);
   }
   animate();
@@ -870,13 +976,20 @@ function renderVerificationStep() {
           <span class="text-xs font-bold text-white block">OpenCV Computer Vision Test Bench</span>
           <span class="text-[11px] text-gray-400">Select scenario to execute real contour & template detection on stream frame.</span>
         </div>
-        <div class="flex items-center space-x-2">
-          <button type="button" onclick="runOpenCVVisionAnalysis('PASS')" id="btnScenarioPass" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-all">
-            Valid Placement (>= 3.5% Pass)
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="runOpenCVVisionAnalysis('PASS')" id="btnScenarioPass" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-all flex items-center space-x-1">
+            <i class="fa-solid fa-check"></i>
+            <span>Valid Placement (>= 3.5% Pass)</span>
           </button>
-          <button type="button" onclick="runOpenCVVisionAnalysis('LOW_OCCUPANCY')" id="btnScenarioFail" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold border border-gray-700 transition-all">
-            Low-Occupancy Bug (< 3.5% Fail)
+          <button type="button" onclick="runOpenCVVisionAnalysis('LOW_OCCUPANCY')" id="btnScenarioFail" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold border border-gray-700 transition-all flex items-center space-x-1">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Low-Occupancy Bug (< 3.5% Fail)</span>
           </button>
+          <label for="cvFrameUploadInput" class="px-3 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-200 text-xs font-semibold cursor-pointer flex items-center space-x-1.5 transition-all shadow">
+            <i class="fa-solid fa-cloud-arrow-up text-purple-400"></i>
+            <span>Upload Custom Frame</span>
+          </label>
+          <input type="file" id="cvFrameUploadInput" accept="image/*" class="hidden" onchange="handleCustomFrameUpload(event)">
         </div>
       </div>
 
@@ -942,6 +1055,47 @@ async function runOpenCVVisionAnalysis(scenario = 'PASS') {
     renderOpenCVPreview(currentVisionResult);
   } catch (err) {
     logAgent("ERROR", `OpenCV analysis failed: ${err.message}`, "text-red-400");
+  } finally {
+    if (spinner) spinner.classList.add('hidden');
+  }
+}
+
+
+function handleCustomFrameUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  logAgent("OPENCV VISION", `Custom frame selected: ${file.name} (${Math.round(file.size / 1024)} KB). Ingesting for live computer vision analysis...`, "text-purple-300 font-bold");
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64Data = e.target.result;
+    await runOpenCVCustomAnalysis(base64Data, file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runOpenCVCustomAnalysis(base64Data, filename) {
+  const brandName = (currentProposal && currentProposal.brand_name) || "Safaricom";
+  logAgent("OPENCV VISION", `Executing OpenCV cv2.matchTemplate & contour localization on user upload [${filename}]...`, "text-purple-400");
+  
+  const spinner = document.getElementById('visionSpinner');
+  if (spinner) spinner.classList.remove('hidden');
+
+  try {
+    const resp = await fetch('/api/v1/verification/analyze-frame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand_name: brandName, image_base64: base64Data })
+    });
+    const data = await resp.json();
+    currentVisionResult = data.metrics;
+    
+    logAgent("OPENCV VISION", `User frame analyzed! Bounding Box: [${currentVisionResult.bounding_box.x}, ${currentVisionResult.bounding_box.y}, ${currentVisionResult.bounding_box.width}x${currentVisionResult.bounding_box.height}]`, "text-purple-300 font-mono");
+    logAgent("OPENCV VISION", `Screen Area Occupancy: ${currentVisionResult.screen_occupancy_percent}% (Threshold >= 3.5%) &bull; Status: ${currentVisionResult.status}`, currentVisionResult.meets_threshold ? "text-emerald-400 font-bold" : "text-amber-400 font-bold");
+    
+    renderOpenCVPreview(currentVisionResult);
+  } catch (err) {
+    logAgent("ERROR", `Custom frame analysis failed: ${err.message}`, "text-red-400");
   } finally {
     if (spinner) spinner.classList.add('hidden');
   }
@@ -1065,6 +1219,26 @@ function renderStep5Payout() {
         </div>
       </div>
 
+      <!-- DIRECT PAYPAL PAYOUT DESTINATION WALLET -->
+      <div class="p-4 rounded-xl bg-gray-950/90 border border-sky-500/40 space-y-2.5">
+        <div class="flex items-center justify-between border-b border-gray-800 pb-2">
+          <span class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+            <i class="fa-brands fa-paypal text-sky-400"></i> Beneficiary PayPal Payout Wallet
+          </span>
+          <span class="text-[10px] font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded border border-sky-500/30">PAYPAL PAYOUTS API</span>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="email" id="payoutRecipientEmail" value="${(currentProposal.creators && currentProposal.creators[0] && currentProposal.creators[0].paypal_email) || 'creator@barbahgames.com'}" placeholder="Enter your PayPal email (e.g. user@gmail.com)" class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-mono">
+          <button type="button" onclick="setPersonalTestPayPalEmail()" class="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center justify-center space-x-1 whitespace-nowrap transition-all shadow">
+            <i class="fa-solid fa-user-pen"></i>
+            <span>Set My PayPal</span>
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-400">
+          Want to test the workflow into your own PayPal account? Enter your personal or Sandbox PayPal email address above to receive the live payout dispatch.
+        </p>
+      </div>
+
       <button onclick="executeFinalDisbursementAndTax()" id="btnExecuteDisbursement" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-extrabold text-sm shadow-lg shadow-red-500/20 flex items-center justify-center space-x-2 transition-all">
         <i class="fa-solid fa-qrcode"></i>
         <span>Agent 4: Issue KRA eTIMS Invoice (BII) & Release PayPal Payout</span>
@@ -1086,7 +1260,8 @@ async function executeFinalDisbursementAndTax() {
       body: JSON.stringify({
         proposal_id: currentProposal.id,
         milestone_id: currentProposal.milestones[0].id,
-        certificate_id: currentProofCert.certificate_id
+        certificate_id: currentProofCert.certificate_id,
+        recipient_email: document.getElementById('payoutRecipientEmail')?.value?.trim() || undefined
       })
     });
     const result = await resp.json();
@@ -1098,6 +1273,16 @@ async function executeFinalDisbursementAndTax() {
     renderFinalTaxInvoice(result);
   } catch (err) {
     logAgent("ERROR", `Disbursement failed: ${err.message}`, "text-red-400");
+  }
+}
+
+
+function setPersonalTestPayPalEmail() {
+  const currentVal = document.getElementById('payoutRecipientEmail')?.value || '';
+  const userEmail = prompt("Enter your personal or Sandbox PayPal email to receive payout:", currentVal);
+  if (userEmail && userEmail.trim()) {
+    document.getElementById('payoutRecipientEmail').value = userEmail.trim();
+    logAgent("USER ACTION", `Payout destination updated to: ${userEmail.trim()}`, "text-sky-300 font-bold");
   }
 }
 
@@ -1128,7 +1313,10 @@ function renderFinalTaxInvoice(result) {
     </div>
 
     <div class="pt-3 border-t border-gray-800 flex justify-between items-center text-xs">
-      <span class="text-gray-400">PayPal Payout Ref: <span class="font-mono text-sky-400">${result.paypal_payout_id}</span></span>
+      <div class="space-y-0.5">
+        <div><span class="text-gray-400">PayPal Payout Item:</span> <span class="font-mono text-sky-400 font-bold">${result.paypal_payout_id}</span></div>
+        <div><span class="text-gray-400">Destination Wallet:</span> <span class="font-mono text-emerald-400">${result.payout_recipient || document.getElementById('payoutRecipientEmail')?.value || 'Beneficiary Wallet'}</span></div>
+      </div>
       <button onclick="switchTab('impact')" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-rose-600 text-white font-bold text-xs shadow hover:opacity-90">
         View Barbah MetaTwin ESG Report &rarr;
       </button>

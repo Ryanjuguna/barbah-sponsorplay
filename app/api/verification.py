@@ -4,12 +4,15 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
 from fastapi import APIRouter, HTTPException
+import base64
+import os
+import uuid
 from typing import Dict, Any, List
 from app.models.schemas import DeliverableSubmission, ProofOfPlayCertificate
 from app.models.database import db
 from app.agents.verification_agent import verification_agent
 from app.agents.guardian_agent import guardian_agent
-from app.agents.vision_engine import vision_engine
+from app.agents.vision_engine import vision_engine, PROOFS_DIR
 
 router = APIRouter(prefix="/api/v1/verification", tags=["Verification & Safety"])
 
@@ -30,12 +33,27 @@ def analyze_stream_frame(payload: Dict[str, Any]):
     Direct endpoint for OpenCV Computer Vision analysis:
     Runs logo bounding box localization, screen area occupancy ratio,
     draws glowing tactical bounding box, and saves annotated proof image.
+    Supports preset scenarios, existing frame paths, or user-uploaded base64 images.
     """
     brand_name = payload.get("brand_name", "Safaricom")
     scenario = payload.get("scenario", "PASS")  # PASS, LOW_OCCUPANCY
     frame_path = payload.get("frame_path")
+    image_base64 = payload.get("image_base64")
 
-    if not frame_path:
+    if image_base64:
+        try:
+            # Strip data URL header e.g. "data:image/jpeg;base64,"
+            if "," in image_base64:
+                image_base64 = image_base64.split(",", 1)[1]
+            raw_bytes = base64.b64decode(image_base64)
+            safe_name = f"upload_{uuid.uuid4().hex[:8]}.jpg"
+            frame_path = os.path.join(PROOFS_DIR, safe_name)
+            with open(frame_path, "wb") as f:
+                f.write(raw_bytes)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid base64 image data: {e}")
+
+    if not frame_path or not os.path.exists(frame_path):
         frame_path = vision_engine.generate_synthetic_esports_frame(brand_name=brand_name, scenario=scenario)
 
     cv_result = vision_engine.analyze_frame(frame_path, brand_name=brand_name)

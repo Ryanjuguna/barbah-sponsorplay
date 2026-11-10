@@ -92,6 +92,7 @@ def disburse_milestone(payload: Dict[str, str]):
     proposal_id = payload.get("proposal_id")
     milestone_id = payload.get("milestone_id")
     cert_id = payload.get("certificate_id")
+    override_recipient_email = payload.get("recipient_email") or payload.get("override_recipient_email")
 
     certificate = db.get_certificate(cert_id)
     if not certificate:
@@ -101,7 +102,8 @@ def disburse_milestone(payload: Dict[str, str]):
         disbursement_result = financial_agent.release_milestone_funds(
             proposal_id=proposal_id,
             milestone_id=milestone_id,
-            certificate=certificate
+            certificate=certificate,
+            override_recipient_email=override_recipient_email
         )
         return disbursement_result
     except Exception as e:

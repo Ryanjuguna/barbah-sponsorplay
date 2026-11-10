@@ -3,7 +3,7 @@ Barbah SponsorPlay - Agent 4: Financial Milestone Ledger & Tax Orchestration Age
 PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from app.models.schemas import Proposal, Milestone, ProofOfPlayCertificate, eTIMSInvoice
 from app.integrations.paypal_client import paypal_client
 from app.integrations.etims_client import etims_client
@@ -47,7 +47,8 @@ class FinancialAgent:
         self,
         proposal_id: str,
         milestone_id: str,
-        certificate: ProofOfPlayCertificate
+        certificate: ProofOfPlayCertificate,
+        override_recipient_email: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Releases committed funds for a verified milestone deliverable:
@@ -85,9 +86,11 @@ class FinancialAgent:
 
         # 2. Execute PayPal Payout
         net_payout_usd = round(milestone.amount_usd * 0.95, 2)  # Net of 5% WHT
+        target_payout_email = (override_recipient_email.strip() if override_recipient_email and override_recipient_email.strip() else creator.paypal_email)
+
         payout_resp = paypal_client.disburse_payout(
             milestone_id=milestone.id,
-            recipient_email=creator.paypal_email,
+            recipient_email=target_payout_email,
             amount_usd=net_payout_usd,
             note=f"Net Payout for {milestone.title}. KRA eTIMS CU Ref: {tax_invoice.cu_invoice_number}"
         )
@@ -104,6 +107,8 @@ class FinancialAgent:
             "net_paid_kes": tax_invoice.net_payable_kes,
             "net_paid_usd": net_payout_usd,
             "paypal_payout_id": payout_resp["payout_item_id"],
+            "payout_recipient": target_payout_email,
+            "payout_mode": payout_resp.get("mode", "PAYPAL_SANDBOX"),
             "etims_cu_invoice_number": tax_invoice.cu_invoice_number,
             "qr_code_url": tax_invoice.qr_code_url,
             "tax_compliance_certified": True
