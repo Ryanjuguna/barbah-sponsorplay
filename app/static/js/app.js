@@ -19,10 +19,56 @@ let gridApi = null;
 document.addEventListener('DOMContentLoaded', () => {
   initThreeCanvas();
   initAgGrid();
+  setupBudgetCurrencySync();
   logAgent("SYSTEM", "Barbah SponsorPlay core initialized. Preloaded Kenyan esports talent graph (16 personas).");
   logAgent("BARBAH GATEWAY", "Real-time webhook listener active on /api/v1/barbah/webhook.");
   logAgent("SCOUT RADAR", "Multi-Channel Talent Radar initialized (Twitch, Start.gg, WhatsApp, TikTok).");
 });
+
+// Real-Time Dynamic USD <-> KES Budget Currency Synchronizer
+function setupBudgetCurrencySync() {
+  const usdInput = document.getElementById('inputBudgetUSD');
+  const kesInput = document.getElementById('inputBudgetKES');
+  if (!usdInput || !kesInput) return;
+
+  function syncUSDToKES() {
+    const rawUSD = parseFloat(usdInput.value);
+    if (isNaN(rawUSD) || rawUSD <= 0) {
+      kesInput.value = "KES 0.00";
+      return;
+    }
+    const kes = rawUSD * USD_TO_KES_RATE;
+    kesInput.value = `KES ${kes.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  function syncKESToUSD() {
+    const cleanStr = kesInput.value.replace(/[^0-9.]/g, '');
+    const rawKES = parseFloat(cleanStr);
+    if (isNaN(rawKES) || rawKES <= 0) {
+      usdInput.value = "0";
+      return;
+    }
+    const usd = rawKES / USD_TO_KES_RATE;
+    usdInput.value = usd.toFixed(2);
+  }
+
+  usdInput.addEventListener('input', syncUSDToKES);
+  usdInput.addEventListener('change', syncUSDToKES);
+  usdInput.addEventListener('keyup', syncUSDToKES);
+
+  kesInput.addEventListener('input', syncKESToUSD);
+  kesInput.addEventListener('change', syncKESToUSD);
+  kesInput.addEventListener('focus', () => {
+    const cleanStr = kesInput.value.replace(/[^0-9.]/g, '');
+    if (cleanStr && parseFloat(cleanStr) > 0) {
+      kesInput.value = cleanStr;
+    }
+  });
+  kesInput.addEventListener('blur', syncUSDToKES);
+
+  // Initial sync on load
+  syncUSDToKES();
+}
 
 // Three.js Interactive 3D Kenyan Cyber-Esports Constellation & Arena Mesh
 function initThreeCanvas() {
@@ -364,16 +410,33 @@ let currentDeconstructionResult = null;
 
 // STEP 1: UNIFIED AGENT 1 DECONSTRUCT & TALENT MATCH
 async function runStep1Deconstruct() {
-  const brandName = document.getElementById('inputBrandName').value;
-  const corporatePIN = document.getElementById('inputCorporatePIN').value;
-  const briefText = document.getElementById('inputBrief').value;
-  const reach = parseInt(document.getElementById('inputTargetReach').value) || 10000;
-  const budgetUSD = parseFloat(document.getElementById('inputBudgetUSD').value) || 769.23;
+  const brandName = document.getElementById('inputBrandName').value || "Safaricom 5G Home Gaming";
+  const corporatePIN = document.getElementById('inputCorporatePIN').value || "P051234567A";
+  const briefText = document.getElementById('inputBrief').value || "Promote 5G gaming to Kenyan youth";
+  
+  const rawReach = document.getElementById('inputTargetReach').value;
+  let reach = parseInt(rawReach) || 0;
+  
+  const rawBudget = document.getElementById('inputBudgetUSD').value;
+  const budgetUSD = parseFloat(rawBudget) || 0;
+
+  if (budgetUSD <= 0) {
+    logAgent("AGENT 1: SCOUT", "Please enter a campaign budget greater than $0 (e.g. $500 USD or KES 65,000) to scout creators.", "text-amber-400 font-bold");
+    document.getElementById('inputBudgetUSD').focus();
+    return;
+  }
+
+  if (reach <= 0) {
+    // Intelligently compute expected baseline reach from budget if left at zero
+    reach = Math.max(1000, Math.round(budgetUSD * 15));
+    document.getElementById('inputTargetReach').value = reach;
+  }
+
   const prefRadio = document.querySelector('input[name="strategyPref"]:checked');
   const strategyPref = prefRadio ? prefRadio.value : "AUTO";
 
   logAgent("AGENT 1: SCOUT", `Deconstructing brand brief for ${brandName}...`, "text-emerald-400");
-  logAgent("CLAUDE BRAIN", `Cognitive analysis: evaluating reach target (${reach.toLocaleString()}) vs budget ($${budgetUSD.toFixed(2)})...`, "text-purple-400");
+  logAgent("CLAUDE BRAIN", `Cognitive analysis: evaluating reach target (${reach.toLocaleString()} gamers) vs budget ($${budgetUSD.toFixed(2)} USD / KES ${(budgetUSD * USD_TO_KES_RATE).toLocaleString()})...`, "text-purple-400");
   logAgent("AGENT 1: SCOUT", `Strategy preference: ${strategyPref} | AI talent matching engaged`, "text-gray-400");
 
   const campaignId = "CAMP-" + Date.now();
@@ -387,8 +450,7 @@ async function runStep1Deconstruct() {
     budget_usd: budgetUSD,
     budget_kes: budgetUSD * USD_TO_KES_RATE,
     preferred_locations: ["Nairobi", "Eldoret"],
-    strategy_preference: strategyPref,
-    beneficiary_notification_email: beneficiaryEmail
+    strategy_preference: strategyPref
   };
 
   try {
