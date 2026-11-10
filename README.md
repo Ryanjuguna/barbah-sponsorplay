@@ -139,16 +139,16 @@ barbah-sponsorplay/
 ### 6.1 Prerequisites
 
 * Python 3.10 or higher.
-* Recommended packages installed:
+* Install dependencies from `requirements.txt`:
   ```bash
-  pip install fastapi uvicorn pydantic requests
+  pip install -r requirements.txt
   ```
 
 ### 6.2 Run Automated Verification Test Suite
 
 Run the end-to-end test verifying all eight stages of the sponsorship lifecycle:
 ```bash
-python -u test_flow.py
+PYTHONPATH=. python test_flow.py
 ```
 
 Expected output:
