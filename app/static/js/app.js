@@ -727,6 +727,27 @@ function renderStep3PayPal(order) {
   document.getElementById('card-step-3').classList.remove('hidden');
   document.getElementById('card-step-3').scrollIntoView({ behavior: 'smooth' });
 
+  // Safe extraction with defensive fallbacks against undefined
+  const orderId = order.order_id || (order.paypal_order && order.paypal_order.id) || order.id || "PAYPAL-ORD-ESCROW";
+  const rawGross = (order.gross_amount !== undefined && order.gross_amount !== null)
+    ? order.gross_amount
+    : (currentProposal ? currentProposal.total_budget_usd : 0);
+  const grossNum = Number(rawGross) || 0;
+
+  const rawFee = (order.platform_fee !== undefined && order.platform_fee !== null)
+    ? order.platform_fee
+    : (currentProposal ? currentProposal.platform_fee_usd : 0);
+  const feeNum = Number(rawFee) || 0;
+
+  const statusText = order.status || (order.paypal_order && order.paypal_order.status) || "CREATED";
+  const approvalUrl = order.approval_url || (order.paypal_order && order.paypal_order.links && order.paypal_order.links.find(l => l.rel === 'approve')?.href) || "";
+  const isLiveSandbox = (order.paypal_order && order.paypal_order.mode && order.paypal_order.mode.includes("LIVE"));
+
+  // Ensure currentPayPalOrder has required keys for downstream actions
+  currentPayPalOrder.order_id = orderId;
+  currentPayPalOrder.gross_amount = grossNum;
+  currentPayPalOrder.platform_fee = feeNum;
+
   const container = document.getElementById('paypalEscrowDetails');
   container.innerHTML = `
     <div class="p-4 rounded-xl bg-sky-950/20 border border-sky-500/30 space-y-3">
@@ -734,18 +755,31 @@ function renderStep3PayPal(order) {
         <span class="text-xs font-bold text-sky-300 uppercase tracking-wider flex items-center gap-1.5">
           <i class="fa-brands fa-paypal"></i> PayPal Orders v2 Multiparty Authorization
         </span>
-        <span class="text-xs font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">${order.status}</span>
+        <div class="flex items-center space-x-2">
+          ${isLiveSandbox ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold font-mono border border-emerald-500/40">LIVE SANDBOX</span>' : ''}
+          <span class="text-xs font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">${statusText}</span>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3 text-xs">
-        <div><span class="text-gray-400">PayPal Order ID:</span> <span class="font-mono text-white font-bold">${order.order_id}</span></div>
-        <div><span class="text-gray-400">Escrow Gross:</span> <span class="font-mono text-emerald-400 font-bold">${formatMoney(order.gross_amount)}</span></div>
-        <div><span class="text-gray-400">Platform Commission Split:</span> <span class="font-mono text-sky-300">${formatMoney(order.platform_fee)}</span></div>
-        <div><span class="text-gray-400">Beneficiary Escrow Share:</span> <span class="font-mono text-white">${formatMoney(order.gross_amount - order.platform_fee)}</span></div>
+        <div><span class="text-gray-400">PayPal Order ID:</span> <span class="font-mono text-white font-bold">${orderId}</span></div>
+        <div><span class="text-gray-400">Escrow Gross:</span> <span class="font-mono text-emerald-400 font-bold">${formatMoney(grossNum)}</span></div>
+        <div><span class="text-gray-400">Platform Commission Split:</span> <span class="font-mono text-sky-300">${formatMoney(feeNum)}</span></div>
+        <div><span class="text-gray-400">Beneficiary Escrow Share:</span> <span class="font-mono text-white">${formatMoney(grossNum - feeNum)}</span></div>
       </div>
+
+      ${approvalUrl ? `
+        <div class="pt-2 border-t border-sky-500/20 flex items-center justify-between">
+          <span class="text-[11px] text-gray-400">Buyer Checkout Flow:</span>
+          <a href="${approvalUrl}" target="_blank" class="px-2.5 py-1 rounded bg-sky-600/30 hover:bg-sky-600/50 text-sky-200 border border-sky-500/40 text-xs font-mono flex items-center space-x-1">
+            <span>Open PayPal Checkout Window</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+        </div>
+      ` : ''}
     </div>
 
-    <!-- Simulated PayPal Checkout Action -->
+    <!-- PayPal Checkout Action -->
     <div class="space-y-3">
       <div class="p-3.5 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-300 flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -756,17 +790,21 @@ function renderStep3PayPal(order) {
 
       <button onclick="capturePayPalOrder()" id="btnCapturePayPal" class="w-full py-3.5 px-4 rounded-xl bg-[#0070ba] hover:bg-[#003087] text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
         <i class="fa-brands fa-paypal text-lg"></i>
-        <span>Authorize & Capture $${order.gross_amount.toFixed(2)} USD into Milestone Escrow</span>
+        <span>Authorize & Capture $${grossNum.toFixed(2)} USD into Milestone Escrow</span>
       </button>
     </div>
   `;
 }
 
 async function capturePayPalOrder() {
-  logAgent("PAYPAL ESCROW", `Authorizing payment capture for Order ${currentPayPalOrder.order_id}...`, "text-sky-400");
+  const orderId = currentPayPalOrder ? (currentPayPalOrder.order_id || (currentPayPalOrder.paypal_order && currentPayPalOrder.paypal_order.id) || currentPayPalOrder.id) : null;
+  logAgent("PAYPAL ESCROW", `Authorizing payment capture for Order ${orderId}...`, "text-sky-400");
 
   try {
-    const resp = await fetch(`/api/v1/payments/capture/${currentPayPalOrder.order_id}`, { method: 'POST' });
+    const resp = await fetch(`/api/v1/payments/capture-order/${orderId}`, { method: 'POST' });
+    if (!resp.ok) {
+      throw new Error(`Capture failed with status ${resp.status}`);
+    }
     const captureData = await resp.json();
 
     logAgent("PAYPAL ESCROW", `Funds Captured! Escrow status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
