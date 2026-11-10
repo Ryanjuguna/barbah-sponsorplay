@@ -766,7 +766,8 @@ async function capturePayPalOrder() {
   logAgent("PAYPAL MILESTONE LEDGER", `Authorizing payment capture for Order ${currentPayPalOrder.order_id}...`, "text-sky-400");
 
   try {
-    const resp = await fetch(`/api/v1/payments/capture/${currentPayPalOrder.order_id}`, { method: 'POST' });
+    const resp = await fetch(`/api/v1/payments/capture-order/${currentPayPalOrder.order_id}`, { method: 'POST' });
+    if (!resp.ok) throw new Error(`Capture request failed (HTTP ${resp.status})`);
     const captureData = await resp.json();
 
     logAgent("PAYPAL MILESTONE LEDGER", `Funds Captured! Milestone ledger status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
