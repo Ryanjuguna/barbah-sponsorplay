@@ -151,17 +151,62 @@ class PayPalClient:
         # Attempt real REST call if token is live
         token = self.get_access_token()
         if not token.startswith("A21AAMock"):
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}"
+            }
+            # 1. Attempt multiparty delayed disbursement
             try:
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {token}",
-                    "PayPal-Partner-Attribution-Id": settings.PAYPAL_PARTNER_ATTRIBUTION_ID
-                }
                 resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=payload, headers=headers, timeout=5.0)
                 if resp.status_code in (200, 201):
-                    return resp.json()
+                    live_order = resp.json()
+                    live_order["mode"] = "LIVE_PAYPAL_SANDBOX_MULTIPARTY"
+                    return live_order
             except Exception:
                 pass
+
+            # 2. Seamless fallback to standard Milestone Escrow order on PayPal Sandbox
+            try:
+                direct_payload = {
+                    "intent": "CAPTURE",
+                    "purchase_units": [
+                        {
+                            "reference_id": f"PU-{proposal_id}",
+                            "description": f"SponsorPlay Campaign Escrow: Proposal {proposal_id}",
+                            "custom_id": proposal_id,
+                            "amount": {
+                                "currency_code": "USD",
+                                "value": f"{gross_amount_usd:.2f}",
+                                "breakdown": {
+                                    "item_total": {
+                                        "currency_code": "USD",
+                                        "value": f"{gross_amount_usd:.2f}"
+                                    }
+                                }
+                            },
+                            "items": [
+                                {
+                                    "name": "Esports Sponsorship Milestone Escrow",
+                                    "description": "Programmatic milestone disbursement for Kenyan youth creators",
+                                    "quantity": "1",
+                                    "unit_amount": {
+                                        "currency_code": "USD",
+                                        "value": f"{gross_amount_usd:.2f}"
+                                    },
+                                    "category": "DIGITAL_GOODS"
+                                }
+                            ]
+                        }
+                    ],
+                    "application_context": payload["application_context"]
+                }
+                resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=direct_payload, headers=headers, timeout=5.0)
+                if resp.status_code in (200, 201):
+                    live_order = resp.json()
+                    live_order["mode"] = "LIVE_PAYPAL_SANDBOX_ESCROW"
+                    return live_order
+            except Exception as e:
+                print(f"[PayPalClient] Sandbox direct order fallback: {e}")
 
         # High-fidelity simulated Order response
         order_id = f"PAYPAL-ORD-{uuid.uuid4().hex[:10].upper()}"
