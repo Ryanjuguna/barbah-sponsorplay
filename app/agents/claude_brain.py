@@ -46,7 +46,7 @@ class ClaudeBrain:
         }
 
         try:
-            resp = requests.post(self.endpoint, headers=self.headers, json=payload, timeout=15)
+            resp = requests.post(self.endpoint, headers=self.headers, json=payload, timeout=35)
             if resp.status_code == 200:
                 body = resp.json()
                 content = body.get("content", [])
@@ -96,20 +96,24 @@ Respond with ONLY a JSON object formatted as:
   "estimated_unique_reach": <Int>
 }}
 """
-        response_text = self.generate_message(prompt, system_prompt, max_tokens=800)
+        response_text = self.generate_message(prompt, system_prompt, max_tokens=2048)
         if response_text:
             try:
-                # Clean potential markdown fences
+                # Clean potential markdown fences and grab first valid JSON block
                 clean_json = response_text.strip()
-                if clean_json.startswith("```json"):
-                    clean_json = clean_json[7:]
-                if clean_json.startswith("```"):
-                    clean_json = clean_json[3:]
-                if clean_json.endswith("```"):
-                    clean_json = clean_json[:-3]
-                return json.loads(clean_json.strip())
+                if "```json" in clean_json:
+                    clean_json = clean_json.split("```json")[1].split("```")[0].strip()
+                elif "```" in clean_json:
+                    clean_json = clean_json.split("```")[1].split("```")[0].strip()
+                
+                import re
+                match = re.search(r'\{[\s\S]*\}', clean_json)
+                if match:
+                    clean_json = match.group(0)
+                return json.loads(clean_json)
             except Exception as e:
                 print(f"[ClaudeBrain] Error parsing Claude JSON: {e}")
+                print(f"[ClaudeBrain] Raw response was: {response_text[:300]}...")
         return None
 
     def reason_chat_brand_safety(
@@ -144,17 +148,20 @@ Respond with ONLY a JSON object:
   "guardian_approved": true | false
 }}
 """
-        response_text = self.generate_message(prompt, system_prompt, max_tokens=400)
+        response_text = self.generate_message(prompt, system_prompt, max_tokens=1024)
         if response_text:
             try:
                 clean_json = response_text.strip()
-                if clean_json.startswith("```json"):
-                    clean_json = clean_json[7:]
-                if clean_json.startswith("```"):
-                    clean_json = clean_json[3:]
-                if clean_json.endswith("```"):
-                    clean_json = clean_json[:-3]
-                return json.loads(clean_json.strip())
+                if "```json" in clean_json:
+                    clean_json = clean_json.split("```json")[1].split("```")[0].strip()
+                elif "```" in clean_json:
+                    clean_json = clean_json.split("```")[1].split("```")[0].strip()
+                
+                import re
+                match = re.search(r'\{[\s\S]*\}', clean_json)
+                if match:
+                    clean_json = match.group(0)
+                return json.loads(clean_json)
             except Exception as e:
                 print(f"[ClaudeBrain] Error parsing Claude safety JSON: {e}")
         return None

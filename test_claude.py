@@ -6,10 +6,11 @@ import requests
 from app.config import settings
 
 models_to_test = [
+    settings.CLAUDE_MODEL,
+    "claude-sonnet-4-6",
     "claude-3-5-sonnet-latest",
     "claude-3-5-sonnet-20240620",
-    "claude-3-haiku-20240307",
-    "claude-3-5-haiku-latest"
+    "claude-3-haiku-20240307"
 ]
 
 def test():
@@ -21,7 +22,11 @@ def test():
         "content-type": "application/json"
     }
 
-    for m in models_to_test:
+    # Deduplicate while preserving order
+    seen = set()
+    unique_models = [m for m in models_to_test if not (m in seen or seen.add(m))]
+
+    for m in unique_models:
         print(f"\nTrying model: {m}...")
         payload = {
             "model": m,

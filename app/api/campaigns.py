@@ -3,8 +3,9 @@ Barbah SponsorPlay - Campaigns & Creator API Router
 PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
+import uuid
 from fastapi import APIRouter, HTTPException
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from app.models.schemas import CreatorProfile, CampaignBrief, SyndicateRecommendation, Proposal
 from app.models.database import db
 from app.agents.scout_agent import scout_agent
@@ -16,6 +17,14 @@ router = APIRouter(prefix="/api/v1/campaigns", tags=["Campaigns"])
 def list_creators():
     """Returns all registered Kenyan esports creators, teams, and gaming lounges."""
     return db.get_all_creators()
+
+@router.get("/creators/{creator_id}", response_model=CreatorProfile)
+def get_creator_detail(creator_id: str):
+    """Retrieves an individual creator profile."""
+    creator = db.get_creator(creator_id)
+    if not creator:
+        raise HTTPException(status_code=404, detail="Creator not found")
+    return creator
 
 @router.get("/seed", response_model=List[CampaignBrief])
 def list_seed_campaigns():
@@ -29,7 +38,6 @@ def submit_brief(brief: CampaignBrief):
     bundled Sponsorship Syndicates matching budget and demographic criteria.
     """
     if not brief.id:
-        import uuid
         brief.id = f"CAMP-{uuid.uuid4().hex[:6].upper()}"
     db.save_campaign(brief)
     
@@ -37,19 +45,39 @@ def submit_brief(brief: CampaignBrief):
     return recommendations
 
 @router.post("/proposal", response_model=Proposal)
-def create_proposal(payload: Dict[str, str]):
+def create_proposal(payload: Dict[str, Any]):
     """
-    Accepts campaign_id and syndicate_id. Agent 2 (Architect) generates the
-    executable milestone contract, fee calculations, and legal agreement.
+    Accepts campaign_id and EITHER syndicate_id (for bundled sponsorship)
+    OR creator_id (for solo individual creator sponsorship).
+    Agent 2 (Architect) generates the executable milestone contract and fee splits.
     """
     campaign_id = payload.get("campaign_id")
     syndicate_id = payload.get("syndicate_id")
+    creator_id = payload.get("creator_id")
     
     campaign = db.get_campaign(campaign_id)
     if not campaign:
-        raise HTTPException(status_code=404, detail="Campaign not found")
+        # Create a default campaign on the fly if not yet submitted
+        campaign = CampaignBrief(
+            id=f"CAMP-{uuid.uuid4().hex[:6].upper()}",
+            brand_name=payload.get("brand_name", "Safaricom 5G Gaming"),
+            corporate_pin="P051234567A",
+            brief="Direct creator sponsorship contract",
+            target_audience="Youth Gamers",
+            budget_usd=payload.get("budget_usd", 350.0)
+        )
+        db.save_campaign(campaign)
 
-    # Match syndicate
+    # 1. Solo Creator Sponsorship
+    if creator_id:
+        creator = db.get_creator(creator_id)
+        if not creator:
+            raise HTTPException(status_code=404, detail=f"Creator {creator_id} not found")
+        proposal = architect_agent.draft_solo_proposal(campaign, creator)
+        db.save_proposal(proposal)
+        return proposal
+
+    # 2. Syndicate Bundle Sponsorship
     syndicate = db.get_syndicate(syndicate_id)
     if not syndicate:
         recs = scout_agent.analyze_brief_and_match(campaign)

@@ -15,6 +15,7 @@ from app.api.payments import router as payments_router
 from app.api.verification import router as verification_router
 from app.api.impact import router as impact_router
 from app.api.barbah_webhook import router as barbah_router
+from app.api.scout_radar import router as radar_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -39,6 +40,7 @@ app.include_router(payments_router)
 app.include_router(verification_router)
 app.include_router(impact_router)
 app.include_router(barbah_router)
+app.include_router(radar_router)
 
 # Mount Static Assets Directory
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")

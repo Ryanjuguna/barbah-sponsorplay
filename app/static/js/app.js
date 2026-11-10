@@ -17,20 +17,94 @@ let gridApi = null;
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
+  initThreeCanvas();
   initAgGrid();
-  logAgent("SYSTEM", "Barbah SponsorPlay core initialized. Preloaded Kenyan esports talent graph.");
+  logAgent("SYSTEM", "Barbah SponsorPlay core initialized. Preloaded Kenyan esports talent graph (16 personas).");
   logAgent("BARBAH GATEWAY", "Real-time webhook listener active on /api/v1/barbah/webhook.");
+  logAgent("SCOUT RADAR", "Multi-Channel Talent Radar initialized (Twitch, Start.gg, WhatsApp, TikTok).");
 });
+
+// Three.js Interactive 3D Polygonal Arena Background
+function initThreeCanvas() {
+  const canvas = document.getElementById('threeCanvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 25;
+
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Holographic Wireframe Arena Sphere
+  const geometry = new THREE.IcosahedronGeometry(13, 2);
+  const wireframeMaterial = new THREE.MeshBasicMaterial({
+    color: 0x00cf8d,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.16
+  });
+  const sphere = new THREE.Mesh(geometry, wireframeMaterial);
+  scene.add(sphere);
+
+  // Outer Cyan Orbital Ring
+  const ringGeom = new THREE.TorusGeometry(17, 0.08, 16, 100);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x0070ba, transparent: true, opacity: 0.22 });
+  const ring1 = new THREE.Mesh(ringGeom, ringMat);
+  ring1.rotation.x = Math.PI / 3;
+  scene.add(ring1);
+
+  // Floating Node Particles (representing 16 gaming nodes across Nairobi, Eldoret, Mombasa)
+  const particlesCount = 140;
+  const positions = new Float32Array(particlesCount * 3);
+  for (let i = 0; i < particlesCount * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 65;
+  }
+  const particleGeometry = new THREE.BufferGeometry();
+  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particleMaterial = new THREE.PointsMaterial({
+    color: 0x00e5ff,
+    size: 0.45,
+    transparent: true,
+    opacity: 0.65
+  });
+  const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+  scene.add(particleSystem);
+
+  // Mouse interaction
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX - window.innerWidth / 2) * 0.0004;
+    mouseY = (e.clientY - window.innerHeight / 2) * 0.0004;
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    sphere.rotation.y += 0.002 + mouseX * 0.05;
+    sphere.rotation.x += 0.001 + mouseY * 0.05;
+    ring1.rotation.z += 0.003;
+    particleSystem.rotation.y -= 0.0008;
+    renderer.render(scene, camera);
+  }
+  animate();
+}
 
 // Currency Switcher
 function setCurrency(curr) {
   currentCurrency = curr;
   document.getElementById('btnCurrencyUSD').className = curr === 'USD' 
-    ? 'px-2.5 py-1 rounded bg-blue-600 text-white shadow' 
-    : 'px-2.5 py-1 rounded text-gray-400 hover:text-white';
+    ? 'px-2.5 py-1 rounded bg-blue-600 text-white shadow font-mono' 
+    : 'px-2.5 py-1 rounded text-gray-400 hover:text-white font-mono';
   document.getElementById('btnCurrencyKES').className = curr === 'KES' 
-    ? 'px-2.5 py-1 rounded bg-blue-600 text-white shadow' 
-    : 'px-2.5 py-1 rounded text-gray-400 hover:text-white';
+    ? 'px-2.5 py-1 rounded bg-blue-600 text-white shadow font-mono' 
+    : 'px-2.5 py-1 rounded text-gray-400 hover:text-white font-mono';
   
   if (gridApi) {
     gridApi.refreshCells();
@@ -49,15 +123,21 @@ function formatMoney(amountUSD) {
 
 // Tab Switching
 function switchTab(tabName) {
-  ['demo', 'explorer', 'invoices', 'impact'].forEach(t => {
-    document.getElementById(`view-${t}`).classList.add('hidden');
-    document.getElementById(`tab-${t}`).className = 'py-3 px-1 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-medium text-sm flex items-center space-x-2';
+  ['demo', 'explorer', 'radar', 'invoices', 'impact'].forEach(t => {
+    const el = document.getElementById(`view-${t}`);
+    const tabEl = document.getElementById(`tab-${t}`);
+    if (el) el.classList.add('hidden');
+    if (tabEl) tabEl.className = 'py-3 px-1 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-semibold text-sm flex items-center space-x-2 whitespace-nowrap';
   });
 
-  document.getElementById(`view-${tabName}`).classList.remove('hidden');
-  document.getElementById(`tab-${tabName}`).className = 'py-3 px-1 border-b-2 border-emerald-500 text-emerald-400 font-semibold text-sm flex items-center space-x-2';
+  const activeView = document.getElementById(`view-${tabName}`);
+  const activeTab = document.getElementById(`tab-${tabName}`);
+  if (activeView) activeView.classList.remove('hidden');
+  if (activeTab) activeTab.className = 'py-3 px-1 border-b-2 border-emerald-500 text-emerald-400 font-bold text-sm flex items-center space-x-2 whitespace-nowrap';
 
-  if (tabName === 'invoices') {
+  if (tabName === 'radar') {
+    refreshRadarData();
+  } else if (tabName === 'invoices') {
     loadInvoicesList();
   } else if (tabName === 'impact' && currentProposal) {
     loadImpactDossier();
@@ -93,9 +173,9 @@ async function triggerBarbahWebhook(eventType) {
         primary_game: "EA FC 25",
         platform: "YouTube Gaming",
         location: "Kayole, Nairobi East",
-        monthly_reach: 9500,
-        avg_concurrent_viewers: 420,
-        base_rate_usd: 160.0,
+        monthly_reach: 9800,
+        avg_concurrent_viewers: 430,
+        base_rate_usd: 150.0,
         kra_pin: "A019888888K",
         paypal_email: "kayoleking@gmail.com",
         mpesa_phone: "+254712345678",
@@ -109,7 +189,7 @@ async function triggerBarbahWebhook(eventType) {
         hub_name: "Eldoret Rift Gaming Arena",
         hub_tag: "EldoretRift_Hub",
         location: "Eldoret CBD",
-        monthly_reach: 12000,
+        monthly_reach: 12500,
         avg_concurrent_viewers: 550,
         kra_pin: "P057777777R",
         paypal_email: "eldoretrift@gmail.com",
@@ -125,7 +205,7 @@ async function triggerBarbahWebhook(eventType) {
       body: JSON.stringify(payload)
     });
     const data = await resp.json();
-    logAgent("BARBAH GATEWAY", `Ingestion Complete: ${data.result.status} &bull; Total Creators in Active Registry: ${data.total_active_creators}`, "text-emerald-300 font-bold");
+    logAgent("BARBAH GATEWAY", `Ingestion Complete: ${data.result.status} &bull; Total Creators in Registry: ${data.total_active_creators}`, "text-emerald-300 font-bold");
     if (gridApi) reloadCreatorsGrid();
   } catch (err) {
     logAgent("ERROR", `Barbah webhook failed: ${err.message}`, "text-red-400");
@@ -140,8 +220,8 @@ async function triggerExternalScout() {
     name: "Dennis 'Vivid' Ochieng",
     primary_game: "EA FC 25",
     location: "Rongai / USIU Campus",
-    monthly_reach: 14000,
-    avg_concurrent_viewers: 480,
+    monthly_reach: 14500,
+    avg_concurrent_viewers: 850,
     base_rate_usd: 210.0,
     kra_pin: "A016655443Z"
   };
@@ -157,18 +237,6 @@ async function triggerExternalScout() {
     if (gridApi) reloadCreatorsGrid();
   } catch (err) {
     logAgent("ERROR", `External discovery failed: ${err.message}`, "text-red-400");
-  }
-}
-
-async function syncBarbahDatabase() {
-  logAgent("BARBAH GATEWAY", "Syncing with live Barbah Games Hub & Player Registry...", "text-gray-400");
-  try {
-    const resp = await fetch('/api/v1/barbah/sync', { method: 'POST' });
-    const data = await resp.json();
-    logAgent("BARBAH GATEWAY", `Sync complete: ${data.details.status} (${data.total_registered_creators} creators active)`, "text-emerald-400");
-    if (gridApi) reloadCreatorsGrid();
-  } catch (err) {
-    logAgent("ERROR", `Barbah sync failed: ${err.message}`, "text-red-400");
   }
 }
 
@@ -309,12 +377,62 @@ async function selectSyndicate(syndicateId) {
   }
 }
 
+// SOLO CREATOR SPONSORSHIP HANDLER
+async function sponsorSoloCreator(creatorId) {
+  logAgent("AGENT 2: ARCHITECT", `Structuring direct solo creator milestone contract for Creator ID: ${creatorId}...`, "text-blue-400");
+  
+  const brandName = document.getElementById('inputBrandName')?.value || "Safaricom 5G Home Gaming";
+  const corporatePIN = document.getElementById('inputCorporatePIN')?.value || "P051234567A";
+  
+  try {
+    const resp = await fetch('/api/v1/campaigns/proposal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        campaign_id: currentCampaign ? currentCampaign.id : null,
+        creator_id: creatorId,
+        brand_name: brandName,
+        corporate_pin: corporatePIN
+      })
+    });
+    
+    if (!resp.ok) {
+      const errData = await resp.json();
+      throw new Error(errData.detail || "Failed to structure solo proposal");
+    }
+    
+    currentProposal = await resp.json();
+    currentSyndicate = null;
+    
+    logAgent("AGENT 2: ARCHITECT", `Solo Contract Drafted for ${currentProposal.creators[0].name} (${currentProposal.creators[0].gamer_tag})! Rate: $${currentProposal.total_budget_usd} USD.`, "text-blue-300 font-bold");
+    
+    switchTab('demo');
+    setStepActive(2);
+    renderStep2Proposal(currentProposal);
+  } catch (err) {
+    logAgent("ERROR", `Solo sponsorship creation failed: ${err.message}`, "text-red-400");
+  }
+}
+
 function renderStep2Proposal(proposal) {
   document.getElementById('card-step-2').classList.remove('hidden');
   document.getElementById('card-step-2').scrollIntoView({ behavior: 'smooth' });
 
   const container = document.getElementById('proposalDetails');
+  const isSolo = proposal.creators && proposal.creators.length === 1;
+
   container.innerHTML = `
+    <!-- Target Beneficiary Notice -->
+    <div class="p-3.5 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-between">
+      <div>
+        <span class="text-xs text-gray-400 block">${isSolo ? 'Solo Creator Direct Sponsorship' : 'Syndicate Beneficiaries'}</span>
+        <span class="text-sm font-bold text-white">${proposal.creators.map(c => `${c.name} (${c.gamer_tag})`).join(', ')}</span>
+      </div>
+      <span class="px-2.5 py-1 rounded text-xs font-bold font-mono ${isSolo ? 'bg-sky-500/20 text-sky-300' : 'bg-emerald-500/20 text-emerald-300'}">
+        ${isSolo ? 'SOLO CREATOR' : 'SYNDICATE BUNDLE'}
+      </span>
+    </div>
+
     <!-- Financial Breakdown Card -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-gray-900 border border-gray-800">
       <div>
@@ -337,20 +455,20 @@ function renderStep2Proposal(proposal) {
 
     <!-- Milestone Phases -->
     <div class="space-y-3">
-      <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider">3-Phase Programmatic Milestones</h3>
+      <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider">Programmatic Milestone Schedule</h3>
       <div class="space-y-2">
         ${proposal.milestones.map(m => `
           <div class="p-3.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
             <div class="space-y-1">
               <div class="flex items-center space-x-2">
-                <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Phase ${m.milestone_number} (${m.percentage}%)</span>
+                <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono">Phase ${m.milestone_number} (${m.percentage}%)</span>
                 <span class="text-sm font-bold text-white">${m.title}</span>
               </div>
               <p class="text-xs text-gray-400">${m.description}</p>
             </div>
             <div class="text-right">
               <span class="text-sm font-extrabold text-emerald-400 font-mono">${formatMoney(m.amount_usd)}</span>
-              <span class="text-[10px] block text-gray-500 uppercase">${m.status}</span>
+              <span class="text-[10px] block text-gray-500 uppercase font-mono">${m.status}</span>
             </div>
           </div>
         `).join('')}
@@ -365,7 +483,7 @@ function renderStep2Proposal(proposal) {
       </div>
     </div>
 
-    <button onclick="initializePayPalEscrow()" id="btnInitPayPal" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
+    <button onclick="initializePayPalEscrow()" id="btnInitPayPal" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
       <i class="fa-brands fa-paypal text-lg"></i>
       <span>Sponsor Approval: Initialize PayPal Smart Escrow Checkout</span>
     </button>
@@ -420,7 +538,7 @@ function renderStep3PayPal(order) {
       <div class="p-3.5 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-300 flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i class="fa-solid fa-lock text-emerald-400"></i>
-          <span>Funds will be held in programmatic escrow and released milestone-by-milestone upon Proof-of-Play verification.</span>
+          <span>Funds will be held in programmatic escrow and released milestone-by-milestone upon OpenCV Proof-of-Play verification.</span>
         </div>
       </div>
 
@@ -467,7 +585,7 @@ function renderVerificationStep() {
   const container = document.getElementById('verificationDetails');
   container.innerHTML = `
     <div class="space-y-4">
-      <!-- OpenCV Scenario Selector Bench -->
+      <!-- OpenCV Scenario Selector Bench & File Drop -->
       <div class="p-3.5 rounded-xl bg-gray-950/80 border border-purple-500/30 flex flex-wrap items-center justify-between gap-2">
         <div>
           <span class="text-xs font-bold text-white block">OpenCV Computer Vision Test Bench</span>
@@ -510,7 +628,7 @@ function renderVerificationStep() {
         </div>
       </div>
 
-      <button onclick="executeMultimodalVerification()" id="btnVerifyDeliverable" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-purple-500/20 flex items-center justify-center space-x-2 transition-all">
+      <button onclick="executeMultimodalVerification()" id="btnVerifyDeliverable" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-lg shadow-purple-500/20 flex items-center justify-center space-x-2 transition-all">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span>Agent 3: Run Multimodal Consensus & Seal Certificate</span>
       </button>
@@ -668,7 +786,7 @@ function renderStep5Payout() {
         </div>
       </div>
 
-      <button onclick="executeFinalDisbursementAndTax()" id="btnExecuteDisbursement" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm shadow-lg shadow-red-500/20 flex items-center justify-center space-x-2 transition-all">
+      <button onclick="executeFinalDisbursementAndTax()" id="btnExecuteDisbursement" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-extrabold text-sm shadow-lg shadow-red-500/20 flex items-center justify-center space-x-2 transition-all">
         <i class="fa-solid fa-qrcode"></i>
         <span>Agent 4: Issue KRA eTIMS Invoice (BII) & Release PayPal Payout</span>
       </button>
@@ -695,7 +813,7 @@ async function executeFinalDisbursementAndTax() {
     const result = await resp.json();
 
     logAgent("AGENT 4: TAX ENGINE", `eTIMS Fiscal Invoice Issued! CU Ref: ${result.etims_cu_invoice_number}`, "text-red-300 font-bold");
-    logAgent("AGENT 4: FINANCE", `PayPal Payout Released! ID: ${result.paypal_payout_id} &bull; Funds ready for M-Pesa cashout!`, "text-emerald-300 font-bold");
+    logAgent("AGENT 4: FINANCE", `PayPal Payout Released! Mode: ${result.payout_mode || 'PAYPAL_SANDBOX'} &bull; Item: ${result.paypal_payout_id}`, "text-emerald-300 font-bold");
     logAgent("AGENT 6: METATWIN", `Logged youth empowerment metrics into ESG Social Impact ledger.`, "text-rose-400");
 
     renderFinalTaxInvoice(result);
@@ -719,7 +837,7 @@ function renderFinalTaxInvoice(result) {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <div class="md:col-span-2 space-y-1.5 text-xs">
         <div><span class="text-gray-400">Buyer PIN (Safaricom):</span> <span class="font-mono text-white">P051234567A</span></div>
-        <div><span class="text-gray-400">Supplier PIN (Solo Creator):</span> <span class="font-mono text-white">A011982736K (BII Handled)</span></div>
+        <div><span class="text-gray-400">Supplier PIN:</span> <span class="font-mono text-white">${result.supplier_pin || 'A011982736K (BII Handled)'}</span></div>
         <div><span class="text-gray-400">Taxable Gross Amount:</span> <span class="font-mono text-white font-bold">KES ${(result.gross_amount_kes || 0).toLocaleString()}</span></div>
         <div><span class="text-gray-400">5% Withholding Tax Remitted:</span> <span class="font-mono text-red-400 font-bold">KES ${(result.withholding_tax_kes || 0).toLocaleString()}</span></div>
         <div><span class="text-gray-400">Net Creator Payment Received:</span> <span class="font-mono text-emerald-400 font-bold">KES ${(result.net_paid_kes || 0).toLocaleString()}</span></div>
@@ -751,16 +869,18 @@ function renderFinalTaxInvoice(result) {
 function setStepActive(stepNum) {
   for (let i = 1; i <= 5; i++) {
     const pill = document.getElementById(`step-pill-${i}`);
-    if (i <= stepNum) {
-      pill.className = "p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/20 text-center transition-all opacity-100";
-    } else {
-      pill.className = "p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all";
+    if (pill) {
+      if (i <= stepNum) {
+        pill.className = "p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-center transition-all opacity-100";
+      } else {
+        pill.className = "p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all";
+      }
     }
   }
 }
 
 // =========================================================================
-// TAB 2: AG GRID INITIALIZATION
+// TAB 2: AG GRID INITIALIZATION (16 PERSONAS + SOLO SPONSOR ACTION)
 // =========================================================================
 async function initAgGrid() {
   const gridDiv = document.querySelector('#myGrid');
@@ -770,36 +890,35 @@ async function initAgGrid() {
     { field: "name", headerName: "Creator / Organization", minWidth: 200, flex: 2 },
     { field: "gamer_tag", headerName: "Handle", minWidth: 140, flex: 1 },
     { field: "type", headerName: "Category", minWidth: 160, flex: 1 },
-    { field: "primary_game", headerName: "Primary Game", minWidth: 160, flex: 1 },
+    { field: "primary_game", headerName: "Primary Game", minWidth: 150, flex: 1 },
     { field: "location", headerName: "Location", minWidth: 140, flex: 1 },
     { 
       field: "monthly_reach", 
-      headerName: "Monthly Reach", 
-      minWidth: 130,
+      headerName: "Reach", 
+      minWidth: 110,
       valueFormatter: params => params.value.toLocaleString()
-    },
-    { 
-      field: "brand_safety_score", 
-      headerName: "Brand Safety", 
-      minWidth: 130,
-      cellRenderer: params => {
-        return `<span class="px-2 py-0.5 rounded font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${params.value}%</span>`;
-      }
     },
     { 
       field: "base_rate_usd", 
       headerName: "Base Rate", 
-      minWidth: 130,
+      minWidth: 120,
       valueFormatter: params => formatMoney(params.value)
     },
     { 
       field: "etims_registered", 
-      headerName: "eTIMS Status", 
-      minWidth: 140,
+      headerName: "Tax Route", 
+      minWidth: 130,
       cellRenderer: params => {
         return params.value 
-          ? `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300">Registered</span>`
-          : `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300">BII Eligible</span>`;
+          ? `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300">Direct eTIMS</span>`
+          : `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300">Barbah BII</span>`;
+      }
+    },
+    {
+      headerName: "Direct Sponsor",
+      minWidth: 140,
+      cellRenderer: params => {
+        return `<button onclick="sponsorSoloCreator('${params.data.id}')" class="px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow transition-all">Sponsor Solo &rarr;</button>`;
       }
     }
   ];
@@ -823,7 +942,113 @@ function onFilterTextBoxChanged() {
 }
 
 // =========================================================================
-// TAB 3: LOAD eTIMS INVOICES
+// TAB 3: AGENT 1 MULTI-CHANNEL RADAR DATA FETCH
+// =========================================================================
+async function refreshRadarData() {
+  logAgent("SCOUT RADAR", "Scanning 4 autonomous intelligence feeds...", "text-cyan-400");
+  try {
+    const resp = await fetch('/api/v1/radar/overview');
+    const data = await resp.json();
+    
+    // Render Channel 1: Streams
+    const streamsContainer = document.getElementById('radarStreamsList');
+    if (streamsContainer) {
+      streamsContainer.innerHTML = data.channel_1_live_streams.map(s => `
+        <div class="p-3 rounded-xl bg-gray-950/70 border ${s.sponsor_recommended ? 'border-gray-800' : 'border-red-500/40'} flex items-center justify-between text-xs">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-white">${s.creator_name}</span>
+              <span class="text-gray-400 font-mono">(${s.gamer_tag})</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-300">${s.game}</span>
+            </div>
+            <div class="text-gray-400 text-[11px]">${s.stream_title}</div>
+            <div class="flex items-center space-x-3 text-[11px] text-gray-400 font-mono">
+              <span>CCV: <b class="text-white">${s.ccv.toLocaleString()}</b></span>
+              <span>Chat Velocity: <b class="text-cyan-400">${s.chat_velocity_cpm} cpm</b></span>
+              <span>Engagement Ratio: <b class="${s.sponsor_recommended ? 'text-emerald-400' : 'text-red-400'}">${s.engagement_ratio_percent}%</b></span>
+            </div>
+          </div>
+          <div class="text-right space-y-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.sponsor_recommended ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}">
+              ${s.audit_status}
+            </span>
+            <div class="text-[10px] text-gray-500 font-mono">Bot Risk: ${s.bot_risk}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Channel 2: Brackets
+    const bracketsContainer = document.getElementById('radarBracketsList');
+    if (bracketsContainer) {
+      bracketsContainer.innerHTML = data.channel_2_tournament_brackets.map(b => `
+        <div class="p-3.5 rounded-xl bg-gray-950/70 border border-gray-800 space-y-2 text-xs">
+          <div class="flex items-center justify-between border-b border-gray-800 pb-1.5">
+            <div>
+              <span class="font-bold text-white">${b.title}</span>
+              <span class="text-[11px] text-gray-400 block">${b.venue} &bull; ${b.total_entrants} Players</span>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 text-[10px] font-mono">${b.aggregator}</span>
+          </div>
+          <div class="space-y-1">
+            ${b.standings.map(st => `
+              <div class="flex items-center justify-between text-[11px]">
+                <div class="flex items-center space-x-2">
+                  <span class="w-4 h-4 rounded-full bg-gray-800 text-gray-300 flex items-center justify-center font-bold text-[10px]">${st.placement}</span>
+                  <span class="font-semibold text-white">${st.name} (${st.gamer_tag})</span>
+                  <span class="text-gray-500 font-mono">${st.score}</span>
+                </div>
+                <span class="text-[10px] font-mono ${st.status === 'VERIFIED_SPONSORPLAY' ? 'text-emerald-400' : 'text-cyan-400'}">${st.status}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Channel 3: Webhooks
+    const webhooksContainer = document.getElementById('radarWebhooksList');
+    if (webhooksContainer) {
+      webhooksContainer.innerHTML = data.channel_3_community_webhooks.map(w => `
+        <div class="p-3 rounded-xl bg-gray-950/70 border border-gray-800 space-y-1 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-satellite"></i> ${w.source}: ${w.channel_name}
+            </span>
+            <span class="text-[10px] text-gray-500">${w.ingested_at}</span>
+          </div>
+          <p class="text-gray-300 text-[11px]">"${w.message}"</p>
+          <div class="text-[10px] text-gray-400 font-mono">From: ${w.sender} &bull; Parsed: ${w.parsed_data.event_type} (${w.parsed_data.location})</div>
+        </div>
+      `).join('');
+    }
+
+    // Render Channel 4: Social Clips
+    const clipsContainer = document.getElementById('radarClipsList');
+    if (clipsContainer) {
+      clipsContainer.innerHTML = data.channel_4_social_clips.map(c => `
+        <div class="p-3 rounded-xl bg-gray-950/70 border border-gray-800 space-y-1.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-rose-400">${c.platform} ${c.hashtag} (${c.creator_tag})</span>
+            <span class="text-[10px] font-mono bg-rose-500/10 text-rose-300 px-1.5 py-0.5 rounded">Virality: ${c.virality_score}%</span>
+          </div>
+          <div class="text-white font-medium text-[11px]">"${c.clip_title}"</div>
+          <div class="flex items-center justify-between text-[10px] text-gray-400 font-mono pt-1 border-t border-gray-900">
+            <span>${c.views.toLocaleString()} views &bull; ${c.shares.toLocaleString()} shares</span>
+            <span class="text-emerald-400">${c.brand_safety_status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    logAgent("SCOUT RADAR", `Scanned: ${data.channels_summary.live_streams_monitored} broadcasts (${data.channels_summary.bot_flags_intercepted} bot flags detected), ${data.channels_summary.tournament_brackets_synced} brackets, ${data.channels_summary.community_webhooks_queued} webhooks, ${data.channels_summary.social_clips_indexed} viral clips.`, "text-cyan-300 font-bold");
+  } catch (err) {
+    logAgent("ERROR", `Radar refresh failed: ${err.message}`, "text-red-400");
+  }
+}
+
+// =========================================================================
+// TAB 4: LOAD eTIMS INVOICES
 // =========================================================================
 async function loadInvoicesList() {
   const container = document.getElementById('invoicesList');
@@ -863,7 +1088,7 @@ async function loadInvoicesList() {
 }
 
 // =========================================================================
-// TAB 4: LOAD BARBAH METATWIN ESG IMPACT DOSSIER
+// TAB 5: LOAD BARBAH METATWIN ESG IMPACT DOSSIER
 // =========================================================================
 async function loadImpactDossier() {
   const container = document.getElementById('impactDossier');
