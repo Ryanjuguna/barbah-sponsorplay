@@ -222,7 +222,7 @@ class ComputerVisionEngine:
         # Draw bottom HUD telemetry bar
         cv2.rectangle(annotated, (0, frame_h - 40), (frame_w, frame_h), (12, 12, 18), -1)
         cv2.line(annotated, (0, frame_h - 40), (frame_w, frame_h - 40), color, 2)
-        footer_text = f"OPENCV PROOF: {cert_id}  |  STATUS: {status_text}  |  SHA256: {sha256_seal[:24]}...  |  PAYPAL ESCROW ELIGIBLE"
+        footer_text = f"OPENCV PROOF: {cert_id}  |  STATUS: {status_text}  |  SHA256: {sha256_seal[:24]}...  |  PAYPAL MILESTONE RELEASE ELIGIBLE"
         cv2.putText(annotated, footer_text, (20, frame_h - 14),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.44, (240, 240, 240), 1)
 

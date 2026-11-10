@@ -88,17 +88,17 @@ class PayPalClient:
     ) -> Dict[str, Any]:
         """
         Creates a PayPal Orders v2 with Multiparty Payment Splitting:
-        Holds funds in programmatic milestone escrow while allocating Barbah Games
+        Holds funds in programmatic milestone ledger while allocating Barbah Games
         10% platform facilitation commission via payment_instruction.
         """
-        beneficiary_escrow_amount = round(gross_amount_usd - platform_fee_usd, 2)
+        beneficiary_milestone_amount = round(gross_amount_usd - platform_fee_usd, 2)
 
         payload = {
             "intent": "CAPTURE",
             "purchase_units": [
                 {
                     "reference_id": f"PU-{proposal_id}",
-                    "description": f"SponsorPlay Campaign Escrow: Proposal {proposal_id}",
+                    "description": f"SponsorPlay Milestone Ledger: Proposal {proposal_id}",
                     "custom_id": proposal_id,
                     "amount": {
                         "currency_code": "USD",
@@ -112,7 +112,7 @@ class PayPalClient:
                     },
                     "items": [
                         {
-                            "name": "Esports Sponsorship Milestone Escrow",
+                            "name": "Esports Sponsorship Milestone Ledger",
                             "description": "Programmatic milestone disbursement for Kenyan youth creators",
                             "quantity": "1",
                             "unit_amount": {
@@ -123,7 +123,7 @@ class PayPalClient:
                         }
                     ],
                     "payment_instruction": {
-                        "disbursement_mode": "DELAYED",  # Programmatic milestone escrow
+                        "disbursement_mode": "DELAYED",  # Programmatic milestone ledger
                         "platform_fees": [
                             {
                                 "amount": {
@@ -165,14 +165,14 @@ class PayPalClient:
             except Exception:
                 pass
 
-            # 2. Seamless fallback to standard Milestone Escrow order on PayPal Sandbox
+            # 2. Seamless fallback to standard Milestone Ledger order on PayPal Sandbox
             try:
                 direct_payload = {
                     "intent": "CAPTURE",
                     "purchase_units": [
                         {
                             "reference_id": f"PU-{proposal_id}",
-                            "description": f"SponsorPlay Campaign Escrow: Proposal {proposal_id}",
+                            "description": f"SponsorPlay Milestone Ledger: Proposal {proposal_id}",
                             "custom_id": proposal_id,
                             "amount": {
                                 "currency_code": "USD",
@@ -186,7 +186,7 @@ class PayPalClient:
                             },
                             "items": [
                                 {
-                                    "name": "Esports Sponsorship Milestone Escrow",
+                                    "name": "Esports Sponsorship Milestone Ledger",
                                     "description": "Programmatic milestone disbursement for Kenyan youth creators",
                                     "quantity": "1",
                                     "unit_amount": {
@@ -203,7 +203,7 @@ class PayPalClient:
                 resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=direct_payload, headers=headers, timeout=5.0)
                 if resp.status_code in (200, 201):
                     live_order = resp.json()
-                    live_order["mode"] = "LIVE_PAYPAL_SANDBOX_ESCROW"
+                    live_order["mode"] = "LIVE_PAYPAL_SANDBOX_LEDGER"
                     return live_order
             except Exception as e:
                 print(f"[PayPalClient] Sandbox direct order fallback: {e}")
@@ -232,7 +232,7 @@ class PayPalClient:
 
     def capture_order(self, order_id: str) -> Dict[str, Any]:
         """
-        Captures funds from an approved PayPal Order into the platform milestone escrow.
+        Captures funds from an approved PayPal Order into the platform milestone ledger.
         """
         token = self.get_access_token()
         if not token.startswith("A21AAMock"):
@@ -337,7 +337,7 @@ class PayPalClient:
             "item_status": "SUCCESS",
             "payout_item_id": f"PYITM-{uuid.uuid4().hex[:10].upper()}",
             "recipient_email": recipient_email,
-            "mode": "SIMULATED_ESCROW_RELEASE"
+            "mode": "SIMULATED_MILESTONE_RELEASE"
         }
 
 paypal_client = PayPalClient()

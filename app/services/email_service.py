@@ -135,15 +135,19 @@ class EmailService:
                 </tbody>
             </table>
 
-            <!-- Protection & Escrow Note -->
-            <div style="background: #022c22; border: 1px solid #065f46; border-radius: 8px; padding: 12px; margin-top: 20px; font-size: 12px; color: #a7f3d0; line-height: 1.5;">
-                <strong>PayPal Smart Milestone Escrow:</strong> 100% of these funds are programmatically deposited into PayPal Orders v2 Escrow by {brand_name}. Funds are automatically released to your registered PayPal email upon AI Proof-of-Play Computer Vision verification of your live streams.
+            <!-- Funded Milestones & Milestone Ledger Note -->
+            <div style="background: #022c22; border: 1px solid #065f46; border-radius: 8px; padding: 14px; margin-top: 20px; font-size: 12px; color: #a7f3d0; line-height: 1.6;">
+                <strong>PayPal Programmatic Milestone Ledger:</strong> 100% of campaign milestone funds are committed by {brand_name} into a PayPal Orders v2 Milestone Ledger with delayed programmatic release. Disbursements are executed directly to your registered PayPal account via the PayPal Payouts API once OpenCV Computer Vision verifies stream deliverables.
             </div>
 
-            <!-- Primary Action Button -->
-            <div style="text-align: center; margin: 30px 0 10px 0;">
+            <!-- Beneficiary Action Section -->
+            <div style="margin: 28px 0 10px 0; background: #111827; border: 1px dashed #374151; border-radius: 12px; padding: 20px; text-align: center;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #38bdf8; letter-spacing: 1px; display: block; margin-bottom: 6px;">Action Required from Beneficiary Talent</span>
+                <p style="font-size: 13px; color: #d1d5db; margin: 0 0 16px 0; line-height: 1.5;">
+                    As the scouted creator or clan captain, click below to review milestone deliverables, confirm schedule availability, and countersign your acceptance.
+                </p>
                 <a href="{review_url}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #042f2e; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 10px; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);">
-                    Review & Accept Proposal Contract &rarr;
+                    Creator Action: Review & Countersign Agreement &rarr;
                 </a>
             </div>
             <p style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 8px;">

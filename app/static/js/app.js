@@ -660,10 +660,39 @@ function renderStep2Proposal(proposal) {
         <span class="text-base font-extrabold text-red-400 font-mono">${formatMoney(proposal.withholding_tax_usd)}</span>
       </div>
       <div>
-        <span class="text-xs text-gray-400 block">Net Creator Escrow</span>
+        <span class="text-xs text-gray-400 block">Net Creator Milestone Payout</span>
         <span class="text-base font-extrabold text-emerald-400 font-mono">${formatMoney(proposal.net_creator_disbursement_usd)}</span>
       </div>
     </div>
+
+    <!-- BILATERAL EXECUTION STATUS -->
+    <div class="p-4 rounded-xl bg-gray-900/90 border border-gray-800 space-y-3">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-2">
+        <span class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-signature text-blue-400"></i> Bilateral Sponsorship Execution Status
+        </span>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/30">TWO-PARTY BILATERAL CONTRACT</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-lg bg-gray-950 border border-gray-800/80 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-400 font-semibold">Party 1: Brand Sponsor</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">DRAFTED & DISPATCHED</span>
+          </div>
+          <p class="text-white font-bold">${proposal.brand_name || 'Brand Sponsor'}</p>
+          <p class="text-[11px] text-gray-400">Brand action: Authorize & fund milestone ledger in Step 3 via PayPal Orders v2.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-gray-950 border border-gray-800/80 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-400 font-semibold">Party 2: Beneficiary Talent</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold">DISPATCHED (PENDING COUNTERSIGN)</span>
+          </div>
+          <p class="text-white font-bold">${proposal.creators.map(c => c.name).join(', ')}</p>
+          <p class="text-[11px] text-gray-400">Dispatched to <span class="font-mono text-cyan-300">${emailsList}</span> for online review & countersignature.</p>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Milestone Phases -->
     <div class="space-y-3">
@@ -697,14 +726,14 @@ function renderStep2Proposal(proposal) {
 
     <button onclick="initializePayPalEscrow()" id="btnInitPayPal" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
       <i class="fa-brands fa-paypal text-lg"></i>
-      <span>Sponsor Approval: Initialize PayPal Smart Escrow Checkout</span>
+      <span>Sponsor Action: Initialize PayPal Milestone Ledger &rarr;</span>
     </button>
   `;
 }
 
 // STEP 3: PAYPAL ORDERS V2 ESCROW CHECKOUT
 async function initializePayPalEscrow() {
-  logAgent("AGENT 4: FINANCE", `Creating PayPal Orders v2 Smart Escrow order for Proposal ${currentProposal.id}...`, "text-sky-400");
+  logAgent("AGENT 4: FINANCE", `Creating PayPal Orders v2 Programmatic Milestone Ledger for Proposal ${currentProposal.id}...`, "text-sky-400");
 
   try {
     const resp = await fetch('/api/v1/payments/create-escrow-order', {
@@ -728,7 +757,7 @@ function renderStep3PayPal(order) {
   document.getElementById('card-step-3').scrollIntoView({ behavior: 'smooth' });
 
   // Safe extraction with defensive fallbacks against undefined
-  const orderId = order.order_id || (order.paypal_order && order.paypal_order.id) || order.id || "PAYPAL-ORD-ESCROW";
+  const orderId = order.order_id || (order.paypal_order && order.paypal_order.id) || order.id || "PAYPAL-ORD-LEDGER";
   const rawGross = (order.gross_amount !== undefined && order.gross_amount !== null)
     ? order.gross_amount
     : (currentProposal ? currentProposal.total_budget_usd : 0);
@@ -763,9 +792,9 @@ function renderStep3PayPal(order) {
 
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div><span class="text-gray-400">PayPal Order ID:</span> <span class="font-mono text-white font-bold">${orderId}</span></div>
-        <div><span class="text-gray-400">Escrow Gross:</span> <span class="font-mono text-emerald-400 font-bold">${formatMoney(grossNum)}</span></div>
+        <div><span class="text-gray-400">Total Funded Milestones:</span> <span class="font-mono text-emerald-400 font-bold">${formatMoney(grossNum)}</span></div>
         <div><span class="text-gray-400">Platform Commission Split:</span> <span class="font-mono text-sky-300">${formatMoney(feeNum)}</span></div>
-        <div><span class="text-gray-400">Beneficiary Escrow Share:</span> <span class="font-mono text-white">${formatMoney(grossNum - feeNum)}</span></div>
+        <div><span class="text-gray-400">Beneficiary Milestone Share:</span> <span class="font-mono text-white">${formatMoney(grossNum - feeNum)}</span></div>
       </div>
 
       ${approvalUrl ? `
@@ -784,13 +813,13 @@ function renderStep3PayPal(order) {
       <div class="p-3.5 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-300 flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i class="fa-solid fa-lock text-emerald-400"></i>
-          <span>Funds will be held in programmatic escrow and released milestone-by-milestone upon OpenCV Proof-of-Play verification.</span>
+          <span>Milestone funds will be committed to a programmatic PayPal ledger and disbursed milestone-by-milestone upon OpenCV Proof-of-Play verification.</span>
         </div>
       </div>
 
       <button onclick="capturePayPalOrder()" id="btnCapturePayPal" class="w-full py-3.5 px-4 rounded-xl bg-[#0070ba] hover:bg-[#003087] text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
         <i class="fa-brands fa-paypal text-lg"></i>
-        <span>Authorize & Capture $${grossNum.toFixed(2)} USD into Milestone Escrow</span>
+        <span>Authorize & Fund $${grossNum.toFixed(2)} USD in PayPal Milestone Ledger</span>
       </button>
     </div>
   `;
@@ -798,7 +827,7 @@ function renderStep3PayPal(order) {
 
 async function capturePayPalOrder() {
   const orderId = currentPayPalOrder ? (currentPayPalOrder.order_id || (currentPayPalOrder.paypal_order && currentPayPalOrder.paypal_order.id) || currentPayPalOrder.id) : null;
-  logAgent("PAYPAL ESCROW", `Authorizing payment capture for Order ${orderId}...`, "text-sky-400");
+  logAgent("PAYPAL LEDGER", `Authorizing milestone commitment for Order ${orderId}...`, "text-sky-400");
 
   try {
     const resp = await fetch(`/api/v1/payments/capture-order/${orderId}`, { method: 'POST' });
@@ -807,12 +836,12 @@ async function capturePayPalOrder() {
     }
     const captureData = await resp.json();
 
-    logAgent("PAYPAL ESCROW", `Funds Captured! Escrow status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
+    logAgent("PAYPAL LEDGER", `Funds Committed! Milestone ledger status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
     logAgent("AGENT 4: FINANCE", `Milestone 1 is now active. Creator mobilization underway.`, "text-sky-300");
 
     document.getElementById('btnCapturePayPal').disabled = true;
     document.getElementById('btnCapturePayPal').className = "w-full py-3.5 px-4 rounded-xl bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center space-x-2 opacity-90 cursor-default";
-    document.getElementById('btnCapturePayPal').innerHTML = `<i class="fa-solid fa-check"></i> <span>Funds Safely Locked in PayPal Escrow</span>`;
+    document.getElementById('btnCapturePayPal').innerHTML = `<i class="fa-solid fa-check"></i> <span>Milestones Funded & Secured via PayPal Ledger</span>`;
 
     // Proceed to Step 4: Multimodal Verification
     setTimeout(() => {

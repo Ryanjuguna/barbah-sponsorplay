@@ -1,5 +1,5 @@
 """
-Barbah SponsorPlay - Financial Escrow & Tax Invoicing API Router
+Barbah SponsorPlay - Financial Milestone Ledger & Tax Invoicing API Router
 PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
@@ -12,11 +12,13 @@ from app.integrations.paypal_client import paypal_client
 
 router = APIRouter(prefix="/api/v1/payments", tags=["Payments & Invoicing"])
 
+@router.post("/create-milestone-order")
 @router.post("/create-escrow-order")
+@router.post("/create-milestone-order")
 def create_escrow_order(payload: Dict[str, str]):
     """
     Triggers Agent 4 to create a PayPal Orders v2 multiparty transaction.
-    Locks funds in milestone escrow and generates Barbah Platform Fee eTIMS invoice.
+    Commits funds into programmatic milestone ledger and generates Barbah Platform Fee eTIMS invoice.
     """
     proposal_id = payload.get("proposal_id")
     proposal = db.get_proposal(proposal_id)
@@ -49,7 +51,7 @@ def create_escrow_order(payload: Dict[str, str]):
 @router.post("/capture/{order_id}")
 def capture_order(order_id: str):
     """
-    Simulates or executes PayPal Order Capture, transitioning escrow status to FUNDED.
+    Simulates or executes PayPal Order Capture, committing milestone funds into the ledger.
     """
     order_data = db.paypal_orders.get(order_id)
     if not order_data:
@@ -58,12 +60,12 @@ def capture_order(order_id: str):
         order_data = {
             "order": {"id": order_id},
             "proposal_id": latest_prop.id if latest_prop else "PROP-DEFAULT",
-            "escrow_status": "LOCKED_IN_ESCROW"
+            "escrow_status": "COMMITTED_IN_LEDGER"
         }
         db.paypal_orders[order_id] = order_data
 
     capture_resp = paypal_client.capture_order(order_id)
-    order_data["escrow_status"] = "FUNDED_IN_ESCROW"
+    order_data["escrow_status"] = "COMMITTED_IN_LEDGER"
     order_data["capture"] = capture_resp
 
     # Update proposal milestones to FUNDED_IN_ESCROW
@@ -71,20 +73,20 @@ def capture_order(order_id: str):
     if proposal:
         proposal.status = "FUNDED"
         for m in proposal.milestones:
-            m.status = "FUNDED_IN_ESCROW"
+            m.status = "COMMITTED_IN_LEDGER"
         db.save_proposal(proposal)
 
     return {
-        "status": "ESCROW_LOCKED",
+        "status": "MILESTONES_COMMITTED",
         "order_id": order_id,
-        "escrow_state": "FUNDED_IN_ESCROW",
+        "escrow_state": "COMMITTED_IN_LEDGER",
         "capture_details": capture_resp
     }
 
 @router.post("/disburse-milestone")
 def disburse_milestone(payload: Dict[str, str]):
     """
-    Releases verified milestone funds from escrow.
+    Releases verified milestone funds from the programmatic milestone ledger.
     Agent 4 generates certified KRA eTIMS invoice (BII) and executes PayPal Payout.
     """
     proposal_id = payload.get("proposal_id")

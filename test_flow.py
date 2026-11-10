@@ -110,7 +110,7 @@ def run_e2e_test():
     print(f"  [+] Proposal Generated ID: {proposal.id}")
     print(f"      - Gross Budget Authorized: ${proposal.total_budget_usd:.2f} (KES {proposal.total_budget_kes:,.2f})")
     print(f"      - Barbah Facilitation Fee (10%): ${proposal.platform_fee_usd:.2f} (KES {proposal.platform_fee_kes:,.2f})")
-    print(f"      - Gross Beneficiary Escrow: ${proposal.gross_beneficiary_usd:.2f} (KES {proposal.gross_beneficiary_kes:,.2f})")
+    print(f"      - Gross Beneficiary Milestone Allocation: ${proposal.gross_beneficiary_usd:.2f} (KES {proposal.gross_beneficiary_kes:,.2f})")
     print(f"      - KRA 5% Withholding Tax: ${proposal.withholding_tax_usd:.2f} (KES {proposal.withholding_tax_kes:,.2f})")
     print(f"      - Net Creator Disbursement: ${proposal.net_creator_disbursement_usd:.2f} (KES {proposal.net_creator_disbursement_kes:,.2f})")
     print(f"      - Beneficiary Proposal Email Dispatched: {proposal.email_dispatch_id} -> {proposal.beneficiary_emails}")
@@ -122,20 +122,20 @@ def run_e2e_test():
     for m in proposal.milestones:
         print(f"        * Phase {m.milestone_number} ({m.percentage}%): {m.title} -> ${m.amount_usd:.2f}")
 
-    # 4. Agent 4: PayPal Orders v2 Multiparty Escrow Initialization
-    print("\n[STEP 4] Initializing PayPal Orders v2 Multiparty Escrow (Agent 4)...")
+    # 4. Agent 4: PayPal Orders v2 Multiparty Milestone Ledger Initialization
+    print("\n[STEP 4] Initializing PayPal Orders v2 Multiparty Milestone Ledger (Agent 4)...")
     order_resp = financial_agent.initialize_escrow_order(proposal)
     order_id = order_resp["id"]
     print(f"  [+] PayPal Order Created: {order_id} (Status: {order_resp['status']})")
     print(f"      - Payee Split Configured: Platform commission routed via payment_instruction")
     
-    # Simulate Order Capture into Escrow
+    # Simulate Order Capture into Programmatic Milestone Ledger
     capture_resp = paypal_client.capture_order(order_id)
     proposal.status = "FUNDED"
     for m in proposal.milestones:
-        m.status = "FUNDED_IN_ESCROW"
+        m.status = "COMMITTED_IN_LEDGER"
     db.save_proposal(proposal)
-    print(f"  [+] PayPal Payment Captured: Funds safely locked in Milestone Escrow!")
+    print(f"  [+] PayPal Payment Captured: Funds safely committed to PayPal Milestone Ledger!")
 
     # 5. Agent 5: Live Brand Safety Guardian Audit
     print("\n[STEP 5] Auditing Live Stream Chat via Agent 5 (Brand Guardian)...")

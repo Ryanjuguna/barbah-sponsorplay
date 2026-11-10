@@ -21,7 +21,7 @@ from app.api.notifications import router as notifications_router
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="Agentic AI Sponsorship Marketplace with PayPal Escrow & KRA eTIMS Tax Compliance for African Gaming.",
+    description="Agentic AI Sponsorship Marketplace with PayPal Programmatic Milestone Ledger & KRA eTIMS Tax Compliance for African Gaming.",
     docs_url="/docs",
     redoc_url="/redoc"
 )

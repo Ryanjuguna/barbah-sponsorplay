@@ -67,7 +67,7 @@ class Milestone(BaseModel):
     amount_kes: float
     deliverables: List[str]
     verification_criteria: Dict[str, Any]
-    status: str = "PENDING_FUNDING"  # PENDING_FUNDING, FUNDED_IN_ESCROW, IN_PROGRESS, VERIFIED, DISBURSED
+    status: str = "PENDING_FUNDING"  # PENDING_FUNDING, COMMITTED_IN_LEDGER, IN_PROGRESS, VERIFIED, DISBURSED
 
 class Proposal(BaseModel):
     id: str

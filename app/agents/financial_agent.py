@@ -1,5 +1,5 @@
 """
-Barbah SponsorPlay - Agent 4: Financial Escrow & Tax Orchestration Agent
+Barbah SponsorPlay - Agent 4: Financial Milestone Ledger & Tax Orchestration Agent
 PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
@@ -11,26 +11,26 @@ from app.models.database import db
 
 class FinancialAgent:
     def __init__(self):
-        self.name = "Financial Escrow & Tax Orchestrator Agent"
-        self.version = "1.0.0"
+        self.name = "Financial Milestone Ledger & Tax Orchestrator Agent"
+        self.version = "2.0.0-milestone-ledger"
 
     def initialize_escrow_order(self, proposal: Proposal) -> Dict[str, Any]:
         """
         Initializes PayPal Orders v2 with platform fee split.
-        Funds are locked in Milestone Escrow.
+        Funds are secured in the Programmatic Milestone Ledger.
         """
         order_resp = paypal_client.create_multiparty_order(
             reference_id=proposal.id,
             gross_amount_usd=proposal.total_budget_usd,
             platform_fee_usd=proposal.platform_fee_usd,
-            beneficiary_email="marketplace-escrow@barbahgames.com",
+            beneficiary_email="marketplace-treasury@barbahgames.com",
             campaign_title=f"{proposal.brand_name} Esports Campaign"
         )
 
         db.paypal_orders[order_resp["id"]] = {
             "order": order_resp,
             "proposal_id": proposal.id,
-            "escrow_status": "LOCKED_IN_ESCROW"
+            "escrow_status": "COMMITTED_IN_LEDGER"
         }
 
         # Issue Barbah Platform Fee eTIMS Invoice
@@ -50,7 +50,7 @@ class FinancialAgent:
         certificate: ProofOfPlayCertificate
     ) -> Dict[str, Any]:
         """
-        Releases escrowed funds for a verified milestone:
+        Releases committed funds for a verified milestone deliverable:
         1. Validates proof certificate (Confidence >= 90%).
         2. Generates KRA eTIMS Tax Invoice (OSCU or BII) satisfying Section 16.
         3. Executes PayPal Payout to creator with 5% WHT accounted for.
@@ -67,7 +67,7 @@ class FinancialAgent:
 
         if certificate.overall_confidence_percent < 90.0:
             return {
-                "status": "HELD_IN_ESCROW",
+                "status": "HELD_IN_MILESTONE_LEDGER",
                 "reason": "Verification confidence below 90% threshold. Creator remedy window active."
             }
 
