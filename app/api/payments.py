@@ -1,5 +1,5 @@
 """
-Barbah SponsorPlay - Financial Escrow & Tax Invoicing API Router
+Barbah SponsorPlay - Financial Milestone Ledger & Tax Invoicing API Router
 PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/payments", tags=["Payments & Invoicing"])
 def create_escrow_order(payload: Dict[str, str]):
     """
     Triggers Agent 4 to create a PayPal Orders v2 multiparty transaction.
-    Locks funds in milestone escrow and generates Barbah Platform Fee eTIMS invoice.
+    Locks funds in the milestone ledger and generates a mock Barbah Platform Fee eTIMS invoice.
     """
     proposal_id = payload.get("proposal_id")
     proposal = db.get_proposal(proposal_id)
@@ -36,7 +36,7 @@ def create_escrow_order(payload: Dict[str, str]):
 @router.post("/capture-order/{order_id}")
 def capture_order(order_id: str):
     """
-    Simulates or executes PayPal Order Capture, transitioning escrow status to FUNDED.
+    Simulates or executes PayPal Order Capture, transitioning milestone ledger status to FUNDED.
     """
     order_data = db.paypal_orders.get(order_id)
     if not order_data:
@@ -64,8 +64,8 @@ def capture_order(order_id: str):
 @router.post("/disburse-milestone")
 def disburse_milestone(payload: Dict[str, str]):
     """
-    Releases verified milestone funds from escrow.
-    Agent 4 generates certified KRA eTIMS invoice (BII) and executes PayPal Payout.
+    Releases verified milestone funds from the milestone ledger.
+    Agent 4 generates a mock eTIMS invoice (BII, prototype) and executes PayPal Payout.
     """
     proposal_id = payload.get("proposal_id")
     milestone_id = payload.get("milestone_id")

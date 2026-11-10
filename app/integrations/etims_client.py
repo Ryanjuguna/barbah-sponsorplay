@@ -29,7 +29,7 @@ class eTIMSClient:
         apply_vat: bool = False
     ) -> eTIMSInvoice:
         """
-        Generates a certified KRA eTIMS invoice.
+        Generates a MOCK eTIMS invoice (prototype, not KRA-certified).
         Uses Buyer-Initiated Invoicing (BII) if the supplier is an informal/unregistered youth creator.
         """
         # Determine Invoicing Route
@@ -56,7 +56,7 @@ class eTIMSClient:
         digital_signature = hashlib.sha256(sign_payload.encode()).hexdigest().upper()[:32]
 
         # Generate KRA QR Code Verification Link
-        qr_code_url = f"https://etims.kra.go.ke/verify?cu={cu_invoice_number}&pin={buyer_pin}&sig={digital_signature[:8]}"
+        qr_code_url = f"https://mock-etims.sponsorplay.local/verify?cu={cu_invoice_number}&pin={buyer_pin}&sig={digital_signature[:8]}"
 
         invoice = eTIMSInvoice(
             cu_invoice_number=cu_invoice_number,
@@ -72,7 +72,7 @@ class eTIMSClient:
             net_payable_kes=net_payable_kes,
             qr_code_url=qr_code_url,
             digital_signature=digital_signature,
-            kra_compliance_status="CERTIFIED_VALID_SECTION_16"
+            kra_compliance_status="MOCK_PROTOTYPE_NOT_KRA_CERTIFIED"
         )
 
         return invoice

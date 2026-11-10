@@ -1,6 +1,6 @@
 # Barbah SponsorPlay
 
-## Autonomous Multi-Agent Sponsorship Marketplace with PayPal Smart Escrow and KRA eTIMS Tax Compliance
+## Autonomous Multi-Agent Sponsorship Marketplace with PayPal Milestone Ledger and KRA eTIMS Tax Compliance
 
 **Competition:** PayPal Global Hackathon  
 **Track:** Challenge 02 - Sponsor Play  
@@ -45,7 +45,7 @@ SponsorPlay replaces static directories and rigid algorithmic bounties with an a
 +-----------------------------+                                   +-----------------------------+
 |   PayPal Developer Sandbox  |                                   |   KRA eTIMS Fiscal Engine   |
 |  - Orders v2 Multiparty     |                                   |  - Section 16 Tax Invoice   |
-|  - Milestone Smart Escrow   |                                   |  - Buyer-Initiated Invoice  |
+|  - Milestone Fund Ledger    |                                   |  - Buyer-Initiated Invoice  |
 |  - Programmatic Mass Payout |                                   |  - 5% Withholding Tax (WHT) |
 |  - Instant M-Pesa Off-Ramp  |                                   |  - Scannable KRA QR Code    |
 +-----------------------------+                                   +-----------------------------+
@@ -56,7 +56,7 @@ SponsorPlay replaces static directories and rigid algorithmic bounties with an a
 * **Agent 1: Talent Discovery & Micro-Syndicate Scout:** Analyzes natural language briefs, evaluates creator community density, and bundles balanced syndicates (such as one tournament organizer, two competitive streamers, and three campus gaming dens).
 * **Agent 2: Campaign Architect & Contract Generator:** Decomposes campaigns into three verifiable milestones (30% mobilization, 40% live broadcast airtime, 30% post-event archival) and calculates dynamic pricing based on purchasing power parity and actual concurrent viewers.
 * **Agent 3: Multimodal Proof-of-Play Verifier:** Ingests live stream VODs and clips, running computer vision to evaluate brand logo screen occupancy (threshold >= 3.5%) and Whisper speech-to-text to verify shoutcaster verbal endorsements. It then seals a tamper-proof cryptographic certificate.
-* **Agent 4: Financial Escrow & Tax Orchestrator:** Manages PayPal Orders v2 multiparty payment splits, holds escrow, executes KRA eTIMS Buyer-Initiated Invoicing (BII), deducts statutory 5% Withholding Tax, and triggers automated payouts.
+* **Agent 4: Financial Milestone Ledger & Tax Orchestrator:** Manages PayPal Orders v2 multiparty payment splits, holds funds in the milestone ledger, executes KRA eTIMS Buyer-Initiated Invoicing (BII), deducts statutory 5% Withholding Tax, and triggers automated payouts.
 * **Agent 5: Real-Time Brand Safety Guardian:** Monitors live chat websockets for toxicity, harassment, and competitor product collisions, with an automated 15-minute creator remediation window.
 * **Agent 6: MetaTwin ESG & Social Impact Attribution:** Connects to Barbah MetaTwin infrastructure, tracking youth reached in informal settlements, collegiate players supported, and female gamer participation to generate audit-ready corporate sustainability reports.
 
@@ -69,7 +69,7 @@ SponsorPlay bridges international digital payments with Kenya's mandatory electr
 ### Financial Flow on a KES 100,000 ($769.23 USD) Campaign
 
 * **Gross Sponsor Budget Authorized:** $769.23 (KES 100,000.00)
-  * Deposited via PayPal Orders v2 and locked in milestone escrow.
+  * Deposited via PayPal Orders v2 and locked in the milestone ledger.
 * **Barbah Facilitation Commission (10%):** $76.92 (KES 10,000.00)
   * Split automatically via `payment_instruction.platform_fees`.
   * Barbah Games issues a platform fee eTIMS tax invoice to the sponsor.
@@ -95,7 +95,7 @@ barbah-sponsorplay/
 |   |   |-- scout_agent.py          # Agent 1: Talent Scout and Syndicate Bundler
 |   |   |-- architect_agent.py      # Agent 2: Campaign Architect and Pricing Oracle
 |   |   |-- verification_agent.py   # Agent 3: Multimodal Proof-of-Play Verifier
-|   |   |-- financial_agent.py      # Agent 4: Financial Escrow and Tax Orchestrator
+|   |   |-- financial_agent.py      # Agent 4: Financial Milestone Ledger and Tax Orchestrator
 |   |   |-- guardian_agent.py       # Agent 5: Real-Time Brand Safety Guardian
 |   |   |-- impact_agent.py         # Agent 6: MetaTwin ESG Impact Attribution
 |   |-- integrations/
@@ -103,7 +103,7 @@ barbah-sponsorplay/
 |   |   |-- etims_client.py         # KRA eTIMS client (OSCU, VSCU, and BII engine)
 |   |-- api/
 |   |   |-- campaigns.py            # Endpoints for briefs, syndicates, and proposals
-|   |   |-- payments.py             # Endpoints for escrow, captures, payouts, and invoices
+|   |   |-- payments.py             # Endpoints for the milestone ledger, captures, payouts, and invoices
 |   |   |-- verification.py         # Endpoints for deliverable verification and chat audit
 |   |   |-- impact.py               # Endpoints for MetaTwin ESG reports
 |   |-- static/
@@ -174,7 +174,7 @@ PayPal AI Hackathon - Challenge 02: Sponsor Play (Barbah Games Kenya)
   [+] Overall Verification Confidence: 96.2% -> PASSED
 [STEP 7] Disbursing Milestone Funds with KRA eTIMS Fiscal Invoicing...
   [+] KRA eTIMS CU Invoice Number: KRA-CU-20261109-7D0EEC
-  [+] Section 16 Deductibility Certified: True
+  [+] Tax Invoice Mode: MOCK_ETIMS_PROTOTYPE
   [+] PayPal Payout Item ID: PYITM-2EC4AE9DAD
 [STEP 8] Generating Barbah MetaTwin ESG Social Impact Dossier (Agent 6)...
   [+] Total Youth Reach Logged: 38,000
@@ -221,8 +221,8 @@ To configure live PayPal Sandbox access:
    The brand selects the preloaded Safaricom 5G Home Gaming brief with a budget of $769.23 (KES 100,000). The user clicks "Agent 1: Deconstruct Brief & Assemble Syndicates." Agent 1 evaluates community density and bundles the Collegiate & Community Grassroots Syndicate (The Beast, USIU Esports Clan, and Kayole Gaming Lounge).
 2. **Step 2 - Campaign Architect and Milestone Schedule:**
    The user clicks "Select Syndicate & Generate Contract." Agent 2 structures a three-phase milestone schedule (30% mobilization, 40% live broadcast airtime, 30% archival) with dynamic pricing, 10% platform facilitation fee, and 5% Withholding Tax deduction.
-3. **Step 3 - PayPal Orders v2 Smart Escrow:**
-   The user clicks "Approve Agreement & Fund via PayPal Sandbox." Agent 4 initializes a multiparty order with `payment_instruction.platform_fees`. The user clicks "Authorize & Capture," safely locking funds into milestone escrow.
+3. **Step 3 - PayPal Orders v2 Milestone Ledger:**
+   The user clicks "Approve Agreement & Fund via PayPal Sandbox." Agent 4 initializes a multiparty order with `payment_instruction.platform_fees`. The user clicks "Authorize & Capture," safely locking funds into the milestone ledger.
 4. **Step 4 - Multimodal Proof-of-Play Verification:**
    The creator submits the live stream deliverable. Agent 3 evaluates computer vision metrics (logo screen occupancy at 8.4% against the 3.5% threshold), Whisper speech-to-text verbal endorsements, and brand safety chat moderation. A cryptographic SHA-256 certificate is generated.
 5. **Step 5 - KRA eTIMS Tax Invoicing and Payout Release:**

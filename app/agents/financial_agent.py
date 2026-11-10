@@ -106,7 +106,7 @@ class FinancialAgent:
             "paypal_payout_id": payout_resp["payout_item_id"],
             "etims_cu_invoice_number": tax_invoice.cu_invoice_number,
             "qr_code_url": tax_invoice.qr_code_url,
-            "tax_compliance_certified": True
+            "tax_invoice_mode": "MOCK_ETIMS_PROTOTYPE"
         }
 
 financial_agent = FinancialAgent()

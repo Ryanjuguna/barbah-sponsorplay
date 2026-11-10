@@ -179,7 +179,7 @@ class eTIMSInvoice(BaseModel):
     net_payable_kes: float
     qr_code_url: str
     digital_signature: str
-    kra_compliance_status: str = "CERTIFIED_VALID_SECTION_16"
+    kra_compliance_status: str = "MOCK_PROTOTYPE_NOT_KRA_CERTIFIED"
 
 class MetaTwinReport(BaseModel):
     campaign_id: str
