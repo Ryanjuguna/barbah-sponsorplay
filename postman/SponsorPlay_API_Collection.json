@@ -2,7 +2,7 @@
   "info": {
     "name": "Barbah SponsorPlay API Collection - PayPal AI Hackathon",
     "_postman_id": "sp-paypal-hackathon-v1",
-    "description": "Comprehensive API collection for Barbah SponsorPlay - Multi-Agent AI Sponsorship Marketplace with PayPal Orders v2 Escrow and KRA eTIMS Tax Compliance.",
+    "description": "Comprehensive API collection for Barbah SponsorPlay - Multi-Agent AI Sponsorship Marketplace with PayPal Orders v2 Programmatic Milestone Ledger and KRA eTIMS Tax Compliance.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -88,10 +88,10 @@
       ]
     },
     {
-      "name": "4. PayPal Escrow & Multiparty Orders",
+      "name": "4. PayPal Programmatic Milestone Ledger & Multiparty Orders",
       "item": [
         {
-          "name": "Create PayPal Multiparty Escrow Order (Agent 4: Finance)",
+          "name": "Create PayPal Milestone Ledger Order (Agent 4: Milestone Ledger)",
           "request": {
             "method": "POST",
             "header": [
@@ -105,14 +105,14 @@
               "raw": "{\n  \"proposal_id\": \"{{proposal_id}}\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/payments/create-escrow-order",
+              "raw": "{{base_url}}/api/v1/payments/create-milestone-order",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "payments", "create-escrow-order"]
+              "path": ["api", "v1", "payments", "create-milestone-order"]
             }
           }
         },
         {
-          "name": "Capture PayPal Order into Escrow",
+          "name": "Capture PayPal Order into Milestone Ledger",
           "request": {
             "method": "POST",
             "header": [],
