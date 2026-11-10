@@ -80,9 +80,9 @@ async function loadPayPalMode() {
     const data = await resp.json();
     const isLive = data.mode === 'LIVE_SANDBOX';
     pill.className = isLive
-      ? "flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-900/40 border border-emerald-500/40 text-emerald-300 text-xs font-semibold"
-      : "flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-300 text-xs font-semibold";
-    pill.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i><span>PayPal: ${isLive ? 'LIVE_SANDBOX' : 'SIMULATED'}</span>`;
+      ? "flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-semibold backdrop-blur-md shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+      : "flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-semibold backdrop-blur-md shadow-[0_0_12px_rgba(245,158,11,0.15)]";
+    pill.innerHTML = `<i class="fa-solid fa-circle text-[8px] animate-pulse"></i><span>PayPal: ${isLive ? 'LIVE_SANDBOX' : 'SIMULATED'}</span>`;
   } catch (err) {
     pill.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i><span>PayPal: UNKNOWN</span>`;
   }
@@ -101,43 +101,43 @@ function initThreeCanvas() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  // Central Holographic Esports Arena Core
+  // Central Holographic Esports Arena Core (New Norm Electric Cyan)
   const coreGeometry = new THREE.IcosahedronGeometry(10, 2);
   const coreMaterial = new THREE.MeshBasicMaterial({
-    color: 0x00cf8d,
+    color: 0x4fd8e6,
     wireframe: true,
     transparent: true,
-    opacity: 0.22
+    opacity: 0.16
   });
   const arenaCore = new THREE.Mesh(coreGeometry, coreMaterial);
   scene.add(arenaCore);
 
-  // Concentric Tactical Gyro Rings
+  // Concentric Tactical Gyro Rings (New Norm Violet & Cyan)
   const ring1Geom = new THREE.TorusGeometry(14, 0.08, 16, 120);
-  const ring1Mat = new THREE.MeshBasicMaterial({ color: 0x0070ba, transparent: true, opacity: 0.38 });
+  const ring1Mat = new THREE.MeshBasicMaterial({ color: 0xa78bfa, transparent: true, opacity: 0.28 });
   const gyroRing1 = new THREE.Mesh(ring1Geom, ring1Mat);
   gyroRing1.rotation.x = Math.PI / 4;
   scene.add(gyroRing1);
 
   const ring2Geom = new THREE.TorusGeometry(18, 0.06, 16, 140);
-  const ring2Mat = new THREE.MeshBasicMaterial({ color: 0x00cf8d, transparent: true, opacity: 0.28 });
+  const ring2Mat = new THREE.MeshBasicMaterial({ color: 0x4fd8e6, transparent: true, opacity: 0.22 });
   const gyroRing2 = new THREE.Mesh(ring2Geom, ring2Mat);
   gyroRing2.rotation.y = Math.PI / 3;
   scene.add(gyroRing2);
 
   const ring3Geom = new THREE.TorusGeometry(22, 0.04, 16, 160);
-  const ring3Mat = new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.22 });
+  const ring3Mat = new THREE.MeshBasicMaterial({ color: 0xffa63d, transparent: true, opacity: 0.18 });
   const gyroRing3 = new THREE.Mesh(ring3Geom, ring3Mat);
   gyroRing3.rotation.z = Math.PI / 6;
   scene.add(gyroRing3);
 
-  // Kenyan Regional Esports Hub Nodes (Nairobi, Kibera, Eldoret, Mombasa, Kisumu)
+  // Kenyan Regional Esports Hub Nodes (New Norm Palette)
   const hubs = [
-    { name: "Nairobi Hub", pos: new THREE.Vector3(0, 1, 0), color: 0x00cf8d, size: 0.9 },
-    { name: "Kibera Den", pos: new THREE.Vector3(-6, -3, 3), color: 0xf59e0b, size: 0.7 },
-    { name: "Eldoret Arena", pos: new THREE.Vector3(-9, 5, -4), color: 0x06b6d4, size: 0.75 },
-    { name: "Mombasa Base", pos: new THREE.Vector3(9, -2, -3), color: 0xec4899, size: 0.75 },
-    { name: "Kisumu Lakeside", pos: new THREE.Vector3(-10, 0, 4), color: 0x3b82f6, size: 0.7 }
+    { name: "Nairobi Hub", pos: new THREE.Vector3(0, 1, 0), color: 0xe4ff4f, size: 0.9 },     // Citron-Lime
+    { name: "Kibera Den", pos: new THREE.Vector3(-6, -3, 3), color: 0xffa63d, size: 0.7 },     // Warm Amber
+    { name: "Eldoret Arena", pos: new THREE.Vector3(-9, 5, -4), color: 0x4fd8e6, size: 0.75 }, // Electric Cyan
+    { name: "Mombasa Base", pos: new THREE.Vector3(9, -2, -3), color: 0xff3ea5, size: 0.75 },  // Magenta
+    { name: "Kisumu Lakeside", pos: new THREE.Vector3(-10, 0, 4), color: 0xa78bfa, size: 0.7 } // Violet
   ];
 
   const hubMeshes = [];
@@ -297,13 +297,13 @@ function switchTab(tabName) {
     const el = document.getElementById(`view-${t}`);
     const tabEl = document.getElementById(`tab-${t}`);
     if (el) el.classList.add('hidden');
-    if (tabEl) tabEl.className = 'py-3 px-1 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-semibold text-sm flex items-center space-x-2 whitespace-nowrap';
+    if (tabEl) tabEl.className = 'py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all';
   });
 
   const activeView = document.getElementById(`view-${tabName}`);
   const activeTab = document.getElementById(`tab-${tabName}`);
   if (activeView) activeView.classList.remove('hidden');
-  if (activeTab) activeTab.className = 'py-3 px-1 border-b-2 border-emerald-500 text-emerald-400 font-bold text-sm flex items-center space-x-2 whitespace-nowrap';
+  if (activeTab) activeTab.className = 'py-2 px-4 rounded-full text-xs font-bold text-white bg-white/[0.08] border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.06)] flex items-center space-x-2 whitespace-nowrap transition-all';
 
   if (tabName === 'radar') {
     refreshRadarData();
@@ -1410,10 +1410,19 @@ function setStepActive(stepNum) {
   for (let i = 1; i <= 5; i++) {
     const pill = document.getElementById(`step-pill-${i}`);
     if (pill) {
-      if (i <= stepNum) {
-        pill.className = "p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-center transition-all opacity-100";
+      const stepNumEl = pill.querySelector('.step-num');
+      if (i < stepNum) {
+        // Completed step
+        pill.className = "step-badge p-3 rounded-2xl border border-emerald-500/40 bg-emerald-950/20 text-center transition-all opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.12)]";
+        if (stepNumEl) stepNumEl.className = 'step-num text-emerald-400 font-bold';
+      } else if (i === stepNum) {
+        // Active step
+        pill.className = "step-badge p-3 rounded-2xl border border-[#4fd8e6]/60 bg-[#4fd8e6]/10 text-center transition-all opacity-100 shadow-[0_0_20px_rgba(79,216,230,0.2)]";
+        if (stepNumEl) stepNumEl.className = 'step-num text-[#4fd8e6] font-bold';
       } else {
-        pill.className = "p-3 rounded-xl border border-gray-800 bg-gray-900/40 text-center opacity-60 transition-all";
+        // Upcoming step
+        pill.className = "step-badge p-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-center opacity-60 transition-all hover:opacity-80";
+        if (stepNumEl) stepNumEl.className = 'step-num text-gray-500 font-semibold';
       }
     }
   }
