@@ -30,7 +30,7 @@ This document dissects **five landmark case studies** across the global and Afri
 | Sponsorships        | ($111M VC raised) | subsidized by CPA   | (ad-blockers, zero-pay  | milestone-backed hybrid       |
 |                     |                   | brand activations   | disputes), massive burn | verified Proof-of-Play        |
 +---------------------+-------------------+---------------------+-------------------------+-------------------------------+
-| Matcherino          | Grassroots FGC &  | Crowdfunded prize   | Grassroots accounting   | Programmatic PayPal escrow    |
+| Matcherino          | Grassroots FGC &  | Crowdfunded prize   | Grassroots accounting   | Programmatic PayPal milestone ledger    |
 |                     | esports tourneys  | pools & promo codes | scandals, organizer     | with automated proof-of-      |
 |                     |                   |                     | fraud, sponsor retreat  | tournament deliverable release|
 +---------------------+-------------------+---------------------+-------------------------+-------------------------------+
@@ -90,7 +90,7 @@ Matcherino targeted the Fighting Game Community (FGC) and grassroots esports (Te
 3. **Sponsor Flight:** Risk-averse enterprise sponsors pulled their marketing dollars out of grassroots esports entirely, leaving the ecosystem even more starved.
 
 ### 5.3 SponsorPlay Architectural Takeaway
-* **Programmatic Dual-Rail Escrow:** Funds never sit in an individual organizer's personal checking account. They are locked in a **PayPal Smart Escrow** and released directly to winners and verified suppliers upon algorithmic proof of bracket completion.
+* **Programmatic Dual-Rail Milestone Ledger:** Funds never sit in an individual organizer's personal checking account. They are locked in a **PayPal Programmatic Milestone Ledger** and released directly to winners and verified suppliers upon algorithmic proof of bracket completion.
 * **KRA eTIMS Auditability:** Every transaction is tied to a formal fiscal receipt, providing complete tax and regulatory shielding for corporate sponsors.
 
 ---
@@ -131,16 +131,16 @@ From these 5 case studies, SponsorPlay establishes seven non-negotiable systems 
 ```mermaid
 graph LR
     P1[1. Semantic Fit Over First-Come Bounties] --> Core[SponsorPlay Core Engine]
-    P2[2. Hybrid Milestone Escrow Over Pure CPA] --> Core
+    P2[2. Hybrid Milestone Ledger Over Pure CPA] --> Core
     P3[3. Automated Proof-of-Play Over Self-Reporting] --> Core
-    P4[4. Programmatic Escrow Over TO Intermediaries] --> Core
+    P4[4. Programmatic Milestone Ledger Over TO Intermediaries] --> Core
     P5[5. Complete Tax Compliance via eTIMS & BII] --> Core
     P6[6. Micro-Syndicate Bundling Over Vanity Celebs] --> Core
     P7[7. Multi-Currency Settlement via PayPal & M-Pesa] --> Core
 ```
 
 1. **Semantic Fit Over Rigid Bounties:** Never force creators into cookie-cutter ad reads. AI must match brand themes with natural creator gaming narratives.
-2. **Hybrid Base + Milestone Escrow:** Protect creators against downstream attribution failures by guaranteeing base milestone payouts for verifiable airtime and deliverable execution.
+2. **Hybrid Base + Milestone Ledger:** Protect creators against downstream attribution failures by guaranteeing base milestone payouts for verifiable airtime and deliverable execution.
 3. **Multimodal Automated Proof-of-Play:** Use computer vision and audio NLP to audit streams and social media automatically, eliminating forged screenshots and disputes.
 4. **Programmatic Payout Direct to Beneficiaries:** Eliminate middleman organizer embezzlement by routing tournament prize pools and creator payouts directly via PayPal and mobile rails.
 5. **KRA eTIMS & Section 16 Compliance by Design:** Build tax invoice generation directly into the transaction lifecycle via OSCU/VSCU and Buyer-Initiated Invoicing (BII).

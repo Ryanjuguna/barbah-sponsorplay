@@ -23,7 +23,7 @@ graph LR
     B --> D
     D --> E[1. Agentic Syndicate Matchmaking]
     D --> F[2. Multimodal AI Proof-of-Play]
-    D --> G[3. PayPal Escrow & Multiparty Payouts]
+    D --> G[3. PayPal Milestone Ledger & Payouts]
     D --> H[4. KRA eTIMS Section 16 Compliance]
     E & F & G & H --> I[Sponsor ROI + Sustainable Creator Livelihoods]
 ```
@@ -41,7 +41,7 @@ SponsorPlay operates a high-margin, asset-light marketplace model combining tran
 | Revenue Stream       | Pricing Mechanism         | Customer / Value Delivered                           |
 +----------------------+---------------------------+------------------------------------------------------+
 | Marketplace Take     | 8% to 12% commission on   | Deducted automatically from gross sponsorship budget |
-| Rate                 | settled campaign escrow   | via PayPal Orders v2 payment_instruction             |
+| Rate                 | settled campaign milestones| via PayPal Orders v2 payment_instruction             |
 +----------------------+---------------------------+------------------------------------------------------+
 | Corporate Brand      | $499 to $1,500 / month    | Unlimited AI matching, real-time live stream brand   |
 | SaaS Tier            | annual subscription       | safety alerts, direct ERP eTIMS accounting sync      |
@@ -50,7 +50,7 @@ SponsorPlay operates a high-margin, asset-light marketplace model combining tran
 | Certification Fee    | report                    | and youth employment regulatory reporting            |
 +----------------------+---------------------------+------------------------------------------------------+
 | Cross-Border FX /    | 1.0% to 1.5% margin on    | International brand USD-to-KES currency conversion   |
-| Float Yield          | escrow settlement float   | and instant M-Pesa off-ramp routing                  |
+| Float Yield          | milestone settlement float | and instant M-Pesa off-ramp routing                  |
 +----------------------+---------------------------+------------------------------------------------------+
 ```
 
@@ -107,7 +107,7 @@ SponsorPlay operates a high-margin, asset-light marketplace model combining tran
 * **Expands PayPal's Emerging Market Foothold:** PayPal is historically viewed in East Africa as an export tool for freelancers selling to the US/Europe. SponsorPlay transforms PayPal into the **primary B2B and B2C commercial engine inside East Africa**, anchoring domestic corporate-to-creator commerce.
 * **Showcases Enterprise API Depth:** SponsorPlay is not just a basic "Buy with PayPal" button. It utilizes the full power of:
   - `Orders v2` Multiparty processing with `payment_instruction.platform_fees`.
-  - Secure milestone escrow holding mechanisms.
+  - Secure programmatic milestone ledger holding mechanisms.
   - Automated `Payouts API` mass disbursement.
   - Real-time `Webhooks` for event-driven agent triggers.
 * **Financial Inclusion for the Informal Economy:** Connects unbanked, grassroots African youth directly to formal global financial rails.
@@ -115,7 +115,7 @@ SponsorPlay operates a high-margin, asset-light marketplace model combining tran
 
 ### 5.2 Pitch Outline for the Judges & Investors
 * **Slide 1: The Problem:** Kenya has 10M young gamers and a $137M gaming sector, but grassroots creators are broke. Corporate brands want to sponsor them, but Section 16 tax penalties and vanity metric fraud block the money.
-* **Slide 2: The Solution:** SponsorPlay – The first AI-powered verified sponsorship marketplace with automated KRA eTIMS tax compliance and PayPal milestone escrow.
+* **Slide 2: The Solution:** SponsorPlay – The first AI-powered verified sponsorship marketplace with automated KRA eTIMS tax compliance and PayPal programmatic milestone ledger.
 * **Slide 3: The Innovation (Agentic AI):** A swarm of 6 autonomous agents that scout syndicates, draft contracts, visually verify live streams via computer vision, and trigger automated payouts.
 * **Slide 4: The Financial Architecture:** PayPal Orders v2 multiparty platform split + KRA eTIMS BII automated tax receipts.
 * **Slide 5: Live Demo:** A 90-second run-through of a brand brief turned into a funded campaign, verified via computer vision, and receipted with a real KRA QR code.
@@ -158,7 +158,7 @@ This script provides the exact sequence to present the SponsorPlay working proto
 * **[0:45 - 1:45] The Brand Experience & Agent 1:**
   "Watch this live: The sponsor types a simple brief: *'We want to promote Safaricom 5G Home Internet to university gamers in Nairobi. Budget: $770 (KES 100,000)'*. In 3 seconds, Agent 1 evaluates our creator graph and bundles a **Sponsorship Syndicate**: 1 campus tournament organizer and 2 competitive EA FC streamers. It's not just follower counts; it's verified community density."
 * **[1:45 - 2:45] PayPal Checkout & The Dual-Rail Engine:**
-  "The brand clicks *Approve*. Behind the scenes, Agent 2 generates a milestone contract. Watch the screen: The brand opens PayPal Sandbox Checkout. Notice the transaction breakdown: The platform fee is split automatically via `Orders v2 payment_instruction`. Funds are safely locked in **PayPal Smart Escrow**."
+  "The brand clicks *Approve*. Behind the scenes, Agent 2 generates a milestone contract. Watch the screen: The brand opens PayPal Sandbox Checkout. Notice the transaction breakdown: The platform fee is split automatically via `Orders v2 payment_instruction`. Funds are safely committed into the **PayPal Programmatic Milestone Ledger**."
 * **[2:45 - 3:45] Autonomous Multimodal Proof-of-Play (Agent 3):**
   "Now, the tournament happens. The creator uploads the stream VOD. Look at Agent 3 in real-time: Computer vision detects the sponsor logo in the overlay, measures screen airtime at 8.4% (exceeding the 5% threshold), and Whisper STT transcribes the shoutcaster saying: *'Big up Safaricom 5G for powering today's LAN finals!'*. Confidence score: 96.2%. The Proof-of-Play certificate is sealed."
 * **[3:45 - 4:30] KRA eTIMS Tax Invoicing & Automated Payout:**

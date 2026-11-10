@@ -35,7 +35,7 @@ The problem is **not a lack of capital or talent—it is a structural trust and 
 
 **Barbah SponsorPlay** solves this paradox by introducing an **Autonomous Multi-Agent AI Marketplace** operating on a **Dual-Rail Financial Engine (PayPal + KRA eTIMS)**. 
 - SponsorPlay autonomously discovers and bundles creators into synergistic **"Sponsorship Syndicates"**.
-- It locks campaign budgets into **PayPal Smart Milestone Escrows** via `Orders v2 multiparty payment_instruction`.
+- It locks campaign budgets into **PayPal Programmatic Milestone Ledgers** via `Orders v2 multiparty payment_instruction`.
 - It continuously verifies stream deliverables in real time using **Multimodal Computer Vision and Audio NLP (Proof-of-Play)**.
 - It programmatically generates certified **KRA eTIMS electronic tax invoices via Buyer-Initiated Invoicing (BII)**, ensuring 100% tax deductibility for brands while calculating mandatory withholding tax (WHT).
 - It releases instant milestone payouts to creators with seamless off-ramp to local **M-Pesa** mobile wallets.
@@ -61,7 +61,7 @@ SponsorPlay rejects the obsolete paradigms of static web directories (e.g., Upwo
 | 3. Multimodal            | Ingests live streams, VODs, and clips; runs OpenCV/Gemini Vision to detect logo screen-time  |
 |    Verification Agent    | ratio (>=3.5%); runs Whisper STT to verify verbal mentions; issues Proof-of-Play Certificate.|
 +--------------------------+----------------------------------------------------------------------------------------------+
-| 4. Financial Escrow &    | Manages PayPal Orders v2 multiparty splits; holds escrow; bridges KRA eTIMS OSCU/VSCU;      |
+| 4. Financial Milestone Ledger &    | Manages PayPal Orders v2 multiparty splits; manages programmatic milestone commitments; bridges KRA eTIMS OSCU/VSCU;      |
 |    Tax Orchestrator      | executes Buyer-Initiated Invoicing (BII); withholds 5% WHT; triggers automated PayPal Payouts|
 +--------------------------+----------------------------------------------------------------------------------------------+
 | 5. Brand Safety & Live   | Monitors live stream chat websockets for hate speech, toxicity, and copyright violations;    |
@@ -82,7 +82,7 @@ Connecting international payments (PayPal) with Kenya's electronic tax invoicing
 ```
 +---------------------------------------------------------------------------------------------------+
 | 1. Brand Sponsor deposits gross campaign budget via PayPal Orders v2:             $769.23 (KES 100k)
-|    - Locked safely in Milestone Escrow                                                            |
+|    - Locked safely in Milestone Ledger                                                            |
 +---------------------------------------------------------------------------------------------------+
 | 2. Platform Facilitation Commission (10%) split via payment_instruction:         $ 76.92 (KES  10k)
 |    - Barbah Games issues eTIMS Tax Invoice for platform fee to Sponsor                           |
@@ -118,7 +118,7 @@ graph TD
     subgraph "SponsorPlay Programmatic Resolution"
         S1[Automated eTIMS Invoicing & BII Protocol]
         S2[Multimodal Computer Vision Proof-of-Play]
-        S3[PayPal Milestone Escrow & Instant Payouts]
+        S3[PayPal Programmatic Milestone Ledger & Instant Payouts]
         S4[Real-Time Audio/Chat Safety Guardian]
         S5[PayPal Multi-Party API + M-Pesa Bridge]
     end
@@ -139,8 +139,8 @@ graph TD
 Our architectural choices are directly informed by the forensic post-mortems of previous attempts in the gaming and creator sponsorship ecosystem:
 
 1. **Twitch Bounty Board:** Proved that rigid algorithmic bounties alienate audiences and feel like inauthentic "corporate shilling." *SponsorPlay's Solution:* The Campaign Architect Agent co-creates native, contextual integrations tailored to each creator's gaming identity.
-2. **StreamElements Sponsorships ($111M VC Raised / Acquired by Razer):** Proved that pure CPA (Cost-Per-Action) attribution models collapse due to ad-blockers, multi-device viewing, and creator burnout. *SponsorPlay's Solution:* Hybrid milestone escrow guaranteeing base compensation for verified visibility and airtime, paired with performance bonuses.
-3. **Matcherino (Grassroots Esports Crowdfunding):** Suffered accounting scandals and non-endemic sponsor flight because funds were held in personal organizer accounts. *SponsorPlay's Solution:* Programmatic PayPal smart escrow where tournament prize pools are disbursed directly to verified players.
+2. **StreamElements Sponsorships ($111M VC Raised / Acquired by Razer):** Proved that pure CPA (Cost-Per-Action) attribution models collapse due to ad-blockers, multi-device viewing, and creator burnout. *SponsorPlay's Solution:* Hybrid milestone ledger guaranteeing base compensation for verified visibility and airtime, paired with performance bonuses.
+3. **Matcherino (Grassroots Esports Crowdfunding):** Suffered accounting scandals and non-endemic sponsor flight because funds were held in personal organizer accounts. *SponsorPlay's Solution:* Programmatic PayPal milestone disbursement engine where tournament prize pools are disbursed directly to verified players.
 4. **FaZe Clan & TSM ($210M FTX Deal Collapse):** Highlighted the vanity metric bubble of bloated tier-1 organizations. *SponsorPlay's Solution:* Programmatic bundling of micro-syndicates with hyper-engaged, authentic community density.
 5. **Safaricom Blaze & Otamatsuri (Kenya):** Demonstrated massive local youth appetite but revealed that manual procurement and lack of eTIMS automation prevent corporate marketing spend from reaching neighborhood gaming dens.
 
@@ -163,22 +163,22 @@ flowchart TD
     Beneficiary -->|Accepts Terms| Gateway
     
     Gateway --> PayPal_API[PayPal Developer Sandbox]
-    Brand -->|4. Funds Escrow| PayPal_API
-    PayPal_API -->|Webhook: Capture Completed| Escrow_Engine[Financial Escrow Ledger]
+    Brand -->|4. Funds Milestone Ledger| PayPal_API
+    PayPal_API -->|Webhook: Capture Completed| Ledger_Engine[Financial Milestone Ledger]
     
     Beneficiary -->|5. Delivers Stream / Tournament| Media_Worker[Multimodal AI Verification Worker]
     Media_Worker -->|Vision: Logo Area >= 3.5%| Agent_Vision[Agent 3: Multimodal Verifier]
     Media_Worker -->|Audio: Whisper STT Brand Mentions| Agent_Vision
     
-    Agent_Vision -->|6. Proof-of-Play Certificate| Escrow_Engine
-    Escrow_Engine -->|7. Trigger BII Invoicing| eTIMS_Engine[KRA eTIMS VSCU / OSCU Engine]
+    Agent_Vision -->|6. Proof-of-Play Certificate| Ledger_Engine
+    Ledger_Engine -->|7. Trigger BII Invoicing| eTIMS_Engine[KRA eTIMS VSCU / OSCU Engine]
     eTIMS_Engine -->|Official QR Code Tax Receipt| Brand
     
-    Escrow_Engine -->|8. Release Milestone Payout| PayPal_API
+    Ledger_Engine -->|8. Release Milestone Payout| PayPal_API
     PayPal_API -->|Instant Payout| Beneficiary
     Beneficiary -->|Instant Cash-out| MPESA[M-Pesa Mobile Wallet]
     
-    Escrow_Engine -->|9. Impact Telemetry| MetaTwin[Agent 6: MetaTwin ESG Engine]
+    Ledger_Engine -->|9. Impact Telemetry| MetaTwin[Agent 6: MetaTwin ESG Engine]
 ```
 
 ### 6.2 The Multimodal Verification Pipeline (Proof-of-Play)
@@ -257,7 +257,7 @@ To ensure our submission outshines competitors and presents an irresistible tech
 
 ### 8.1 The Investor Pitch Summary
 * **The Problem:** $137M Kenyan gaming market starved of commercial funding due to KRA Section 16 tax disallowance and lack of deliverable verification.
-* **The Solution:** SponsorPlay – The first AI-powered verified sponsorship marketplace with automated KRA eTIMS tax compliance and PayPal milestone escrow.
+* **The Solution:** SponsorPlay – The first AI-powered verified sponsorship marketplace with automated KRA eTIMS tax compliance and PayPal milestone ledger.
 * **The Unit Economics:** 10% marketplace take rate, $61 net platform contribution margin per $1,000 GMV (61% margin), high recurring tournament retention.
 * **The Ask:** Hackathon victory and acceleration partnership with PayPal Ventures to formalize the creator fintech infrastructure in East Africa.
 
@@ -272,7 +272,7 @@ Before building application code, the engineering team must align on the minimal
 ```mermaid
 graph TD
     Step1[1. Brand Brief & AI Syndicate Match] --> Step2[2. Dynamic Milestone Contract Generated]
-    Step2 --> Step3[3. PayPal Sandbox Checkout & Escrow Lock]
+    Step2 --> Step3[3. PayPal Sandbox Checkout & Milestone Commitment]
     Step3 --> Step4[4. Stream VOD Ingestion & Proof-of-Play Verification]
     Step4 --> Step5[5. KRA eTIMS Tax Invoice & QR Code Generation]
     Step5 --> Step6[6. PayPal Milestone Payout Release & Impact Dossier]
@@ -281,7 +281,7 @@ graph TD
 ### MVP Demo Scenario (Aligned with Challenge Prompt):
 1. **Brand Brief:** Consumer brand (e.g., Safaricom 5G) submits brief: *"Reach 10,000 young gamers in Nairobi and Eldoret via campus gaming tournaments and digital live streams. Budget: KES 100,000 ($769.23 USD)."*
 2. **AI Matching:** Agent 1 recommends an optimal syndicate: 1 campus tournament organizer + 2 EA FC streamers.
-3. **PayPal Checkout:** Sponsor logs into PayPal Sandbox, reviews the platform fee split, and approves the order. Escrow status locks to `FUNDED_IN_ESCROW`.
+3. **PayPal Checkout:** Sponsor logs into PayPal Sandbox, reviews the platform fee split, and approves the order. Milestone ledger status locks to `COMMITTED_IN_LEDGER`.
 4. **Deliverable Ingestion & Verification:** Creator submits a 2-hour tournament stream link. Agent 3 evaluates logo visibility (screen area ratio 8.4%) and transcribes verbal brand mentions. Confidence: 96.2%. Proof-of-Play certificate generated.
 5. **eTIMS Compliance:** Agent 4 generates an official KRA eTIMS tax invoice with Control Unit Number and QR code, automatically withholding 5% WHT.
 6. **Milestone Payout:** PayPal Payout executes net release to the creator's account. Sponsor dashboard displays audience reach, demographic analytics, and Barbah MetaTwin social impact metrics.

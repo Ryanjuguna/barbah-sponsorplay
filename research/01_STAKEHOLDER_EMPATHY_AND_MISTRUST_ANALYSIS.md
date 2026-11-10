@@ -94,7 +94,7 @@ The chasm between them is characterized by **structural friction, legal/tax barr
 graph TD
     A[The Sponsorship Mistrust Chasm] --> B[1. Tax & Legal Non-Compliance]
     A --> C[2. The Verification Void]
-    A --> D[3. Payment Liquidity & Escrow Asymmetry]
+    A --> D[3. Payment Liquidity & Milestone Commitment Asymmetry]
     A --> E[4. Valuation & Pricing Chaos]
     A --> F[5. Brand Safety & Content Risk]
     A --> G[6. Cross-Border Settlement Friction]
@@ -123,10 +123,10 @@ Traditional sponsorships rely on post-campaign self-reporting.
   - Did the branded banner stay hung behind the finalist stage throughout the LAN final?
 * The lack of objective, real-time proof breeds cynical second-guessing on both sides.
 
-### Root Cause 3: Payment Liquidity & Escrow Asymmetry
+### Root Cause 3: Payment Liquidity & Milestone Commitment Asymmetry
 * The Brand's dilemma: "If I pay 100% upfront, the creator has no incentive to deliver high-quality execution. If they underperform, recovering the money in small claims court is legally impossible."
 * The Creator's dilemma: "If I deliver the entire campaign without upfront funding, the brand will invent excuses, renegotiate post-facto, or force me into a Net-90 payment cycle where I cannot pay my bills."
-* Without an automated, neutral escrow mechanism that releases funds based on programmatic proof of delivery, one party is always held hostage by the other.
+* Without an automated, neutral milestone disbursement mechanism that releases funds based on programmatic proof of delivery, one party is always held hostage by the other.
 
 ### Root Cause 4: Valuation & Pricing Chaos (The Follower Count Fallacy)
 * Pricing in African esports is completely arbitrary. There is no transparent CPM, CPV (Cost Per View), or Cost-Per-Engaged-Gamer benchmark.
@@ -157,7 +157,7 @@ SponsorPlay replaces subjective human negotiation, manual invoicing, and emotion
 +--------------------------+------------------------------------------+-----------------------------------+
 | Tax Deductibility        | Non-compliant manual receipts or cash    | Automated eTIMS OSCU/VSCU + BII   |
 | Deliverable Verification | Manipulated screenshots & manual audits  | Multimodal AI Proof-of-Play Engine|
-| Payment Security         | 50% upfront gamble or Net-90 starvation  | PayPal Smart Milestone Escrow     |
+| Payment Security         | 50% upfront gamble or Net-90 starvation  | PayPal Programmatic Milestone Ledger     |
 | Campaign Valuation       | Guesswork based on vanity follower counts| Dynamic AI Valuation & Syndicate  |
 | Brand Safety             | Hope & prayer during unscripted streams  | Real-time Audio/Vision Guardian   |
 | Cross-Border Payments    | Expensive SWIFT wires ($45 fee, 5 days)  | PayPal Orders v2 & M-Pesa Bridge  |

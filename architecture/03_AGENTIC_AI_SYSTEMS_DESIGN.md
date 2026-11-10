@@ -20,7 +20,7 @@ graph TB
 
     subgraph "Autonomous Agent Swarm (LangGraph State Machine)"
         A1 -->|Ranked Talents & Syndicates| A2[Agent 2: Campaign Architect & Contract Agent]
-        A2 -->|Milestone Contract & Escrow Order| A4[Agent 4: Financial Escrow & Tax Orchestrator]
+        A2 -->|Milestone Contract & Ledger Order| A4[Agent 4: Financial Milestone Ledger & Tax Orchestrator]
         A2 -->|Deliverable Verification Spec| A3[Agent 3: Multimodal Verification Agent]
         
         A3 -->|Real-time Stream Telemetry| A5[Agent 5: Brand Safety & Live Guardian]
@@ -56,7 +56,7 @@ graph TB
 | Discovery Mechanism      | Rigid filters & search| Conversational search       | Multi-signal syndicate graph    |
 | Contract Structuring     | Generic PDF templates | Text generation only        | Executable milestone contracts  |
 | Deliverable Verification | Manual human checking | Cannot process media streams| Multimodal Vision + Audio STT   |
-| Financial Orchestration  | Disconnected manual   | Zero transactional state    | Autonomous PayPal Escrow + eTIMS|
+| Financial Orchestration  | Disconnected manual   | Zero transactional state    | Autonomous PayPal Milestone Ledger + eTIMS|
 | Error Recovery           | Human ticket queue    | Hallucinates solutions      | Automated fallback & dispute loop|
 +--------------------------+-----------------------+-----------------------------+---------------------------------+
 ```
@@ -125,12 +125,12 @@ graph TD
 * **Tournament Bracket Verification:**
   - Ingests tournament bracket images/URLs, uses OCR to confirm tournament progression, winner identification, and prize pool qualification.
 
-### 3.4 Agent 4: Financial Escrow & Tax Orchestration Agent (PayPal + KRA eTIMS Bridge)
+### 3.4 Agent 4: Financial Milestone Ledger & Tax Orchestration Agent (PayPal + KRA eTIMS Bridge)
 * **Role:** Orchestrates the dual-rail movement of money and tax compliance. Connects international PayPal payment rails with the Kenyan Revenue Authority eTIMS protocol.
 * **Core Capabilities:**
   - **PayPal Orders v2 Multiparty Routing:**
-    * Creates checkout orders with `payment_instruction` splitting platform fees (10%) and escrow allocations.
-    * Holds funds in a secure milestone escrow state.
+    * Creates checkout orders with `payment_instruction` splitting platform fees (10%) and milestone allocations.
+    * Holds funds in a secure milestone ledger state.
   - **KRA eTIMS Protocol Handling:**
     * Interacts with KRA Online Sales Control Unit (OSCU) / Virtual Sales Control Unit (VSCU).
     * Handles **Approach 1 (eTIMS-First)** for registered esports organizations.
@@ -170,9 +170,9 @@ stateDiagram-v2
     NEGOTIATION --> PROPOSAL_PENDING: Agent 2 adjusts parameters
     PROPOSAL_PENDING --> SPONSOR_APPROVAL: Creator accepts proposal
     
-    SPONSOR_APPROVAL --> PAYPAL_ESCROW_LOCKED: Sponsor funds via PayPal Orders v2
+    SPONSOR_APPROVAL --> PAYPAL_MILESTONES_COMMITTED: Sponsor funds via PayPal Orders v2
     
-    PAYPAL_ESCROW_LOCKED --> CAMPAIGN_ACTIVE: Agent 4 confirms escrow capture
+    PAYPAL_MILESTONES_COMMITTED --> CAMPAIGN_ACTIVE: Agent 4 confirms milestone capture
     
     CAMPAIGN_ACTIVE --> MILESTONE_EVALUATION: Content ingested (VOD/Post)
     

@@ -26,7 +26,7 @@ graph TB
         S1[Campaign & Contract Lifecycle Service]
         S2[Agentic AI Orchestrator: LangGraph Engine]
         S3[Multimodal Verification Worker: Celery / Redis]
-        S4[Financial Ledger & Escrow Service]
+        S4[Financial Milestone Ledger Service]
         S5[KRA eTIMS Fiscalization Engine: OSCU / VSCU / BII]
         S6[PayPal Integration Service: Orders v2 & Payouts]
         S7[MetaTwin ESG & Impact Telemetry Service]
@@ -117,7 +117,7 @@ sequenceDiagram
     SP-->>Sponsor: PayPal Checkout Modal Triggered
     Sponsor->>PP: Authorize & Capture Payment
     PP-->>SP: Webhook: PAYMENT.CAPTURE.COMPLETED (Capture ID: CAP-98765)
-    SP->>SP: Escrow Ledger Status: LOCKED_IN_ESCROW
+    SP->>SP: Milestone Ledger Status: COMMITTED_IN_LEDGER
     
     Note over SP,Creator: Campaign Activated (Milestones 1, 2, 3)
     
@@ -203,10 +203,10 @@ We utilize `POST /v2/checkout/orders` with `payment_instruction.platform_fees` t
 }
 ```
 
-### 3.2 Webhook Ingestion & Escrow Locking
+### 3.2 Webhook Ingestion & Milestone Ledger Commitment
 The platform registers listeners for the following critical PayPal Webhook events:
 * `CHECKOUT.ORDER.APPROVED`: Signals that the sponsor authorized the transaction.
-* `PAYMENT.CAPTURE.COMPLETED`: Emitted when funds are captured. Triggers internal ledger event `EVENT_ESCROW_FUNDED`.
+* `PAYMENT.CAPTURE.COMPLETED`: Emitted when funds are captured. Triggers internal ledger event `EVENT_MILESTONES_FUNDED`.
 * `PAYMENT.CAPTURE.DENIED` / `PAYMENT.CAPTURE.REFUNDED`: Triggers automated rollback and campaign freeze.
 
 ### 3.3 Programmatic Payouts to Beneficiaries
@@ -323,9 +323,9 @@ erDiagram
     MILESTONES ||--o{ DELIVERABLES : requires
     DELIVERABLES ||--o{ VERIFICATION_LOGS : produces
     
-    CAMPAIGNS ||--o{ ESCROW_ORDERS : triggers
-    ESCROW_ORDERS ||--o{ PAYPAL_TRANSACTIONS : records
-    ESCROW_ORDERS ||--o{ ETIMS_TAX_INVOICES : generates
+    CAMPAIGNS ||--o{ MILESTONE_ORDERS : triggers
+    MILESTONE_ORDERS ||--o{ PAYPAL_TRANSACTIONS : records
+    MILESTONE_ORDERS ||--o{ ETIMS_TAX_INVOICES : generates
     
     CAMPAIGNS ||--o{ ESG_IMPACT_METRICS : records
 
@@ -404,19 +404,19 @@ erDiagram
         text proof_certificate_hash
     }
 
-    ESCROW_ORDERS {
+    MILESTONE_ORDERS {
         uuid id PK
         uuid campaign_id FK
         string paypal_order_id
         decimal gross_amount
         decimal platform_fee_amount
-        decimal net_escrow_amount
-        string escrow_status
+        decimal net_milestone_amount
+        string ledger_status
     }
 
     ETIMS_TAX_INVOICES {
         uuid id PK
-        uuid escrow_order_id FK
+        uuid milestone_order_id FK
         string cu_invoice_number
         string invoice_type
         decimal gross_taxable_amount
