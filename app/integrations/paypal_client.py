@@ -11,12 +11,21 @@ from app.config import settings
 
 class PayPalClient:
     def __init__(self):
-        self.mode = settings.PAYPAL_MODE
+        self.config_mode = settings.PAYPAL_MODE
         self.client_id = settings.PAYPAL_CLIENT_ID
         self.client_secret = settings.PAYPAL_CLIENT_SECRET
         self.base_url = settings.PAYPAL_BASE_URL
         self._cached_token: Optional[str] = None
         self._token_expiry: float = 0
+
+    def mode(self) -> str:
+        """
+        Reports whether live PayPal Sandbox credentials are configured and
+        reachable (LIVE_SANDBOX), or the client is falling back to a
+        simulated token (SIMULATED).
+        """
+        token = self.get_access_token()
+        return "SIMULATED" if token.startswith("A21AAMock") else "LIVE_SANDBOX"
 
     def get_access_token(self) -> str:
         """
