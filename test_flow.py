@@ -201,7 +201,7 @@ def run_e2e_test():
         certificate=cert
     )
     print(f"  [+] KRA eTIMS CU Invoice Number: {disb_res['etims_cu_invoice_number']}")
-    print(f"      - Section 16 Deductibility Certified: {disb_res['tax_compliance_certified']}")
+    print(f"      - Tax Invoice Mode: {disb_res['tax_invoice_mode']}")
     print(f"      - Gross Taxable Amount: KES {disb_res['gross_amount_kes']:,.2f}")
     print(f"      - 5% Withholding Tax Remitted: KES {disb_res['withholding_tax_kes']:,.2f}")
     print(f"      - Net Payout Disbursed: KES {disb_res['net_paid_kes']:,.2f} (${disb_res['net_paid_usd']:.2f} USD)")

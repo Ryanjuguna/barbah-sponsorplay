@@ -108,11 +108,11 @@ class ArchitectAgent:
         ]
 
         legal_clauses = [
-            f"1. TAX DEDUCTIBILITY GUARANTEE: All disbursements are tied to KRA eTIMS invoices satisfying Section 16(1)(c) of the Kenya Income Tax Act.",
+            f"1. TAX INVOICING (PROTOTYPE): All disbursements are designed to support eTIMS invoicing aligned with Section 16(1)(c) of the Kenya Income Tax Act (prototype; production requires KRA certification).",
             f"2. STATUTORY WITHHOLDING: A 5% Withholding Tax (KES {wht_kes:,.2f}) will be deducted and remitted directly to KRA via iTax.",
             f"3. PROGRAMMATIC MILESTONE LEDGER: Campaign funds are secured via PayPal Orders v2 with delayed programmatic disbursement, and are released milestone-by-milestone only upon automated Proof-of-Play verification (Confidence >= 90%).",
             f"4. BRAND SAFETY INDEMNITY: Creators agree to automated live chat monitoring. Toxicity or derogatory slurs trigger an immediate 15-minute remediation hold.",
-            f"5. BUYER-INITIATED INVOICING: Informal/student creators authorize Barbah Games to issue certified BII eTIMS invoices under Section 23A of the Tax Procedures Act."
+            f"5. BUYER-INITIATED INVOICING: Informal/student creators authorize Barbah Games to issue BII eTIMS invoices under Section 23A of the Tax Procedures Act (prototype; production requires KRA certification)."
         ]
 
         proposal = Proposal(
@@ -230,9 +230,9 @@ class ArchitectAgent:
         ]
 
         tax_clause = (
-            f"1. TAX DEDUCTIBILITY: Direct KRA eTIMS invoice will be issued using Creator KRA PIN {creator.kra_pin}."
+            f"1. TAX INVOICING (PROTOTYPE): A direct eTIMS-format invoice will be issued using Creator KRA PIN {creator.kra_pin} (prototype; production requires KRA certification)."
             if creator.etims_registered else
-            f"1. BUYER-INITIATED INVOICING (BII): Creator authorizes Barbah Games to issue certified BII invoice under Section 23A of the Tax Procedures Act, guaranteeing corporate deductibility under Section 16(1)(c)."
+            f"1. BUYER-INITIATED INVOICING (BII): Creator authorizes Barbah Games to issue a BII-format invoice under Section 23A of the Tax Procedures Act, designed to support corporate deductibility under Section 16(1)(c) (prototype; production requires KRA certification)."
         )
 
         legal_clauses = [

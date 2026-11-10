@@ -11,12 +11,21 @@ from app.config import settings
 
 class PayPalClient:
     def __init__(self):
-        self.mode = settings.PAYPAL_MODE
+        self.config_mode = settings.PAYPAL_MODE
         self.client_id = settings.PAYPAL_CLIENT_ID
         self.client_secret = settings.PAYPAL_CLIENT_SECRET
         self.base_url = settings.PAYPAL_BASE_URL
         self._cached_token: Optional[str] = None
         self._token_expiry: float = 0
+
+    def mode(self) -> str:
+        """
+        Reports whether live PayPal Sandbox credentials are configured and
+        reachable (LIVE_SANDBOX), or the client is falling back to a
+        simulated token (SIMULATED).
+        """
+        token = self.get_access_token()
+        return "SIMULATED" if token.startswith("A21AAMock") else "LIVE_SANDBOX"
 
     def get_access_token(self) -> str:
         """
@@ -46,7 +55,7 @@ class PayPalClient:
                 auth=(self.client_id, self.client_secret),
                 headers=headers,
                 data=data,
-                timeout=5.0
+                timeout=15.0
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -157,7 +166,7 @@ class PayPalClient:
             }
             # 1. Attempt multiparty delayed disbursement
             try:
-                resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=payload, headers=headers, timeout=5.0)
+                resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=payload, headers=headers, timeout=15.0)
                 if resp.status_code in (200, 201):
                     live_order = resp.json()
                     live_order["mode"] = "LIVE_PAYPAL_SANDBOX_MULTIPARTY"
@@ -200,7 +209,7 @@ class PayPalClient:
                     ],
                     "application_context": payload["application_context"]
                 }
-                resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=direct_payload, headers=headers, timeout=5.0)
+                resp = requests.post(f"{self.base_url}/v2/checkout/orders", json=direct_payload, headers=headers, timeout=15.0)
                 if resp.status_code in (200, 201):
                     live_order = resp.json()
                     live_order["mode"] = "LIVE_PAYPAL_SANDBOX_LEDGER"
@@ -241,7 +250,7 @@ class PayPalClient:
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {token}"
                 }
-                resp = requests.post(f"{self.base_url}/v2/checkout/orders/{order_id}/capture", headers=headers, timeout=5.0)
+                resp = requests.post(f"{self.base_url}/v2/checkout/orders/{order_id}/capture", headers=headers, timeout=15.0)
                 if resp.status_code in (200, 201):
                     return resp.json()
             except Exception:
@@ -309,7 +318,7 @@ class PayPalClient:
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {token}"
                 }
-                resp = requests.post(f"{self.base_url}/v1/payments/payouts", json=payload, headers=headers, timeout=5.0)
+                resp = requests.post(f"{self.base_url}/v1/payments/payouts", json=payload, headers=headers, timeout=15.0)
                 if resp.status_code in (200, 201):
                     live_data = resp.json()
                     p_batch = live_data.get("batch_header", {})

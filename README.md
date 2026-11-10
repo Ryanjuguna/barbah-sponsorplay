@@ -9,6 +9,28 @@
 
 ---
 
+## 0. Judge Setup (Start Here)
+
+* **Hosted Demo:** `TODO: paste Render URL here once deployed (e.g. https://barbah-sponsorplay.onrender.com)` — no login or credentials needed. Render's free tier sleeps when idle; open the link a minute before judging if it's been quiet.
+* **API Docs:** `<hosted URL>/docs`
+
+### Run It Locally Instead
+
+```bash
+git clone https://github.com/Ryanjuguna/barbah-sponsorplay.git
+cd barbah-sponsorplay
+cp .env.example .env   # fill in your own PayPal Sandbox + Anthropic keys
+pip install -r requirements.txt
+PYTHONPATH=. python test_flow.py   # automated end-to-end verification
+python run_demo.py                  # interactive dashboard at http://127.0.0.1:8000
+```
+
+See Section 6 for the full Quickstart and Section 7 for connecting your own PayPal Sandbox credentials.
+
+> We are not distributing BARBAH's PayPal Sandbox login in this repo or README — the hosted demo above needs no credentials. If judges need direct sandbox access for any other reason, check with Andrew on how he wants that handled before sharing it.
+
+---
+
 ## 1. Executive Summary
 
 In Kenya, the video gaming and digital creator market is valued between $100 million and $137 million, with over 85% mobile and console penetration among urban youth. Major corporate enterprises such as Safaricom, Red Bull, KCB Bank, and international consumer brands want to connect with young gaming audiences. However, 95% of grassroots esports talent, campus gaming clubs, and neighborhood gaming lounges remain commercially unmonetized.
@@ -45,7 +67,7 @@ SponsorPlay replaces static directories and rigid algorithmic bounties with an a
 +-----------------------------+                                   +-----------------------------+
 |   PayPal Developer Sandbox  |                                   |   KRA eTIMS Fiscal Engine   |
 |  - Orders v2 Multiparty     |                                   |  - Section 16 Tax Invoice   |
-|  - Programmatic Ledger      |                                   |  - Buyer-Initiated Invoice  |
+|  - Programmatic Milestone   |                                   |  - Buyer-Initiated Invoice  |
 |  - Programmatic Mass Payout |                                   |  - 5% Withholding Tax (WHT) |
 |  - Instant M-Pesa Off-Ramp  |                                   |  - Scannable KRA QR Code    |
 +-----------------------------+                                   +-----------------------------+
@@ -56,7 +78,7 @@ SponsorPlay replaces static directories and rigid algorithmic bounties with an a
 * **Agent 1: Talent Discovery & Micro-Syndicate Scout:** Analyzes natural language briefs, evaluates creator community density, and bundles balanced syndicates (such as one tournament organizer, two competitive streamers, and three campus gaming dens).
 * **Agent 2: Campaign Architect & Contract Generator:** Decomposes campaigns into three verifiable milestones (30% mobilization, 40% live broadcast airtime, 30% post-event archival) and calculates dynamic pricing based on purchasing power parity and actual concurrent viewers.
 * **Agent 3: Multimodal Proof-of-Play Verifier:** Ingests live stream VODs and clips, running computer vision to evaluate brand logo screen occupancy (threshold >= 3.5%) and Whisper speech-to-text to verify shoutcaster verbal endorsements. It then seals a tamper-proof cryptographic certificate.
-* **Agent 4: Financial Milestone Ledger & Tax Orchestrator:** Manages PayPal Orders v2 multiparty payment splits with programmatic delayed milestone release, executes KRA eTIMS Buyer-Initiated Invoicing (BII), deducts statutory 5% Withholding Tax, and triggers automated payouts via PayPal Payouts API.
+* **Agent 4: Financial Milestone Ledger & Tax Orchestrator:** Manages PayPal Orders v2 multiparty payment splits with programmatic delayed milestone release, executes KRA eTIMS Buyer-Initiated Invoicing (BII prototype), deducts statutory 5% Withholding Tax, and triggers automated payouts via PayPal Payouts API.
 * **Agent 5: Real-Time Brand Safety Guardian:** Monitors live chat websockets for toxicity, harassment, and competitor product collisions, with an automated 15-minute creator remediation window.
 * **Agent 6: MetaTwin ESG & Social Impact Attribution:** Connects to Barbah MetaTwin infrastructure, tracking youth reached in informal settlements, collegiate players supported, and female gamer participation to generate audit-ready corporate sustainability reports.
 
@@ -69,7 +91,11 @@ SponsorPlay bridges international digital payments with Kenya's mandatory electr
 ### Financial Flow on a KES 100,000 ($769.23 USD) Campaign
 
 * **Gross Sponsor Budget Authorized:** $769.23 (KES 100,000.00)
+<<<<<<< HEAD
   * Deposited via PayPal Orders v2 and committed into the programmatic milestone ledger.
+=======
+  * Deposited via PayPal Orders v2 and locked in the milestone ledger.
+>>>>>>> origin/submission-fixes
 * **Barbah Facilitation Commission (10%):** $76.92 (KES 10,000.00)
   * Split automatically via `payment_instruction.platform_fees`.
   * Barbah Games issues a platform fee eTIMS tax invoice to the sponsor.
@@ -95,7 +121,11 @@ barbah-sponsorplay/
 |   |   |-- scout_agent.py          # Agent 1: Talent Scout and Syndicate Bundler
 |   |   |-- architect_agent.py      # Agent 2: Campaign Architect and Pricing Oracle
 |   |   |-- verification_agent.py   # Agent 3: Multimodal Proof-of-Play Verifier
+<<<<<<< HEAD
 |   |   |-- financial_agent.py      # Agent 4: Financial Milestone Ledger & Tax Orchestrator
+=======
+|   |   |-- financial_agent.py      # Agent 4: Financial Milestone Ledger and Tax Orchestrator
+>>>>>>> origin/submission-fixes
 |   |   |-- guardian_agent.py       # Agent 5: Real-Time Brand Safety Guardian
 |   |   |-- impact_agent.py         # Agent 6: MetaTwin ESG Impact Attribution
 |   |-- integrations/
@@ -103,7 +133,7 @@ barbah-sponsorplay/
 |   |   |-- etims_client.py         # KRA eTIMS client (OSCU, VSCU, and BII engine)
 |   |-- api/
 |   |   |-- campaigns.py            # Endpoints for briefs, syndicates, and proposals
-|   |   |-- payments.py             # Endpoints for milestone orders, captures, payouts, and invoices
+|   |   |-- payments.py             # Endpoints for the milestone ledger, captures, payouts, and invoices
 |   |   |-- verification.py         # Endpoints for deliverable verification and chat audit
 |   |   |-- impact.py               # Endpoints for MetaTwin ESG reports
 |   |-- static/
@@ -139,16 +169,16 @@ barbah-sponsorplay/
 ### 6.1 Prerequisites
 
 * Python 3.10 or higher.
-* Recommended packages installed:
+* Install dependencies from `requirements.txt`:
   ```bash
-  pip install fastapi uvicorn pydantic requests
+  pip install -r requirements.txt
   ```
 
 ### 6.2 Run Automated Verification Test Suite
 
 Run the end-to-end test verifying all eight stages of the sponsorship lifecycle:
 ```bash
-python -u test_flow.py
+PYTHONPATH=. python test_flow.py
 ```
 
 Expected output:
@@ -174,7 +204,7 @@ PayPal AI Hackathon - Challenge 02: Sponsor Play (Barbah Games Kenya)
   [+] Overall Verification Confidence: 96.2% -> PASSED
 [STEP 7] Disbursing Milestone Funds with KRA eTIMS Fiscal Invoicing...
   [+] KRA eTIMS CU Invoice Number: KRA-CU-20261109-7D0EEC
-  [+] Section 16 Deductibility Certified: True
+  [+] Tax Invoice Mode: MOCK_ETIMS_PROTOTYPE
   [+] PayPal Payout Item ID: PYITM-2EC4AE9DAD
 [STEP 8] Generating Barbah MetaTwin ESG Social Impact Dossier (Agent 6)...
   [+] Total Youth Reach Logged: 38,000

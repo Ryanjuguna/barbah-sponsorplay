@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   logAgent("SYSTEM", "Barbah SponsorPlay core initialized. Preloaded Kenyan esports talent graph (16 personas).");
   logAgent("BARBAH GATEWAY", "Real-time webhook listener active on /api/v1/barbah/webhook.");
   logAgent("SCOUT RADAR", "Multi-Channel Talent Radar initialized (Twitch, Start.gg, WhatsApp, TikTok).");
+  loadPayPalMode();
 });
 
 // Real-Time Dynamic USD <-> KES Budget Currency Synchronizer
@@ -68,6 +69,23 @@ function setupBudgetCurrencySync() {
 
   // Initial sync on load
   syncUSDToKES();
+}
+
+// LIVE / SIMULATED PayPal mode badge
+async function loadPayPalMode() {
+  const pill = document.getElementById('paypalModePill');
+  if (!pill) return;
+  try {
+    const resp = await fetch('/api/paypal/mode');
+    const data = await resp.json();
+    const isLive = data.mode === 'LIVE_SANDBOX';
+    pill.className = isLive
+      ? "flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-900/40 border border-emerald-500/40 text-emerald-300 text-xs font-semibold"
+      : "flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-300 text-xs font-semibold";
+    pill.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i><span>PayPal: ${isLive ? 'LIVE_SANDBOX' : 'SIMULATED'}</span>`;
+  } catch (err) {
+    pill.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i><span>PayPal: UNKNOWN</span>`;
+  }
 }
 
 // Three.js Interactive 3D Kenyan Cyber-Esports Constellation & Arena Mesh
@@ -894,7 +912,7 @@ function renderStep2Proposal(proposal) {
   `;
 }
 
-// STEP 3: PAYPAL ORDERS V2 ESCROW CHECKOUT
+// STEP 3: PAYPAL ORDERS V2 MILESTONE LEDGER CHECKOUT
 async function initializePayPalEscrow() {
   logAgent("AGENT 4: FINANCE", `Creating PayPal Orders v2 Programmatic Milestone Ledger for Proposal ${currentProposal.id}...`, "text-sky-400");
 
@@ -990,16 +1008,14 @@ function renderStep3PayPal(order) {
 
 async function capturePayPalOrder() {
   const orderId = currentPayPalOrder ? (currentPayPalOrder.order_id || (currentPayPalOrder.paypal_order && currentPayPalOrder.paypal_order.id) || currentPayPalOrder.id) : null;
-  logAgent("PAYPAL LEDGER", `Authorizing milestone commitment for Order ${orderId}...`, "text-sky-400");
+  logAgent("PAYPAL MILESTONE LEDGER", `Authorizing payment capture for Order ${orderId}...`, "text-sky-400");
 
   try {
     const resp = await fetch(`/api/v1/payments/capture-order/${orderId}`, { method: 'POST' });
-    if (!resp.ok) {
-      throw new Error(`Capture failed with status ${resp.status}`);
-    }
+    if (!resp.ok) throw new Error(`Capture request failed (HTTP ${resp.status})`);
     const captureData = await resp.json();
 
-    logAgent("PAYPAL LEDGER", `Funds Committed! Milestone ledger status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
+    logAgent("PAYPAL MILESTONE LEDGER", `Funds Captured! Milestone ledger status: FUNDED. Platform commission automatically split.`, "text-emerald-400 font-bold");
     logAgent("AGENT 4: FINANCE", `Milestone 1 is now active. Creator mobilization underway.`, "text-sky-300");
 
     document.getElementById('btnCapturePayPal').disabled = true;

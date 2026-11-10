@@ -111,7 +111,7 @@ class FinancialAgent:
             "payout_mode": payout_resp.get("mode", "PAYPAL_SANDBOX"),
             "etims_cu_invoice_number": tax_invoice.cu_invoice_number,
             "qr_code_url": tax_invoice.qr_code_url,
-            "tax_compliance_certified": True
+            "tax_invoice_mode": "MOCK_ETIMS_PROTOTYPE"
         }
 
 financial_agent = FinancialAgent()

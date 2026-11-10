@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.config import settings
+from app.integrations.paypal_client import paypal_client
 from app.api.campaigns import router as campaigns_router
 from app.api.payments import router as payments_router
 from app.api.verification import router as verification_router
@@ -70,3 +71,8 @@ def health_check():
         "paypal_mode": settings.PAYPAL_MODE,
         "etims_device": settings.ETIMS_DEVICE_SERIAL
     }
+
+@app.get("/api/paypal/mode")
+def paypal_mode():
+    """Reports whether PayPal calls are hitting a live sandbox or a simulated fallback."""
+    return {"mode": paypal_client.mode()}
