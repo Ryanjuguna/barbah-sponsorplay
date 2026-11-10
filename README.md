@@ -9,6 +9,28 @@
 
 ---
 
+## 0. Judge Setup (Start Here)
+
+* **Hosted Demo:** `TODO: paste Render URL here once deployed (e.g. https://barbah-sponsorplay.onrender.com)` — no login or credentials needed. Render's free tier sleeps when idle; open the link a minute before judging if it's been quiet.
+* **API Docs:** `<hosted URL>/docs`
+
+### Run It Locally Instead
+
+```bash
+git clone https://github.com/Ryanjuguna/barbah-sponsorplay.git
+cd barbah-sponsorplay
+cp .env.example .env   # fill in your own PayPal Sandbox + Anthropic keys
+pip install -r requirements.txt
+PYTHONPATH=. python test_flow.py   # automated end-to-end verification
+python run_demo.py                  # interactive dashboard at http://127.0.0.1:8000
+```
+
+See Section 6 for the full Quickstart and Section 7 for connecting your own PayPal Sandbox credentials.
+
+> We are not distributing BARBAH's PayPal Sandbox login in this repo or README — the hosted demo above needs no credentials. If judges need direct sandbox access for any other reason, check with Andrew on how he wants that handled before sharing it.
+
+---
+
 ## 1. Executive Summary
 
 In Kenya, the video gaming and digital creator market is valued between $100 million and $137 million, with over 85% mobile and console penetration among urban youth. Major corporate enterprises such as Safaricom, Red Bull, KCB Bank, and international consumer brands want to connect with young gaming audiences. However, 95% of grassroots esports talent, campus gaming clubs, and neighborhood gaming lounges remain commercially unmonetized.
