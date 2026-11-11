@@ -165,6 +165,27 @@ def test_full_creator_flow():
     assert resp.status_code == 200
     print("[PASS] 7. Custom Image (Base64 Drag-and-Drop) deliverable successfully uploaded and verified")
 
+    # 7B. Test Physical Venue Deliverable Submission (Claude Multimodal AI Vision)
+    venue_submit_payload = {
+        "proposal_id": p1["id"],
+        "milestone_id": m1["id"],
+        "creator_id": "creator-001",
+        "deliverable_type": "VENUE_PHOTO",
+        "preset_scenario": "VENUE",
+        "notes": "Physical roll-up banner staged at Barbah LAN lounge in Kibera.",
+        "brand_name": "Safaricom"
+    }
+    resp = client.post("/api/v1/creator/deliverables/submit", json=venue_submit_payload)
+    assert resp.status_code == 200
+    venue_res = resp.json()
+    venue_cert = venue_res["certificate"]
+    assert venue_cert["verification_engine"] == "CLAUDE_MULTIMODAL_VISION"
+    assert venue_cert["cryptographic_hash"] is not None
+    print(f"[PASS] 7B. Physical Venue Banner (Claude Multimodal AI Vision):")
+    print(f"       Engine: {venue_cert['verification_engine']}")
+    print(f"       Physical Authenticity: {venue_cert.get('physical_authenticity')}")
+    print(f"       Findings: {venue_cert.get('multimodal_findings', '')[:80]}...")
+
     # 8. Test Bilateral Collaboration Room & Live Chat Feed
     resp = client.get(f"/api/v1/creator/collaboration/{p1['id']}")
     assert resp.status_code == 200

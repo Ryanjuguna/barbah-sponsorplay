@@ -99,6 +99,114 @@ class ComputerVisionEngine:
         cv2.imwrite(file_path, frame)
         return file_path
 
+    def generate_synthetic_venue_photo(
+        self,
+        brand_name: str = "Safaricom",
+        scenario: str = "PASS"
+    ) -> str:
+        """
+        Synthesizes a realistic 1280x720 physical esports LAN tournament venue photo.
+        Includes physical roll-up banners, tournament gaming setups, spectator silhouettes,
+        and atmospheric venue lighting for multimodal vision verification.
+        Scenarios:
+        - 'PASS': Prominent authentic physical banner on stage, active audience, zero competitor clashes.
+        - 'COMPETITOR_CLASH': Presence of an unauthorized competitor banner alongside brand.
+        - 'PHOTOSHOP_TAMPERED': Synthetic artifacting simulating an unverified digital paste.
+        """
+        width, height = 1280, 720
+        frame = np.zeros((height, width, 3), dtype=np.uint8)
+
+        # Ambient indoor arena gradient (deep navy, stage purple, dark floor)
+        for y in range(height):
+            v_ratio = y / height
+            r = int(12 + 25 * (1 - v_ratio) + 10 * v_ratio)
+            g = int(15 + 30 * (1 - v_ratio) + 8 * v_ratio)
+            b = int(28 + 60 * (1 - v_ratio) + 12 * v_ratio)
+            frame[y, :] = [b, g, r]
+
+        # Stage platform line
+        cv2.line(frame, (0, 520), (width, 520), (40, 40, 50), 3)
+        cv2.rectangle(frame, (0, 520), (width, height), (18, 18, 22), -1)
+
+        # Stage backdrop with esports event branding
+        cv2.rectangle(frame, (180, 80), (1100, 320), (28, 28, 38), -1)
+        cv2.rectangle(frame, (180, 80), (1100, 320), (60, 60, 85), 2)
+        cv2.putText(frame, "BARBAH ESPORTS ARENA: KENYA YOUTH DERBY 2026", (240, 140),
+                    cv2.FONT_HERSHEY_DUPLEX, 0.85, (255, 255, 255), 2)
+        cv2.putText(frame, "NAIROBI METROPOLITAN LAN CHAMPIONSHIP - ROUND OF 16", (310, 180),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 220, 255), 1)
+
+        # Draw 4 LAN tournament battle-stations (monitors, keyboards, glowing RGB towers)
+        for i, station_x in enumerate([240, 440, 680, 880]):
+            # Desk
+            cv2.rectangle(frame, (station_x - 30, 430), (station_x + 130, 520), (35, 35, 42), -1)
+            # Monitor stand & screen
+            cv2.rectangle(frame, (station_x + 40, 400), (station_x + 60, 430), (70, 70, 80), -1)
+            cv2.rectangle(frame, (station_x, 330), (station_x + 100, 400), (15, 15, 20), -1)
+            cv2.rectangle(frame, (station_x + 3, 333), (station_x + 97, 397), (120, 180, 50 if i % 2 == 0 else 220), -1)
+            # Competitor gamer silhouettes
+            cv2.circle(frame, (station_x + 50, 440), 22, (25, 25, 30), -1)
+            cv2.circle(frame, (station_x + 50, 480), 35, (20, 20, 25), -1)
+
+        # Audience crowd silhouettes in foreground
+        for cx in range(80, width - 60, 95):
+            cy = 670 + int((cx % 4) * 8)
+            cv2.circle(frame, (cx, cy), 32, (10, 10, 14), -1)
+            cv2.ellipse(frame, (cx, cy + 45), (42, 28), 0, 0, 180, (8, 8, 12), -1)
+
+        # Physical Roll-Up Banner Stand (Stage-Left / Center-Left)
+        # Dimensions: 220w x 440h - authentic roll-up stand proportions
+        bx, by, bw, bh = 60, 110, 210, 410
+
+        # Metal Base & Vertical Pole
+        cv2.rectangle(frame, (bx - 12, by + bh, bw + 24, 14), (90, 95, 105), -1)  # Aluminum base
+        cv2.line(frame, (bx + bw // 2, by), (bx + bw // 2, by + bh), (70, 75, 80), 3)  # Tension pole behind
+
+        if scenario == "PASS":
+            # Authentic Brand Banner
+            cv2.rectangle(frame, (bx, by), (bx + bw, by + bh), (15, 125, 35), -1)  # Safaricom green
+            cv2.rectangle(frame, (bx, by), (bx + bw, by + bh), (220, 220, 220), 2)  # Banner border
+            # Fabric fold shadow lines for natural physical texture
+            cv2.line(frame, (bx + 8, by + 120), (bx + bw - 8, by + 124), (10, 100, 25), 1)
+            cv2.line(frame, (bx + 12, by + 260), (bx + bw - 12, by + 266), (10, 100, 25), 1)
+
+            cv2.putText(frame, brand_name.upper(), (bx + 14, by + 90),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.85, (255, 255, 255), 2)
+            cv2.putText(frame, "5G ULTRA FAST", (bx + 20, by + 130),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.52, (200, 255, 200), 1)
+            cv2.putText(frame, "OFFICIAL SPONSOR", (bx + 14, by + 210),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.55, (255, 255, 255), 1)
+            cv2.putText(frame, "KENYA ESPORTS DERBY", (bx + 10, by + 250),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.44, (220, 255, 220), 1)
+            # Simulated QR code on banner bottom
+            cv2.rectangle(frame, (bx + 65, by + 310), (bx + 145, by + 390), (255, 255, 255), -1)
+            cv2.rectangle(frame, (bx + 75, by + 320), (bx + 135, by + 380), (0, 0, 0), -1)
+            cv2.rectangle(frame, (bx + 85, by + 330), (bx + 125, by + 370), (255, 255, 255), -1)
+
+        elif scenario == "COMPETITOR_CLASH":
+            # Primary brand
+            cv2.rectangle(frame, (bx, by), (bx + bw, by + bh), (15, 125, 35), -1)
+            cv2.putText(frame, brand_name.upper(), (bx + 15, by + 80),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.75, (255, 255, 255), 2)
+            # Competitor Banner right next to it
+            cx2, cy2, cw2, ch2 = 980, 140, 200, 380
+            cv2.rectangle(frame, (cx2, cy2), (cx2 + cw2, cy2 + ch2), (20, 20, 210), -1)  # Red competitor
+            cv2.putText(frame, "AIRTEL 4G", (cx2 + 20, cy2 + 80),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 2)
+            cv2.putText(frame, "COMPETITOR BRAND", (cx2 + 10, cy2 + 130),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+        # Tactical Camera Telemetry Overlay
+        cv2.putText(frame, "VENUE PHOTOGRAPHIC PROOF [ON-SITE SENSOR: NBI-LAN-04]", (20, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 210), 1)
+        cv2.putText(frame, "KENYA ESPORTS CHAMPIONSHIP - PHYSICAL ACTIVATION AUDIT", (20, 52),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.42, (140, 150, 160), 1)
+
+        file_id = f"venue_{scenario.lower()}_{int(time.time())}.jpg"
+        file_path = os.path.join(PROOFS_DIR, file_id)
+        cv2.imwrite(file_path, frame)
+        return file_path
+
     def analyze_frame(
         self,
         frame_input: Any,

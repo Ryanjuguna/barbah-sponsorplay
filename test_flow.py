@@ -193,6 +193,34 @@ def run_e2e_test():
     print(f"      - Cryptographic Proof Seal: {cert.cryptographic_hash[:32]}...")
     assert cert.verification_decision == "PASSED", "Verification did not pass"
 
+    # 6C. Multimodal AI Vision Audit for Physical Venue Deliverable (Claude 3.5 Sonnet)
+    print("\n[STEP 6C] Auditing Physical Venue Banner via Anthropic Claude 3.5 Sonnet Vision...")
+    venue_img_path = vision_engine.generate_synthetic_venue_photo(brand_name="Safaricom", scenario="PASS")
+    venue_submission = DeliverableSubmission(
+        milestone_id=proposal.milestones[1].id,
+        creator_id=proposal.creators[0].id,
+        deliverable_type="VENUE_PHOTO",
+        media_url=venue_img_path,
+        notes="On-site LAN tournament physical roll-up banner staging in Nairobi.",
+        simulated_metrics={
+            "airtime_seconds": 14400,
+            "scenario": "PASS"
+        }
+    )
+    venue_cert = verification_agent.verify_deliverable(venue_submission, required_brand_name="Safaricom")
+    db.save_certificate(venue_cert)
+    print(f"  [+] Venue Certificate ID: {venue_cert.certificate_id}")
+    print(f"      - Verification Engine: {venue_cert.verification_engine}")
+    print(f"      - Physical Authenticity: {venue_cert.physical_authenticity}")
+    print(f"      - Competitor Clash Detected: {venue_cert.competitor_clash_detected}")
+    print(f"      - Overall Confidence: {venue_cert.overall_confidence_percent}%")
+    print(f"      - Cognitive Findings: {venue_cert.multimodal_findings[:90]}...")
+    print(f"      - Community Engagement: {venue_cert.community_impact_notes[:90]}...")
+    print(f"      - Cryptographic Proof Seal: {venue_cert.cryptographic_hash[:32]}...")
+    assert venue_cert.verification_engine == "CLAUDE_MULTIMODAL_VISION", "Expected Claude Multimodal Vision engine"
+    assert venue_cert.competitor_clash_detected is False, "Competitor clash incorrectly flagged"
+    assert len(venue_cert.cryptographic_hash) == 64, "SHA-256 seal invalid length"
+
     # 7. Agent 4: KRA eTIMS Tax Fiscalization (BII) & PayPal Payout Release
     print("\n[STEP 7] Disbursing Milestone Funds with KRA eTIMS Fiscal Invoicing...")
     disb_res = financial_agent.release_milestone_funds(

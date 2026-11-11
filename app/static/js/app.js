@@ -1071,20 +1071,28 @@ function renderVerificationStep() {
   const container = document.getElementById('verificationDetails');
   container.innerHTML = `
     <div class="space-y-4">
-      <!-- OpenCV Scenario Selector Bench & File Drop -->
+      <!-- Vision Scenario Selector Bench & File Drop -->
       <div class="p-3.5 rounded-xl bg-gray-950/80 border border-purple-500/30 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <span class="text-xs font-bold text-white block">OpenCV Computer Vision Test Bench</span>
-          <span class="text-[11px] text-gray-400">Select scenario to execute real contour & template detection on stream frame.</span>
+          <span class="text-xs font-bold text-white block">Hybrid Vision Verification Test Bench</span>
+          <span class="text-[11px] text-gray-400">Deterministic OpenCV (Live Stream HUD) &bull; Multimodal Claude 3.5 Sonnet (Physical Venue).</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" onclick="runOpenCVVisionAnalysis('PASS')" id="btnScenarioPass" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-all flex items-center space-x-1">
             <i class="fa-solid fa-check"></i>
-            <span>Valid Placement (>= 3.5% Pass)</span>
+            <span>1080p Stream (OpenCV)</span>
+          </button>
+          <button type="button" onclick="runClaudeVenueAudit('PASS')" id="btnScenarioVenuePass" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow transition-all flex items-center space-x-1">
+            <i class="fa-solid fa-camera"></i>
+            <span>Venue Banner (Claude AI Vision)</span>
           </button>
           <button type="button" onclick="runOpenCVVisionAnalysis('LOW_OCCUPANCY')" id="btnScenarioFail" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold border border-gray-700 transition-all flex items-center space-x-1">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>Low-Occupancy Bug (< 3.5% Fail)</span>
+            <span>Low-Occupancy (< 3.5% Fail)</span>
+          </button>
+          <button type="button" onclick="runClaudeVenueAudit('COMPETITOR_CLASH')" id="btnScenarioCompetitor" class="px-3 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-200 text-xs font-semibold transition-all flex items-center space-x-1 shadow">
+            <i class="fa-solid fa-ban text-rose-400"></i>
+            <span>Competitor Clash Test</span>
           </button>
           <button type="button" onclick="checkAndLoadCreatorSubmission()" id="btnCheckCreatorSubmission" class="px-3 py-1.5 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-500/40 text-indigo-200 text-xs font-semibold transition-all flex items-center space-x-1 shadow">
             <i class="fa-solid fa-cloud-arrow-down text-purple-400"></i>
@@ -1257,26 +1265,109 @@ function renderOpenCVPreview(cvMetrics) {
   }
 }
 
+async function runClaudeVenueAudit(scenario = 'PASS') {
+  const brandName = (currentProposal && currentProposal.brand_name) || "Safaricom";
+  logAgent("CLAUDE VISION", `Synthesizing physical venue activation & roll-up banner (Scenario: ${scenario})...`, "text-pink-400 font-bold");
+  logAgent("CLAUDE VISION", `Invoking Anthropic Claude 3.5 Sonnet Multimodal Vision for physical authenticity & competitor clash analysis...`, "text-purple-300");
+
+  const spinner = document.getElementById('visionSpinner');
+  if (spinner) {
+    const spinnerText = spinner.querySelector('span');
+    if (spinnerText) spinnerText.innerText = "Claude 3.5 Sonnet Vision Auditing Venue...";
+    spinner.classList.remove('hidden');
+  }
+
+  try {
+    const resp = await fetch('/api/v1/verification/audit-venue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand_name: brandName, scenario: scenario })
+    });
+    const data = await resp.json();
+    const metrics = data.metrics;
+
+    currentVisionResult = {
+      verification_engine: "CLAUDE_MULTIMODAL_VISION",
+      status: metrics.audit_verdict,
+      meets_threshold: metrics.audit_verdict === "PASSED",
+      confidence_percent: metrics.confidence_percent,
+      screen_occupancy_percent: 12.5,
+      proof_image_url: data.proof_image_url,
+      proof_image_filename: data.proof_image_url.split('/').pop(),
+      bounding_box: { x: 60, y: 110, width: 210, height: 410 },
+      multimodal_findings: metrics.findings_summary,
+      physical_authenticity: metrics.physical_authenticity,
+      competitor_clash_detected: metrics.competitor_clash_detected,
+      community_impact_notes: metrics.community_impact_observations,
+      deliverable_type: "VENUE_PHOTO"
+    };
+
+    logAgent("CLAUDE VISION", `Physical Authenticity: ${metrics.physical_authenticity ? 'AUTHENTIC PHYSICAL STANDEE' : 'FLAGGED'} &bull; Competitor Clash: ${metrics.competitor_clash_detected ? 'VIOLATION DETECTED' : 'ZERO CONFLICTS'}`, metrics.physical_authenticity && !metrics.competitor_clash_detected ? "text-emerald-400 font-bold" : "text-amber-400 font-bold");
+    logAgent("CLAUDE VISION", `Cognitive Findings: ${metrics.findings_summary}`, "text-purple-300 text-xs");
+
+    renderClaudeVenuePreview(currentVisionResult);
+  } catch (err) {
+    logAgent("ERROR", `Claude venue audit failed: ${err.message}`, "text-red-400");
+  } finally {
+    if (spinner) {
+      const spinnerText = spinner.querySelector('span');
+      if (spinnerText) spinnerText.innerText = "OpenCV cv2.matchTemplate Running...";
+      spinner.classList.add('hidden');
+    }
+  }
+}
+
+function renderClaudeVenuePreview(result) {
+  const previewImg = document.getElementById('visionStreamPreview');
+  if (previewImg && result.proof_image_url) {
+    previewImg.src = result.proof_image_url + "?t=" + Date.now();
+  }
+
+  const metricsBox = document.getElementById('visionMetricsBox');
+  if (metricsBox) {
+    const isPass = result.meets_threshold;
+    metricsBox.innerHTML = `
+      <div class="p-3 rounded-xl ${isPass ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-red-950/40 border-red-500/40'} border">
+        <span class="text-xs text-gray-400 block">AI Vision Engine</span>
+        <span class="text-xs font-bold ${isPass ? 'text-emerald-400' : 'text-red-400'} font-mono">Claude 3.5 Sonnet (${isPass ? 'PASSED' : 'REVISION'})</span>
+      </div>
+      <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
+        <span class="text-xs text-gray-400 block">Physical Authenticity</span>
+        <span class="text-xs font-bold text-purple-300 font-mono">${result.physical_authenticity ? 'AUTHENTIC IRL BANNER' : 'FLAGGED TAMPERING'}</span>
+      </div>
+      <div class="p-3 rounded-xl bg-gray-900/80 border border-gray-800">
+        <span class="text-xs text-gray-400 block">Competitor Collision</span>
+        <span class="text-xs font-bold ${result.competitor_clash_detected ? 'text-rose-400' : 'text-sky-400'} font-mono">${result.competitor_clash_detected ? 'AIRTEL/RED BULL CLASH' : 'ZERO CONFLICTS'}</span>
+      </div>
+    `;
+  }
+}
+
 async function executeMultimodalVerification() {
-  logAgent("AGENT 3: VERIFICATION", `Ingesting stream VOD and telemetry for Milestone 1...`, "text-purple-400");
-  logAgent("AGENT 5: GUARDIAN", `Auditing live chat comments via Claude cultural brain: Sheng & Swahili banter verified SAFE.`, "text-amber-400");
+  const isClaudeVenue = currentVisionResult && currentVisionResult.verification_engine === "CLAUDE_MULTIMODAL_VISION";
+  const delivType = isClaudeVenue ? "VENUE_PHOTO" : "LIVE_STREAM_VOD";
+
+  logAgent("AGENT 3: VERIFICATION", `Ingesting ${delivType} and multimodal evidence for Milestone 1...`, "text-purple-400");
+  logAgent("AGENT 5: GUARDIAN", `Auditing brand safety & community engagement via Claude brain: Verified compliant.`, "text-amber-400");
 
   const logoOccupancy = (currentVisionResult && currentVisionResult.screen_occupancy_percent) || 4.12;
 
   const submission = {
     milestone_id: currentProposal.milestones[0].id,
     creator_id: currentProposal.creators[0].id,
-    deliverable_type: "LIVE_STREAM_VOD",
+    deliverable_type: delivType,
     media_url: (currentVisionResult && currentVisionResult.proof_image_filename) || "generate",
+    notes: isClaudeVenue ? "On-site LAN tournament physical banner activation" : "Broadcast HUD overlay",
     simulated_metrics: {
+      scenario: currentVisionResult && currentVisionResult.competitor_clash_detected ? "COMPETITOR_CLASH" : "PASS",
       logo_screen_ratio_percent: logoOccupancy,
-      airtime_seconds: 11400,
+      airtime_seconds: isClaudeVenue ? 14400 : 11400,
       verbal_slogans_detected: [
         "Powered by Safaricom 5G",
         "Big up Safaricom for supporting youth gaming"
       ],
-      audio_confidence: 0.94,
-      brand_safety_status: "SAFE"
+      audio_confidence: 0.95,
+      brand_safety_status: currentVisionResult && currentVisionResult.competitor_clash_detected ? "VIOLATION" : "SAFE"
     }
   };
 
@@ -1288,7 +1379,7 @@ async function executeMultimodalVerification() {
     });
     currentProofCert = await resp.json();
 
-    logAgent("AGENT 3: VERIFICATION", `Consensus Confidence: ${currentProofCert.overall_confidence_percent}% &bull; Decision: ${currentProofCert.verification_decision}`, "text-purple-300 font-bold");
+    logAgent("AGENT 3: VERIFICATION", `Consensus Confidence: ${currentProofCert.overall_confidence_percent}% &bull; Decision: ${currentProofCert.verification_decision} [Engine: ${currentProofCert.verification_engine}]`, "text-purple-300 font-bold");
     logAgent("AGENT 3: VERIFICATION", `Sealed Cryptographic Hash: ${currentProofCert.cryptographic_hash.substring(0, 24)}...`, "text-gray-400 font-mono");
 
     renderProofCertificate(currentProofCert);
@@ -1300,18 +1391,28 @@ async function executeMultimodalVerification() {
 function renderProofCertificate(cert) {
   const container = document.getElementById('certificateContainer');
   container.className = "p-4 rounded-xl bg-purple-950/30 border border-purple-500/40 space-y-3 mt-4";
+  const engineLabel = cert.verification_engine === "CLAUDE_MULTIMODAL_VISION" ? "Claude 3.5 Sonnet Vision" : "OpenCV Computer Vision";
+
   container.innerHTML = `
     <div class="flex items-center justify-between border-b border-purple-500/20 pb-2">
       <span class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
         <i class="fa-solid fa-certificate"></i> Proof-of-Play Certificate Sealed
       </span>
-      <span class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">${cert.verification_decision} (${cert.overall_confidence_percent}%)</span>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-mono text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/40 font-bold">${engineLabel}</span>
+        <span class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">${cert.verification_decision} (${cert.overall_confidence_percent}%)</span>
+      </div>
     </div>
     <div class="text-xs font-mono text-gray-300 space-y-1">
       <div>Cert ID: <span class="text-white">${cert.certificate_id}</span></div>
       <div>Crypto Hash: <span class="text-purple-300">${cert.cryptographic_hash}</span></div>
-      <div>Airtime Logged: <span class="text-white">${(cert.airtime_seconds / 3600).toFixed(2)} hours</span></div>
-      <div>Verified Screen Ratio: <span class="text-emerald-400 font-bold">${cert.logo_screen_ratio_percent}%</span></div>
+      <div>Verification Rail: <span class="text-pink-300 font-bold">${cert.verification_engine || "OPENCV_COMPUTER_VISION"}</span></div>
+      ${cert.physical_authenticity !== null && cert.physical_authenticity !== undefined ? `<div>Physical Authenticity: <span class="${cert.physical_authenticity ? 'text-emerald-400' : 'text-amber-400'} font-bold">${cert.physical_authenticity ? 'VERIFIED AUTHENTIC IRL BANNER' : 'FLAGGED'}</span></div>` : ''}
+      ${cert.competitor_clash_detected !== null && cert.competitor_clash_detected !== undefined ? `<div>Competitor Clash: <span class="${cert.competitor_clash_detected ? 'text-rose-400' : 'text-sky-400'} font-bold">${cert.competitor_clash_detected ? 'COLLISION DETECTED (AIRTEL/RED BULL)' : 'ZERO CONFLICTS'}</span></div>` : ''}
+      <div>Airtime / On-Site Logged: <span class="text-white">${(cert.airtime_seconds / 3600).toFixed(2)} hours</span></div>
+      <div>Verified Ratio: <span class="text-emerald-400 font-bold">${cert.logo_screen_ratio_percent}%</span></div>
+      ${cert.multimodal_findings ? `<div class="pt-1.5 text-gray-300 font-sans text-xs bg-black/40 p-2 rounded border border-purple-500/20"><strong class="text-purple-300 block mb-0.5">Vision Audit Findings:</strong>${cert.multimodal_findings}</div>` : ''}
+      ${cert.community_impact_notes ? `<div class="text-gray-400 font-sans text-xs bg-black/40 p-2 rounded border border-white/5"><strong class="text-cyan-300 block mb-0.5">Community Engagement Telemetry:</strong>${cert.community_impact_notes}</div>` : ''}
     </div>
     <div class="pt-2">
       <button onclick="renderStep5Payout()" class="w-full py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all">

@@ -164,6 +164,11 @@ class ProofOfPlayCertificate(BaseModel):
     cryptographic_hash: str
     proof_image_url: Optional[str] = None
     bounding_box: Optional[Dict[str, int]] = None
+    verification_engine: Optional[str] = "OPENCV_COMPUTER_VISION"  # OPENCV_COMPUTER_VISION, CLAUDE_MULTIMODAL_VISION, HYBRID_CONSENSUS
+    multimodal_findings: Optional[str] = None
+    physical_authenticity: Optional[bool] = None
+    competitor_clash_detected: Optional[bool] = None
+    community_impact_notes: Optional[str] = None
 
 class eTIMSInvoice(BaseModel):
     cu_invoice_number: str

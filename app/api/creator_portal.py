@@ -248,7 +248,11 @@ def submit_deliverable(payload: CreatorDeliverableUploadRequest):
     else:
         # Preset scenario or synthetic frame generator
         scenario = payload.preset_scenario or "PASS"
-        frame_path = vision_engine.generate_synthetic_esports_frame(brand_name=brand_name, scenario=scenario)
+        if payload.deliverable_type in ["VENUE_PHOTO", "PHYSICAL_BANNER", "COMMUNITY_DERBY", "LAN_SETUP"] or scenario == "VENUE":
+            venue_scenario = "PASS" if scenario in ["PASS", "VENUE"] else scenario
+            frame_path = vision_engine.generate_synthetic_venue_photo(brand_name=brand_name, scenario=venue_scenario)
+        else:
+            frame_path = vision_engine.generate_synthetic_esports_frame(brand_name=brand_name, scenario=scenario)
 
     # 1. Trigger Agent 3: Multimodal Verification Engine
     submission = DeliverableSubmission(
@@ -304,7 +308,14 @@ def submit_deliverable(payload: CreatorDeliverableUploadRequest):
         proposal_id=payload.proposal_id,
         sender_type="AGENT",
         sender_name="Agent 3: Multimodal Verifier",
-        content=f"Proof-of-Play Audit Complete: {certificate.verification_decision} ({certificate.overall_confidence_percent}% confidence). Logo screen occupancy: {certificate.logo_screen_ratio_percent}% (threshold >= 3.5%). SHA-256 seal: {certificate.cryptographic_hash[:16]}...",
+        content=(
+            f"Claude 3.5 Sonnet Vision Audit Complete: {certificate.verification_decision} ({certificate.overall_confidence_percent}% confidence). "
+            f"Physical banner authenticity: {'VERIFIED AUTHENTIC' if certificate.physical_authenticity else 'FLAGGED'}. "
+            f"Competitor clash: {'COLLISION DETECTED' if certificate.competitor_clash_detected else 'ZERO COLLISIONS'}. "
+            f"Findings: {certificate.multimodal_findings[:120]}... SHA-256 seal: {certificate.cryptographic_hash[:16]}..."
+            if certificate.verification_engine == "CLAUDE_MULTIMODAL_VISION"
+            else f"Proof-of-Play Audit Complete: {certificate.verification_decision} ({certificate.overall_confidence_percent}% confidence). Logo screen occupancy: {certificate.logo_screen_ratio_percent}% (threshold >= 3.5%). SHA-256 seal: {certificate.cryptographic_hash[:16]}..."
+        ),
         timestamp=now_iso
     )
     db.add_collaboration_message(payload.proposal_id, agent_msg)
