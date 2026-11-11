@@ -18,6 +18,8 @@ from app.api.impact import router as impact_router
 from app.api.barbah_webhook import router as barbah_router
 from app.api.scout_radar import router as radar_router
 from app.api.notifications import router as notifications_router
+from app.api.creator_portal import router as creator_router
+from app.api.auth import router as auth_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -44,6 +46,8 @@ app.include_router(impact_router)
 app.include_router(barbah_router)
 app.include_router(radar_router)
 app.include_router(notifications_router)
+app.include_router(creator_router)
+app.include_router(auth_router)
 
 # Mount Static Assets Directory
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -51,8 +55,19 @@ if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/")
-def serve_index():
-    """Serves the interactive single-page dashboard."""
+@app.get("/login")
+def serve_login():
+    """Serves the primary Authentication & Role Selection Gateway (first page entry point)."""
+    login_file = os.path.join(STATIC_DIR, "login.html")
+    if os.path.exists(login_file):
+        return FileResponse(login_file)
+    return {"app": settings.APP_NAME, "page": "LOGIN_GATEWAY"}
+
+@app.get("/brand")
+@app.get("/dashboard")
+@app.get("/sponsor")
+def serve_brand_dashboard():
+    """Serves the interactive Corporate Brand / Sponsor single-page dashboard."""
     index_file = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
@@ -61,6 +76,21 @@ def serve_index():
         "version": settings.APP_VERSION,
         "status": "ONLINE",
         "documentation": "/docs"
+    }
+
+@app.get("/creator")
+def serve_creator():
+    """Serves the interactive Beneficiary / Creator Portal."""
+    creator_file = os.path.join(STATIC_DIR, "creator.html")
+    if os.path.exists(creator_file):
+        return FileResponse(creator_file)
+    index_file = os.path.join(STATIC_DIR, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {
+        "app": settings.APP_NAME,
+        "role": "CREATOR_PORTAL",
+        "status": "ONLINE"
     }
 
 @app.get("/api/health")

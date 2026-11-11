@@ -14,9 +14,14 @@ def main():
     print("STARTING BARBAH SPONSORPLAY DEMO SERVER")
     print("PayPal AI Hackathon - Track 02: Sponsor Play")
     print(f"Platform: {settings.APP_NAME} v{settings.APP_VERSION}")
-    print(f"Local Interactive Dashboard: http://{host}:{port}")
-    print(f"FastAPI Interactive Swagger Docs: http://{host}:{port}/docs")
-    print("Postman Collection Path: postman/SponsorPlay_API_Collection.json")
+    print(f"1. Entry Point / Login Gateway:  http://{host}:{port}/ (or /login)")
+    print(f"2. Corporate Brand Dashboard:     http://{host}:{port}/brand")
+    print(f"3. Beneficiary Creator Studio:    http://{host}:{port}/creator")
+    print(f"4. FastAPI Interactive Docs:      http://{host}:{port}/docs")
+    print("--- SIMULATION TEST ACCOUNTS ---")
+    print("  Brand Sponsor: brand@sponsorplay.ke   | Password123! -> /brand")
+    print("  Esports Talent: creator@sponsorplay.ke | Password123! -> /creator")
+    print("Postman Collection: postman/SponsorPlay_API_Collection.json")
     print("=" * 75)
     
     uvicorn.run(

@@ -192,3 +192,54 @@ class MetaTwinReport(BaseModel):
     digital_skills_badges_awarded: int
     metatwin_verified_hash: str
     generated_at: str
+
+class CreatorOfferAcceptance(BaseModel):
+    proposal_id: str
+    creator_id: str
+    accepted_terms: bool = True
+    countersigned_by: str
+    confirmed_paypal_email: Optional[str] = None
+    confirmed_mpesa_phone: Optional[str] = None
+    notes: Optional[str] = None
+
+class CreatorCollaborationMessage(BaseModel):
+    id: str
+    proposal_id: str
+    sender_type: str  # "CREATOR", "BRAND", "AGENT"
+    sender_name: str
+    content: str
+    timestamp: str
+    attachment_url: Optional[str] = None
+
+class CreatorDeliverableUploadRequest(BaseModel):
+    proposal_id: str
+    milestone_id: str
+    creator_id: str
+    deliverable_type: str = "LIVE_STREAM_VOD"  # LIVE_STREAM_VOD, STREAM_OVERLAY_SCREENSHOT, SOCIAL_CLIP, TOURNAMENT_BRACKET, VENUE_PHOTO
+    media_url: Optional[str] = None
+    image_base64: Optional[str] = None
+    preset_scenario: Optional[str] = None  # PASS, LOW_OCCUPANCY, BRACKET, VENUE
+    notes: Optional[str] = None
+    brand_name: Optional[str] = "Safaricom"
+
+class CreatorProfileUpdate(BaseModel):
+    paypal_email: Optional[str] = None
+    mpesa_phone: Optional[str] = None
+    channel_url: Optional[str] = None
+    base_rate_usd: Optional[float] = None
+    bio: Optional[str] = None
+    tags: Optional[List[str]] = None
+    etims_registered: Optional[bool] = None
+    kra_pin: Optional[str] = None
+
+class CreatorDashboardResponse(BaseModel):
+    creator: CreatorProfile
+    pending_offers: List[Proposal]
+    active_deals: List[Proposal]
+    completed_deals: List[Proposal]
+    certificates: List[ProofOfPlayCertificate]
+    total_earned_usd: float
+    total_earned_kes: float
+    ledger_escrow_usd: float
+    skills_passport: Dict[str, Any]
+

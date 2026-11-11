@@ -68,7 +68,8 @@ class EmailService:
             for m in proposal.milestones
         ])
 
-        review_url = f"http://{settings.HOST}:{settings.PORT}/?proposal={proposal_id}"
+        creator_query = f"&creator_id={proposal.creators[0].id}" if proposal.creators else ""
+        review_url = f"http://{settings.HOST}:{settings.PORT}/creator?proposal={proposal_id}{creator_query}"
 
         html = f"""
 <!DOCTYPE html>

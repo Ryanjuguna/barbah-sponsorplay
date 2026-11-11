@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Gateway & Login | Barbah SponsorPlay Kenya</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#00cf8d',
+              600: '#059669',
+            },
+            creator: {
+              DEFAULT: '#a78bfa',
+              dark: '#7c3aed',
+              light: '#c4b5fd'
+            },
+            paypal: {
+              DEFAULT: '#0070ba',
+              dark: '#003087',
+              light: '#0079C1'
+            },
+            etims: {
+              DEFAULT: '#dc2626',
+              dark: '#991b1b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Three.js CDN for 3D Interactive Cyber-Esports Constellation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Design System Styles -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-[#060814] text-gray-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden selection:bg-[#4fd8e6]/30 selection:text-white">
+
+  <!-- Atmospheric Ambient Radial Glows -->
+  <div class="ambient-glow ambient-glow-1"></div>
+  <div class="ambient-glow ambient-glow-2"></div>
+  <div class="ambient-glow ambient-glow-3"></div>
+
+  <!-- Interactive 3D Three.js Background Canvas -->
+  <canvas id="threeCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-35"></canvas>
+
+  <!-- HEADER -->
+  <header class="border-b border-white/[0.08] bg-[#060814]/85 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#00cf8d] via-[#4fd8e6] to-[#a78bfa] flex items-center justify-center shadow-lg shadow-[#4fd8e6]/20 border border-white/20">
+          <i class="fa-solid fa-gamepad text-[#060814] text-lg font-black"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-xl tracking-tight text-white">BARBAH <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#4fd8e6] via-[#00cf8d] to-[#e4ff4f]">SPONSORPLAY</span></span>
+            <span class="text-[10px] bg-[#4fd8e6]/10 text-[#4fd8e6] font-bold px-2 py-0.5 rounded-full border border-[#4fd8e6]/30 font-mono tracking-wider">KENYA</span>
+          </div>
+          <p class="text-xs text-gray-400 font-medium">PayPal AI Hackathon &bull; Track 02: Sponsor Play (Barbah Games)</p>
+        </div>
+      </div>
+
+      <!-- Live Protocol Status Badges -->
+      <div class="hidden md:flex items-center space-x-2.5 text-xs font-mono">
+        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/25 text-blue-300">
+          <i class="fa-brands fa-paypal text-sky-400"></i>
+          <span>PayPal Orders v2 & Payouts</span>
+        </div>
+        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-400/25 text-red-300">
+          <i class="fa-solid fa-file-invoice text-rose-400"></i>
+          <span>KRA eTIMS Section 16 BII</span>
+        </div>
+        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-400/25 text-purple-300">
+          <i class="fa-solid fa-eye text-purple-400"></i>
+          <span>OpenCV 5.0 Proof-of-Play</span>
+        </div>
+      </div>
+
+      <a href="/docs" target="_blank" class="text-xs text-gray-300 hover:text-white flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-md transition-all">
+        <i class="fa-solid fa-code text-[#4fd8e6]"></i>
+        <span class="font-semibold">FastAPI Docs</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN GATEWAY CONTAINER -->
+  <main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full z-10 flex flex-col justify-center space-y-8">
+
+    <!-- Title & Gateway Heading -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold text-gray-300 backdrop-blur-md shadow-lg shadow-black/20">
+        <span class="w-2 h-2 rounded-full bg-[#00cf8d] animate-ping"></span>
+        <span class="font-mono text-[#00cf8d] font-bold">STAGE 0: AUTHENTICATION & ROLE GATEWAY</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">
+        Sign In to Barbah SponsorPlay
+      </h1>
+      <p class="text-xs sm:text-sm text-gray-400 max-w-2xl mx-auto leading-relaxed">
+        Barbah SponsorPlay maintains strict separation between <strong>Corporate Brand Sponsors</strong> funding marketing campaigns and <strong>Esports Creators / Beneficiaries</strong> delivering verified airtime.
+      </p>
+    </div>
+
+    <!-- PRIMARY TEST SIMULATION ACCOUNTS (FOR HACKATHON EVALUATION) -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-bolt text-[#e4ff4f] text-sm"></i>
+          <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white">
+            Hackathon Simulation Accounts (Two Test Accounts)
+          </h2>
+        </div>
+        <span class="text-[11px] font-mono text-gray-400">1-Click Fast Simulation</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- TEST ACCOUNT 1: BRAND SPONSOR -->
+        <div class="p-6 rounded-3xl border-2 border-[#4fd8e6]/80 bg-gradient-to-b from-[#07172b]/90 to-[#060f1e]/90 backdrop-blur-xl shadow-xl shadow-[#4fd8e6]/10 flex flex-col justify-between space-y-4 hover:border-[#4fd8e6] transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-[#4fd8e6]/20 text-[#4fd8e6] border border-[#4fd8e6]/40 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-building text-[9px]"></i>
+                <span>TEST ACCOUNT #1 &bull; BRAND SPONSOR</span>
+              </span>
+              <span class="text-xs font-mono text-[#00cf8d] font-bold">$10,000 Escrow</span>
+            </div>
+            
+            <div class="flex items-center space-x-3 mb-2">
+              <div class="w-12 h-12 rounded-2xl bg-[#4fd8e6]/20 border border-[#4fd8e6]/40 flex items-center justify-center text-xl text-[#4fd8e6] font-black">
+                <i class="fa-solid fa-briefcase"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-white">Safaricom 5G Gaming Hub</h3>
+                <p class="text-xs text-gray-400 font-mono">Corporate Marketing Sponsor &bull; Enterprise Tier</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-black/40 border border-white/[0.08] text-xs font-mono space-y-1 mb-3">
+              <div class="flex justify-between text-gray-300">
+                <span class="text-gray-500">Email:</span>
+                <span class="text-[#4fd8e6] font-bold">brand@sponsorplay.ke</span>
+              </div>
+              <div class="flex justify-between text-gray-300">
+                <span class="text-gray-500">Password:</span>
+                <span class="text-white font-bold">Password123!</span>
+              </div>
+              <div class="flex justify-between text-gray-300">
+                <span class="text-gray-500">KRA PIN:</span>
+                <span class="text-gray-300">P051234567A (Section 16 Direct)</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-300 leading-relaxed">
+              Submit sponsorship briefs, review multi-channel radar matches, fund PayPal multiparty milestone escrow, and receive KRA Section 16 tax invoices.
+            </p>
+          </div>
+
+          <div class="pt-2 border-t border-white/[0.08] flex items-center space-x-2">
+            <button type="button" onclick="quickSimulate('brand')" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#4fd8e6] to-[#00cf8d] hover:brightness-110 text-[#060814] font-black text-xs shadow-lg shadow-[#4fd8e6]/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              <span>Simulate as Brand Sponsor</span>
+            </button>
+            <button type="button" onclick="fillCredentials('brand')" title="Auto-fill form inputs" class="py-3 px-3.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs text-gray-300 hover:text-white transition-all cursor-pointer">
+              <i class="fa-solid fa-paste"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- TEST ACCOUNT 2: CREATOR TALENT -->
+        <div class="p-6 rounded-3xl border-2 border-[#a78bfa]/80 bg-gradient-to-b from-[#160b29]/90 to-[#0e071c]/90 backdrop-blur-xl shadow-xl shadow-purple-500/10 flex flex-col justify-between space-y-4 hover:border-[#a78bfa] transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-gamepad text-[9px]"></i>
+                <span>TEST ACCOUNT #2 &bull; CREATOR TALENT</span>
+              </span>
+              <span class="text-xs font-mono text-purple-300 font-bold">Safety 98.5%</span>
+            </div>
+            
+            <div class="flex items-center space-x-3 mb-2">
+              <div class="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl text-purple-300 font-black">
+                <i class="fa-solid fa-user-astronaut"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-white">Brian 'The Beast' Diang'a</h3>
+                <p class="text-xs text-purple-300 font-mono">@TheBeast_KE &bull; Pro Streamer (Kibera, Nairobi)</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-black/40 border border-white/[0.08] text-xs font-mono space-y-1 mb-3">
+              <div class="flex justify-between text-gray-300">
+                <span class="text-gray-500">Email:</span>
+                <span class="text-purple-300 font-bold">creator@sponsorplay.ke</span>
+              </div>
+              <div class="flex justify-between text-gray-300">
+                <span class="text-gray-500">Password:</span>
+                <span class="text-white font-bold">Password123!</span>
+              </div>
+              <div class="flex justify-between text-gray-300">
+                <span class="text-gray-500">Payout Rails:</span>
+                <span class="text-gray-300">PayPal + M-Pesa (+254 712 345 678)</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-300 leading-relaxed">
+              Review sponsorship offers, countersign with 1-click, upload stream VODs for Agent 3 verification, and claim instant PayPal / M-Pesa payouts.
+            </p>
+          </div>
+
+          <div class="pt-2 border-t border-white/[0.08] flex items-center space-x-2">
+            <button type="button" onclick="quickSimulate('creator')" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#a78bfa] to-[#38bdf8] hover:brightness-110 text-[#060814] font-black text-xs shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              <span>Simulate as Esports Creator</span>
+            </button>
+            <button type="button" onclick="fillCredentials('creator')" title="Auto-fill form inputs" class="py-3 px-3.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs text-gray-300 hover:text-white transition-all cursor-pointer">
+              <i class="fa-solid fa-paste"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DYNAMIC AUTHENTICATION & CREDENTIALS FORM -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/[0.08] space-y-6">
+      
+      <!-- Role Switcher Tabs -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
+        <div>
+          <span id="formRolePill" class="text-xs font-mono font-bold uppercase tracking-wider text-[#4fd8e6]">
+            Corporate Brand Portal
+          </span>
+          <h2 id="formHeading" class="text-lg font-extrabold text-white mt-0.5">
+            Manual Sign-In Credentials
+          </h2>
+        </div>
+
+        <div class="flex items-center bg-white/[0.03] border border-white/10 p-1 rounded-full text-xs font-semibold backdrop-blur-md">
+          <button type="button" onclick="selectLoginRole('brand')" id="btnTabRoleBrand" class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#4fd8e6] to-[#00cf8d] text-[#060814] font-extrabold shadow-md transition-all">
+            <i class="fa-solid fa-building mr-1"></i> Brand Sponsor
+          </button>
+          <button type="button" onclick="selectLoginRole('creator')" id="btnTabRoleCreator" class="px-4 py-1.5 rounded-full text-gray-400 hover:text-white font-bold transition-all">
+            <i class="fa-solid fa-gamepad mr-1"></i> Esports Creator
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Notification Banner -->
+      <div id="credentialsNotice" class="p-3 rounded-2xl bg-[#4fd8e6]/10 border border-[#4fd8e6]/25 flex items-center justify-between text-xs text-[#4fd8e6]">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-circle-info"></i>
+          <span id="credentialsNoticeText">Pre-loaded with Brand Sponsor simulation account: <strong>brand@sponsorplay.ke</strong></span>
+        </div>
+        <button type="button" onclick="fillActiveRoleTestAccount()" class="underline font-bold text-[11px] hover:text-white cursor-pointer">Reset to Default</button>
+      </div>
+
+      <!-- CREDENTIALS LOGIN FORM -->
+      <form onsubmit="handleFormLogin(event)" class="space-y-4">
+        
+        <div>
+          <label id="lblIdentifier" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Account Email or Username</label>
+          <input type="text" id="inputIdentifier" value="brand@sponsorplay.ke" class="w-full bg-[#080d1e] border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:outline-none focus:border-[#4fd8e6] transition-all" required>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Account Password</label>
+            <input type="password" id="inputPassword" value="Password123!" class="w-full bg-[#080d1e] border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:outline-none focus:border-[#4fd8e6] transition-all" required>
+          </div>
+          <div>
+            <label id="lblSecondary" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Corporate Tax PIN / Target Portal</label>
+            <input type="text" id="inputSecondary" value="P051234567A -> /brand" class="w-full bg-[#080d1e] border border-white/10 rounded-xl px-4 py-3 text-xs text-gray-300 font-mono focus:outline-none focus:border-[#4fd8e6] transition-all" readonly>
+          </div>
+        </div>
+
+        <!-- Primary Action Button -->
+        <button type="submit" id="btnSubmitLogin" class="pill-btn w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#4fd8e6] via-[#00cf8d] to-[#4fd8e6] hover:brightness-110 text-[#060814] font-black text-sm tracking-wide shadow-lg shadow-[#4fd8e6]/25 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span id="btnSubmitLabel">Sign In to Brand Sponsor Portal (/brand)</span>
+        </button>
+
+        <!-- Alternative PayPal Sign-In Rail -->
+        <div class="relative py-2 text-center">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/[0.08]"></div></div>
+          <span class="relative bg-[#0b0f22] px-3 text-[11px] text-gray-500 font-mono">OR AUTHENTICATE VIA PAYPAL RAILS</span>
+        </div>
+
+        <button type="button" onclick="loginWithPayPalAuth()" class="w-full py-3 px-4 rounded-xl bg-[#0070ba] hover:bg-[#005ea6] text-white font-bold text-xs shadow flex items-center justify-center space-x-2 transition-all cursor-pointer">
+          <i class="fa-brands fa-paypal text-base"></i>
+          <span id="btnPayPalLabel">Log in with PayPal for Business</span>
+        </button>
+
+      </form>
+
+      <!-- Expandable More Personas Section -->
+      <div class="pt-4 border-t border-white/[0.08]">
+        <details class="group cursor-pointer">
+          <summary class="text-xs font-bold text-gray-400 hover:text-white flex items-center justify-between py-1 transition-colors select-none">
+            <span class="flex items-center space-x-2">
+              <i class="fa-solid fa-users text-[#4fd8e6]"></i>
+              <span>Explore Additional Preloaded Personas (16 Kenyan Esports Profiles)</span>
+            </span>
+            <i class="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition-transform"></i>
+          </summary>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-3">
+            <button type="button" onclick="loginWithDemoPersona('brand', 'brand-monster')" class="p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 text-left transition-all flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-white block">Monster Energy East Africa</span>
+                <span class="text-[10px] text-gray-400 font-mono">Title Sponsor &bull; $1,200 Budget</span>
+              </div>
+              <span class="text-[10px] text-[#00cf8d] font-mono">Brand -></span>
+            </button>
+
+            <button type="button" onclick="loginWithDemoPersona('creator', 'creator-002')" class="p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 text-left transition-all flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-white block">Sylvia 'QueenArrow' Gathoni</span>
+                <span class="text-[10px] text-gray-400 font-mono">@QueenArrow &bull; Tekken 8 Icon</span>
+              </div>
+              <span class="text-[10px] text-purple-400 font-mono">Creator -></span>
+            </button>
+
+            <button type="button" onclick="loginWithDemoPersona('creator', 'creator-003')" class="p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 text-left transition-all flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-white block">Pro Series Gaming (PSG Kenya)</span>
+                <span class="text-[10px] text-gray-400 font-mono">@PSG_Esports_KE &bull; Tournaments</span>
+              </div>
+              <span class="text-[10px] text-purple-400 font-mono">Creator -></span>
+            </button>
+
+            <button type="button" onclick="loginWithDemoPersona('creator', 'creator-004')" class="p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 text-left transition-all flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-white block">Kayole Elite Gaming Lounge</span>
+                <span class="text-[10px] text-gray-400 font-mono">@KayoleGamers_Den &bull; Grassroots Den</span>
+              </div>
+              <span class="text-[10px] text-purple-400 font-mono">Creator -></span>
+            </button>
+          </div>
+        </details>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-800 bg-[#070b12] py-4 text-center text-xs text-gray-500 z-10">
+    <p>Barbah SponsorPlay &bull; Barbah PlayEconomy Ecosystem &bull; Built for PayPal AI Global Hackathon</p>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    let activeRole = 'brand';
+
+    const SIMULATION_CREDS = {
+      brand: {
+        identifier: 'brand@sponsorplay.ke',
+        password: 'Password123!',
+        secondary: 'P051234567A -> /brand',
+        desc: 'Brand Sponsor simulation account: brand@sponsorplay.ke',
+        color: '#4fd8e6'
+      },
+      creator: {
+        identifier: 'creator@sponsorplay.ke',
+        password: 'Password123!',
+        secondary: 'Brian Diang\'a -> /creator?creator_id=creator-001',
+        desc: 'Creator Talent simulation account: creator@sponsorplay.ke (@TheBeast_KE)',
+        color: '#a78bfa'
+      }
+    };
+
+    function selectLoginRole(role) {
+      activeRole = role;
+
+      const btnBrand = document.getElementById('btnTabRoleBrand');
+      const btnCreator = document.getElementById('btnTabRoleCreator');
+
+      const formRolePill = document.getElementById('formRolePill');
+      const formHeading = document.getElementById('formHeading');
+      const noticeBox = document.getElementById('credentialsNotice');
+      const noticeText = document.getElementById('credentialsNoticeText');
+
+      const lblIdentifier = document.getElementById('lblIdentifier');
+      const inputIdentifier = document.getElementById('inputIdentifier');
+      const inputPassword = document.getElementById('inputPassword');
+      const lblSecondary = document.getElementById('lblSecondary');
+      const inputSecondary = document.getElementById('inputSecondary');
+
+      const btnSubmit = document.getElementById('btnSubmitLogin');
+      const btnSubmitLabel = document.getElementById('btnSubmitLabel');
+      const btnPayPalLabel = document.getElementById('btnPayPalLabel');
+
+      if (role === 'brand') {
+        btnBrand.className = "px-4 py-1.5 rounded-full bg-gradient-to-r from-[#4fd8e6] to-[#00cf8d] text-[#060814] font-extrabold shadow-md transition-all";
+        btnCreator.className = "px-4 py-1.5 rounded-full text-gray-400 hover:text-white font-bold transition-all";
+
+        formRolePill.className = "text-xs font-mono font-bold uppercase tracking-wider text-[#4fd8e6]";
+        formRolePill.innerText = "Corporate Brand Portal";
+        formHeading.innerText = "Brand Sponsor Sign-In";
+
+        noticeBox.className = "p-3 rounded-2xl bg-[#4fd8e6]/10 border border-[#4fd8e6]/25 flex items-center justify-between text-xs text-[#4fd8e6]";
+        noticeText.innerHTML = `Pre-loaded with Brand Sponsor simulation account: <strong>brand@sponsorplay.ke</strong>`;
+
+        lblIdentifier.innerText = "Corporate Brand Email or Identity";
+        inputIdentifier.value = SIMULATION_CREDS.brand.identifier;
+        inputPassword.value = SIMULATION_CREDS.brand.password;
+        lblSecondary.innerText = "Corporate Tax PIN / Target Portal";
+        inputSecondary.value = SIMULATION_CREDS.brand.secondary;
+
+        btnSubmit.className = "pill-btn w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#4fd8e6] via-[#00cf8d] to-[#4fd8e6] hover:brightness-110 text-[#060814] font-black text-sm tracking-wide shadow-lg shadow-[#4fd8e6]/25 transition-all flex items-center justify-center space-x-2 cursor-pointer";
+        btnSubmitLabel.innerText = "Sign In to Brand Sponsor Portal (/brand)";
+        btnPayPalLabel.innerText = "Log in with PayPal for Business";
+      } else {
+        btnCreator.className = "px-4 py-1.5 rounded-full bg-gradient-to-r from-[#a78bfa] to-[#38bdf8] text-[#060814] font-extrabold shadow-md transition-all";
+        btnBrand.className = "px-4 py-1.5 rounded-full text-gray-400 hover:text-white font-bold transition-all";
+
+        formRolePill.className = "text-xs font-mono font-bold uppercase tracking-wider text-[#a78bfa]";
+        formRolePill.innerText = "Beneficiary Talent Studio";
+        formHeading.innerText = "Esports Creator Sign-In";
+
+        noticeBox.className = "p-3 rounded-2xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-between text-xs text-purple-300";
+        noticeText.innerHTML = `Pre-loaded with Creator Talent simulation account: <strong>creator@sponsorplay.ke</strong> (@TheBeast_KE)`;
+
+        lblIdentifier.innerText = "Gamer Tag, Channel URL or Creator Email";
+        inputIdentifier.value = SIMULATION_CREDS.creator.identifier;
+        inputPassword.value = SIMULATION_CREDS.creator.password;
+        lblSecondary.innerText = "Beneficiary Profile / Target Portal";
+        inputSecondary.value = SIMULATION_CREDS.creator.secondary;
+
+        btnSubmit.className = "pill-btn w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#a78bfa] via-[#38bdf8] to-[#00cf8d] hover:brightness-110 text-[#060814] font-black text-sm tracking-wide shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center space-x-2 cursor-pointer";
+        btnSubmitLabel.innerText = "Sign In to Creator / Beneficiary Studio (/creator)";
+        btnPayPalLabel.innerText = "Log in with Personal PayPal";
+      }
+    }
+
+    function fillCredentials(role) {
+      selectLoginRole(role);
+      const inputEl = document.getElementById('inputIdentifier');
+      inputEl.focus();
+      inputEl.classList.add('ring-2', 'ring-[#00cf8d]');
+      setTimeout(() => inputEl.classList.remove('ring-2', 'ring-[#00cf8d]'), 1200);
+    }
+
+    function fillActiveRoleTestAccount() {
+      fillCredentials(activeRole);
+    }
+
+    async function quickSimulate(role) {
+      const cred = SIMULATION_CREDS[role];
+      try {
+        const resp = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: role, identifier: cred.identifier, password: cred.password })
+        });
+        const data = await resp.json();
+        if (data.status === 'SUCCESS') {
+          localStorage.setItem('sponsorplay_auth', JSON.stringify(data));
+          window.location.href = data.redirect_url;
+        } else {
+          alert("Simulation failed: " + JSON.stringify(data));
+        }
+      } catch (err) {
+        alert("Simulation failed: " + err.message);
+      }
+    }
+
+    async function loginWithDemoPersona(role, personaId) {
+      try {
+        const resp = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: role, demo_id: personaId })
+        });
+        const data = await resp.json();
+        if (data.status === 'SUCCESS') {
+          localStorage.setItem('sponsorplay_auth', JSON.stringify(data));
+          window.location.href = data.redirect_url;
+        }
+      } catch (err) {
+        alert("Login failed: " + err.message);
+      }
+    }
+
+    async function handleFormLogin(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('inputIdentifier').value;
+      const password = document.getElementById('inputPassword').value;
+      try {
+        const resp = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: activeRole, identifier: identifier, password: password })
+        });
+        const data = await resp.json();
+        if (data.status === 'SUCCESS') {
+          localStorage.setItem('sponsorplay_auth', JSON.stringify(data));
+          window.location.href = data.redirect_url;
+        } else {
+          alert("Login error: " + (data.detail || "Authentication failed"));
+        }
+      } catch (err) {
+        alert("Login failed: " + err.message);
+      }
+    }
+
+    function loginWithPayPalAuth() {
+      if (activeRole === 'brand') {
+        quickSimulate('brand');
+      } else {
+        quickSimulate('creator');
+      }
+    }
+
+    // Three.js Interactive Background
+    function initThreeCanvas() {
+      const canvas = document.getElementById('threeCanvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 3, 28);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const coreGeometry = new THREE.IcosahedronGeometry(10, 2);
+      const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x4fd8e6, wireframe: true, transparent: true, opacity: 0.15 });
+      const arenaCore = new THREE.Mesh(coreGeometry, coreMaterial);
+      scene.add(arenaCore);
+
+      const ringGeom = new THREE.TorusGeometry(16, 0.08, 16, 120);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xa78bfa, transparent: true, opacity: 0.25 });
+      const gyroRing = new THREE.Mesh(ringGeom, ringMat);
+      gyroRing.rotation.x = Math.PI / 3;
+      scene.add(gyroRing);
+
+      let mouseX = 0, mouseY = 0;
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+        mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+      });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        arenaCore.rotation.y += 0.002;
+        gyroRing.rotation.z += 0.003;
+        camera.position.x += (mouseX * 15 - camera.position.x) * 0.05;
+        camera.position.y += (3 - mouseY * 10 - camera.position.y) * 0.05;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initThreeCanvas();
+    });
+  </script>
+</body>
+</html>

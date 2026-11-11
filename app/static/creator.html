@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator & Beneficiary Account | Barbah SponsorPlay Kenya</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#00cf8d',
+              600: '#059669',
+            },
+            creator: {
+              DEFAULT: '#a78bfa',
+              dark: '#7c3aed',
+              light: '#c4b5fd'
+            },
+            paypal: {
+              DEFAULT: '#0070ba',
+              dark: '#003087',
+              light: '#0079C1'
+            },
+            etims: {
+              DEFAULT: '#dc2626',
+              dark: '#991b1b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Three.js CDN for 3D Cyber-Esports Constellation Background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- FontAwesome & QR Code CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  
+  <!-- Custom Design System Styles -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-[#060814] text-gray-100 min-h-screen flex flex-col relative overflow-x-hidden selection:bg-[#a78bfa]/30 selection:text-white">
+
+  <!-- Atmospheric Ambient Glows (New Norm inspired) -->
+  <div class="ambient-glow ambient-glow-1"></div>
+  <div class="ambient-glow ambient-glow-2"></div>
+  <div class="ambient-glow ambient-glow-3"></div>
+
+  <!-- Interactive 3D Three.js Background Canvas -->
+  <canvas id="threeCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
+
+  <!-- HEADER -->
+  <header class="border-b border-white/[0.08] bg-[#060814]/85 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Creator Role Badge -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#a78bfa] via-[#4fd8e6] to-[#00cf8d] flex items-center justify-center shadow-lg shadow-[#a78bfa]/20 border border-white/20">
+          <i class="fa-solid fa-user-astronaut text-[#060814] text-lg font-black"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-xl tracking-tight text-white">BARBAH <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#a78bfa] via-[#4fd8e6] to-[#e4ff4f]">SPONSORPLAY</span></span>
+            <span class="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-2.5 py-0.5 rounded-full border border-purple-500/40 font-mono tracking-wider">CREATOR PORTAL</span>
+          </div>
+          <p class="text-xs text-gray-400 font-medium">Beneficiary Talent Studio &bull; Multimodal Verification & PayPal Payouts</p>
+        </div>
+      </div>
+
+      <!-- Quick Switcher to Brand Side + Identity Dropdown -->
+      <div class="flex items-center space-x-3">
+        
+        <!-- Creator Authenticated Session & Switch Role -->
+        <div class="flex items-center space-x-2 bg-white/[0.04] border border-white/10 rounded-full py-1 px-3 backdrop-blur-md">
+          <div class="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-[10px] text-purple-300 font-bold">
+            <i class="fa-solid fa-user-astronaut"></i>
+          </div>
+          <span class="text-xs font-bold text-white hidden sm:inline" id="navCreatorTag">@TheBeast_KE</span>
+          <a href="/login" title="Sign Out or Switch to Brand Portal" class="ml-1 text-[11px] text-gray-400 hover:text-white flex items-center space-x-1 px-2 py-0.5 rounded-full hover:bg-white/[0.08] transition-all">
+            <i class="fa-solid fa-arrow-right-from-bracket text-xs text-rose-400"></i>
+            <span class="hidden md:inline font-mono">Sign Out</span>
+          </a>
+        </div>
+
+        <!-- Creator Persona Switcher Dropdown -->
+        <div class="flex items-center space-x-1.5 bg-white/[0.04] border border-white/10 rounded-full px-2.5 py-1 backdrop-blur-md">
+          <span class="text-[11px] text-gray-400 font-medium hidden md:inline">Account:</span>
+          <select id="creatorPersonaSelect" onchange="switchCreatorPersona(this.value)" class="bg-transparent text-xs text-white font-bold font-mono focus:outline-none cursor-pointer">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <!-- Currency Switcher -->
+        <div class="bg-white/[0.04] border border-white/10 p-1 rounded-full flex items-center text-xs font-semibold backdrop-blur-md">
+          <button id="btnCurrencyUSD" class="px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md font-mono transition-all font-bold" onclick="setCurrency('USD')">USD ($)</button>
+          <button id="btnCurrencyKES" class="px-3 py-1 rounded-full text-gray-400 hover:text-white font-mono transition-all font-bold" onclick="setCurrency('KES')">KES (Sh)</button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CREATOR QUICK TELEMETRY & HERO BANNER -->
+  <section class="border-b border-white/[0.06] bg-[#080d20]/70 backdrop-blur-xl z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        
+        <!-- Creator Persona Profile Card -->
+        <div class="flex items-center space-x-3.5">
+          <div id="creatorAvatarBox" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-900 to-indigo-800 border-2 border-purple-400/40 flex items-center justify-center text-2xl text-purple-300 font-black shadow-lg shadow-purple-500/20 font-mono">
+            KB
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h1 id="creatorNameHeading" class="text-lg font-black text-white">Brian 'The Beast' Diang'a</h1>
+              <span id="creatorGamerTagBadge" class="text-xs text-purple-400 font-mono font-bold bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/30">@TheBeast_KE</span>
+              <span id="creatorTierBadge" class="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold uppercase font-mono">ELITE PRO</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-400">
+              <span id="creatorRoleSpan"><i class="fa-solid fa-gamepad text-purple-400"></i> Pro Streamer</span>
+              <span>&bull;</span>
+              <span id="creatorGameSpan">EA FC 25</span>
+              <span>&bull;</span>
+              <span id="creatorLocationSpan"><i class="fa-solid fa-location-dot text-rose-400"></i> Kibera, Nairobi</span>
+              <span>&bull;</span>
+              <span class="text-emerald-400 font-mono font-semibold" id="creatorReachSpan">18,500 monthly reach</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Financial & Trust Telemetry Pills -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full md:w-auto text-xs font-mono">
+          
+          <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
+            <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">Funds in Ledger</span>
+            <span id="statLedgerEscrow" class="text-sm font-extrabold text-[#4fd8e6]">$207.69</span>
+            <span class="text-[9px] text-gray-500 block">PayPal Orders v2</span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
+            <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">Total Earned</span>
+            <span id="statTotalEarned" class="text-sm font-extrabold text-emerald-400">$657.69</span>
+            <span class="text-[9px] text-emerald-500/80 block">Disbursed to PayPal</span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
+            <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">Brand Safety</span>
+            <span id="statBrandSafety" class="text-sm font-extrabold text-purple-400">98.5%</span>
+            <span class="text-[9px] text-gray-500 block">Agent 5 Audited</span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
+            <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">KRA Tax Status</span>
+            <span id="statTaxStatus" class="text-sm font-extrabold text-sky-400">BII Ready</span>
+            <span class="text-[9px] text-gray-500 block">Section 16 Shielded</span>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVIGATION TABS -->
+  <div class="border-b border-white/[0.06] bg-[#060814]/80 backdrop-blur-xl sticky top-16 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 py-2.5 overflow-x-auto no-scrollbar">
+      
+      <button onclick="switchCreatorTab('deals')" id="tab-deals" class="py-2 px-4 rounded-full text-xs font-bold text-white bg-white/[0.08] border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.06)] flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-gamepad text-[#a78bfa]"></i>
+        <span>Active Deals & Deliverables Studio</span>
+        <span id="badgeActiveDealsCount" class="ml-1 px-1.5 py-0.2 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-mono">1</span>
+      </button>
+
+      <button onclick="switchCreatorTab('offers')" id="tab-offers" class="py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-inbox text-[#4fd8e6]"></i>
+        <span>Offer Inbox & Contracts</span>
+        <span id="badgePendingOffersCount" class="ml-1 px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono">1</span>
+      </button>
+
+      <button onclick="switchCreatorTab('earnings')" id="tab-earnings" class="py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-brands fa-paypal text-sky-400"></i>
+        <span>Earnings & Payout Rails</span>
+      </button>
+
+      <button onclick="switchCreatorTab('tax')" id="tab-tax" class="py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-file-invoice text-rose-400"></i>
+        <span>eTIMS BII Tax Vault</span>
+      </button>
+
+      <button onclick="switchCreatorTab('chat')" id="tab-chat" class="py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-comments text-amber-400"></i>
+        <span>Deal Room & Agent Copilot</span>
+      </button>
+
+      <button onclick="switchCreatorTab('passport')" id="tab-passport" class="py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-id-card text-emerald-400"></i>
+        <span>Skills Passport & Badges</span>
+      </button>
+
+      <button onclick="switchCreatorTab('profile')" id="tab-profile" class="py-2 px-4 rounded-full text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent flex items-center space-x-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-sliders text-gray-300"></i>
+        <span>Account & Requirements</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- MAIN CREATOR CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full z-10 space-y-6">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: ACTIVE DEALS & ZERO-FRICTION DELIVERABLES STUDIO        -->
+    <!-- ============================================================== -->
+    <div id="view-deals" class="space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left 2 Cols: Active Campaign Milestones & Deliverables Uploader -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- Active Deal Overview Banner -->
+          <div id="activeDealHeaderCard" class="glass-panel p-6 rounded-3xl border border-white/[0.08]">
+            <!-- Dynamically populated with active proposal details -->
+          </div>
+
+          <!-- ZERO-FRICTION DELIVERABLE UPLOAD STUDIO (THE CORE VERIFICATION TRIGGER) -->
+          <div class="glass-panel p-6 sm:p-7 rounded-3xl border border-purple-500/30 bg-purple-950/10 shadow-xl shadow-purple-900/10 space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div>
+                <h2 class="text-lg font-black text-white flex items-center gap-2">
+                  <i class="fa-solid fa-cloud-arrow-up text-[#a78bfa]"></i>
+                  <span>Submit Deliverable & Trigger Agent 3 Verification</span>
+                </h2>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Anything you post instantly triggers OpenCV Computer Vision, Whisper Audio NLP, and Brand Safety audit.
+                </p>
+              </div>
+              <span class="text-xs font-mono font-bold bg-[#a78bfa]/10 text-[#a78bfa] px-3 py-1 rounded-full border border-[#a78bfa]/30">
+                Agent 3: Multimodal Verifier
+              </span>
+            </div>
+
+            <!-- Milestone Target Selector -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Select Milestone Phase</label>
+                <select id="selectDeliverableMilestone" class="w-full bg-[#080d1e] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-semibold focus:outline-none focus:border-[#a78bfa]">
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Deliverable Format</label>
+                <select id="selectDeliverableType" class="w-full bg-[#080d1e] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-semibold focus:outline-none focus:border-[#a78bfa]">
+                  <option value="LIVE_STREAM_VOD">Live Stream Broadcast VOD / Clip</option>
+                  <option value="STREAM_OVERLAY_SCREENSHOT">Broadcast Overlay Staging Screenshot</option>
+                  <option value="TOURNAMENT_BRACKET">Tournament Bracket & Winner Podium</option>
+                  <option value="PHYSICAL_BANNER">Gaming Lounge / Physical Venue Staging</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 1-Click High Impact Preset Scenarios (Hackathon Demo Supercharger) -->
+            <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-200 flex items-center gap-1.5">
+                  <i class="fa-solid fa-bolt text-[#e4ff4f]"></i>
+                  <span>1-Click Preset Broadcast Evidence (Instant Verification Demo):</span>
+                </span>
+                <span class="text-[10px] text-gray-400 font-mono">Zero friction</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button type="button" onclick="selectPresetScenario('PASS')" class="p-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-left transition-all">
+                  <span class="text-xs font-bold text-purple-300 block">Safaricom 5G Stream</span>
+                  <span class="text-[10px] text-emerald-400 font-mono">Pass (4.12% occupancy)</span>
+                </button>
+                <button type="button" onclick="selectPresetScenario('LOW_OCCUPANCY')" class="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-left transition-all">
+                  <span class="text-xs font-bold text-amber-300 block">Sub-Threshold Test</span>
+                  <span class="text-[10px] text-amber-400 font-mono">Fail (2.10% occupancy)</span>
+                </button>
+                <button type="button" onclick="selectPresetScenario('VENUE')" class="p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-left transition-all">
+                  <span class="text-xs font-bold text-sky-300 block">Lounge Physical Banner</span>
+                  <span class="text-[10px] text-sky-400 font-mono">Physical Staging</span>
+                </button>
+                <button type="button" onclick="selectPresetScenario('BRACKET')" class="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-left transition-all">
+                  <span class="text-xs font-bold text-rose-300 block">Tournament Bracket</span>
+                  <span class="text-[10px] text-rose-400 font-mono">Challonge / Start.gg</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Drag & Drop / File Upload Area -->
+            <div id="dropZone" class="border-2 border-dashed border-white/20 hover:border-[#a78bfa] rounded-2xl p-6 text-center transition-all bg-white/[0.01] hover:bg-white/[0.03] cursor-pointer">
+              <input type="file" id="fileDeliverableInput" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(event)">
+              <div id="uploadPrompt" class="space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-300 flex items-center justify-center mx-auto text-xl">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div class="text-xs text-gray-200">
+                  <span class="font-bold text-purple-400">Click to upload</span> or drag and drop stream screenshot / bracket photo
+                </div>
+                <p class="text-[11px] text-gray-500">PNG, JPG, or MP4 up to 50MB &bull; 1080p recommended</p>
+              </div>
+              <div id="uploadPreviewBox" class="hidden space-y-2">
+                <img id="uploadPreviewImg" src="" alt="Deliverable Preview" class="max-h-48 rounded-xl mx-auto border border-white/10 shadow-lg">
+                <span id="uploadFileNameSpan" class="text-xs font-mono text-gray-300 block truncate"></span>
+              </div>
+            </div>
+
+            <!-- Stream URL or VOD Link -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Live Stream URL or Twitch / YouTube VOD Link (Optional)</label>
+              <div class="relative">
+                <input type="text" id="inputMediaUrl" placeholder="https://twitch.tv/videos/12345678 or https://youtube.com/live/..." class="w-full bg-[#080d1e] border border-white/10 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#a78bfa]">
+                <i class="fa-solid fa-link absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Creator Timestamp Notes -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Endorsement Timestamps & Shoutcaster Notes</label>
+              <textarea id="inputDeliverableNotes" rows="2" class="w-full bg-[#080d1e] border border-white/10 rounded-xl p-3 text-xs text-white leading-relaxed focus:outline-none focus:border-[#a78bfa]" placeholder="e.g. Broadcast overlay active continuously. Verbal shoutcaster mentions at 00:32:10, 01:14:45, and post-match interview."></textarea>
+            </div>
+
+            <!-- SUBMIT & VERIFY BUTTON -->
+            <button onclick="triggerCreatorVerification()" id="btnSubmitDeliverable" class="pill-btn w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#a78bfa] via-[#4fd8e6] to-[#00cf8d] hover:brightness-110 text-[#060814] font-black text-sm tracking-wide shadow-lg shadow-[#a78bfa]/25 transition-all flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Post Deliverable & Trigger Agent 3 Multimodal Verification</span>
+            </button>
+
+          </div>
+
+          <!-- VERIFICATION RESULTS FEED & PROOF CERTIFICATE -->
+          <div id="creatorVerificationResultBox" class="glass-panel p-6 rounded-3xl border border-white/[0.08] hidden space-y-4">
+            <!-- Dynamically populated with OpenCV annotated frame, confidence, and sealed certificate -->
+          </div>
+
+        </div>
+
+        <!-- Right 1 Col: Milestone Progress & Deal Room Telemetry -->
+        <div class="space-y-6">
+
+          <!-- Milestone Breakdown Card -->
+          <div class="glass-panel p-5 sm:p-6 rounded-3xl border border-white/[0.08] space-y-4">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <span class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-purple-400"></i>
+                <span>Milestone Deliverables</span>
+              </span>
+              <span class="text-[10px] text-gray-400 font-mono" id="dealStatusTag">ACTIVE</span>
+            </div>
+
+            <div id="creatorMilestonesList" class="space-y-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Real-Time Agent Copilot Mini-Console -->
+          <div class="glass-panel p-5 sm:p-6 rounded-3xl border border-white/[0.08] space-y-3">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-2">
+              <span class="text-xs font-bold text-gray-300 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#a78bfa] animate-ping"></span>
+                <span>Agent Copilot Live</span>
+              </span>
+              <span class="text-[10px] text-gray-500 font-mono">WebSocket Ready</span>
+            </div>
+            <div id="creatorAgentFeed" class="h-56 bg-[#04050c]/90 rounded-2xl p-3 font-mono text-xs overflow-y-auto space-y-2 border border-white/[0.08] text-purple-300">
+              <div class="text-gray-500">[SYSTEM] Creator portal connected to Barbah Swarm StateGraph.</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: OFFER INBOX & BILATERAL AGREEMENTS                      -->
+    <!-- ============================================================== -->
+    <div id="view-offers" class="space-y-6 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+        <div>
+          <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-inbox text-[#4fd8e6]"></i>
+            <span>Sponsorship Offer Inbox & Bilateral Agreements</span>
+          </h2>
+          <p class="text-xs text-gray-400">Review incoming sponsorship proposals from corporate brands, inspect milestone allocations, and countersign acceptance with 1 click.</p>
+        </div>
+      </div>
+
+      <div id="offersContainer" class="space-y-4">
+        <!-- Dynamically populated with offer cards -->
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: EARNINGS & PAYPAL / M-PESA RAILS                        -->
+    <!-- ============================================================== -->
+    <div id="view-earnings" class="space-y-6 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+        <div>
+          <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-brands fa-paypal text-sky-400"></i>
+            <span>Creator Financial Vault & Payout Rails</span>
+          </h2>
+          <p class="text-xs text-gray-400">Guaranteed funds locked in PayPal Milestone Ledgers with instant off-ramping to Kenyan M-Pesa wallets upon Proof-of-Play verification.</p>
+        </div>
+      </div>
+
+      <div id="earningsDashboardDetails" class="space-y-6">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: eTIMS BII TAX VAULT                                    -->
+    <!-- ============================================================== -->
+    <div id="view-tax" class="space-y-6 hidden">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+        <div>
+          <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice text-rose-400"></i>
+            <span>KRA eTIMS & Buyer-Initiated Invoicing (BII) Vault</span>
+          </h2>
+          <p class="text-xs text-gray-400">Section 16(1)(c) electronic tax compliance receipts and Withholding Tax certificates issued programmatically on your behalf.</p>
+        </div>
+      </div>
+
+      <div id="creatorTaxVaultContainer" class="space-y-6">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 5: BILATERAL DEAL ROOM & AGENT COPILOT                    -->
+    <!-- ============================================================== -->
+    <div id="view-chat" class="space-y-6 hidden">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+        <div>
+          <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-comments text-amber-400"></i>
+            <span>Bilateral Collaboration Room & Deal Chat</span>
+          </h2>
+          <p class="text-xs text-gray-400">Direct collaboration channel with the corporate brand sponsor and autonomous agent swarm notifications.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-4">
+          <div id="chatMessagesContainer" class="h-96 bg-[#040612]/90 rounded-2xl p-4 overflow-y-auto space-y-3 border border-white/[0.08]">
+            <!-- Messages dynamically populated -->
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="inputChatMessage" placeholder="Type an update or question to the sponsor..." class="flex-1 bg-[#080d1e] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400">
+            <button onclick="sendChatMessage()" class="pill-btn px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#060814] font-bold text-xs transition-all flex items-center space-x-1.5">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Send</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-white/[0.08] space-y-3 text-xs">
+          <h3 class="font-bold text-white text-sm">Deal Safety & Protocol</h3>
+          <p class="text-gray-400 leading-relaxed">
+            All messages and timestamps are hashed and archived to protect creator compensation and sponsor brand equity.
+          </p>
+          <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+            <i class="fa-solid fa-shield-check"></i> Milestone funds remain 100% committed in the PayPal ledger until Agent 3 verifies your deliverable.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 6: SKILLS PASSPORT & REPUTATION                           -->
+    <!-- ============================================================== -->
+    <div id="view-passport" class="space-y-6 hidden">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+        <div>
+          <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-id-card text-emerald-400"></i>
+            <span>Barbah Skills Passport & Verifiable Reputation</span>
+          </h2>
+          <p class="text-xs text-gray-400">Tamper-proof creator credentials, completed campaign track record, and verified brand endorsements.</p>
+        </div>
+      </div>
+
+      <div id="passportDetailsContainer" class="space-y-6">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 7: PROFILE & REQUIREMENTS SETTINGS                        -->
+    <!-- ============================================================== -->
+    <div id="view-profile" class="space-y-6 hidden">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+        <div>
+          <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-gray-300"></i>
+            <span>Creator Profile, Rate Card & Payment Rails</span>
+          </h2>
+          <p class="text-xs text-gray-400">Manage your discoverable gaming identity, PayPal email for milestone payouts, and M-Pesa phone number.</p>
+        </div>
+      </div>
+
+      <div id="profileSettingsContainer" class="glass-panel p-6 sm:p-7 rounded-3xl border border-white/[0.08] space-y-5 max-w-3xl">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-800 bg-[#070b12] py-4 text-center text-xs text-gray-500 z-10">
+    <p>Barbah SponsorPlay &bull; Beneficiary Talent Platform &bull; Built for PayPal AI Global Hackathon</p>
+  </footer>
+
+  <!-- App Script -->
+  <script src="/static/js/creator_app.js"></script>
+</body>
+</html>

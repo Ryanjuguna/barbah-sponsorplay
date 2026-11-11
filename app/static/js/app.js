@@ -17,6 +17,7 @@ let gridApi = null;
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
+  loadSessionState();
   initThreeCanvas();
   initAgGrid();
   setupBudgetCurrencySync();
@@ -25,6 +26,26 @@ document.addEventListener('DOMContentLoaded', () => {
   logAgent("SCOUT RADAR", "Multi-Channel Talent Radar initialized (Twitch, Start.gg, WhatsApp, TikTok).");
   loadPayPalMode();
 });
+
+function loadSessionState() {
+  try {
+    const raw = localStorage.getItem('sponsorplay_auth');
+    if (raw) {
+      const auth = JSON.parse(raw);
+      if (auth.role === 'brand' && auth.user) {
+        const brandNameEl = document.getElementById('navBrandName');
+        if (brandNameEl && auth.user.name) brandNameEl.innerText = auth.user.name.split(' ')[0] + ' ' + (auth.user.name.split(' ')[1] || '');
+        const brandInput = document.getElementById('inputBrandName');
+        if (brandInput && auth.user.name) brandInput.value = auth.user.name;
+        const pinInput = document.getElementById('inputCorporatePIN');
+        if (pinInput && auth.user.corporate_pin) pinInput.value = auth.user.corporate_pin;
+        logAgent("AUTH", `Signed in as Corporate Brand: ${auth.user.name} (${auth.user.corporate_pin})`, "text-[#4fd8e6] font-bold");
+      }
+    }
+  } catch (e) {
+    console.error("Session load error:", e);
+  }
+}
 
 // Real-Time Dynamic USD <-> KES Budget Currency Synchronizer
 function setupBudgetCurrencySync() {
@@ -866,10 +887,17 @@ function renderStep2Proposal(proposal) {
         <div class="p-3 rounded-lg bg-gray-950 border border-gray-800/80 space-y-1">
           <div class="flex items-center justify-between">
             <span class="text-gray-400 font-semibold">Party 2: Beneficiary Talent</span>
-            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold">DISPATCHED (PENDING COUNTERSIGN)</span>
+            <span class="px-2 py-0.5 rounded ${proposal.status === 'ACCEPTED_BY_BENEFICIARY' || proposal.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-mono text-[10px] font-bold">
+              ${proposal.status === 'ACCEPTED_BY_BENEFICIARY' || proposal.status === 'ACTIVE' ? 'COUNTERSIGNED & ACCEPTED' : 'DISPATCHED (PENDING COUNTERSIGN)'}
+            </span>
           </div>
           <p class="text-white font-bold">${proposal.creators.map(c => c.name).join(', ')}</p>
-          <p class="text-[11px] text-gray-400">Dispatched to <span class="font-mono text-cyan-300">${emailsList}</span> for online review & countersignature.</p>
+          <div class="flex items-center justify-between">
+            <p class="text-[11px] text-gray-400">Dispatched to <span class="font-mono text-cyan-300">${emailsList}</span></p>
+            <a href="/creator?proposal=${proposal.id}&creator_id=${proposal.creators[0]?.id || 'creator-001'}" target="_blank" class="text-[11px] text-purple-400 hover:text-purple-300 underline font-semibold">
+              Open Creator Portal &rarr;
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -1058,6 +1086,10 @@ function renderVerificationStep() {
             <i class="fa-solid fa-triangle-exclamation"></i>
             <span>Low-Occupancy Bug (< 3.5% Fail)</span>
           </button>
+          <button type="button" onclick="checkAndLoadCreatorSubmission()" id="btnCheckCreatorSubmission" class="px-3 py-1.5 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-500/40 text-indigo-200 text-xs font-semibold transition-all flex items-center space-x-1 shadow">
+            <i class="fa-solid fa-cloud-arrow-down text-purple-400"></i>
+            <span>Load Creator Evidence</span>
+          </button>
           <label for="cvFrameUploadInput" class="px-3 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-200 text-xs font-semibold cursor-pointer flex items-center space-x-1.5 transition-all shadow">
             <i class="fa-solid fa-cloud-arrow-up text-purple-400"></i>
             <span>Upload Custom Frame</span>
@@ -1130,6 +1162,31 @@ async function runOpenCVVisionAnalysis(scenario = 'PASS') {
     logAgent("ERROR", `OpenCV analysis failed: ${err.message}`, "text-red-400");
   } finally {
     if (spinner) spinner.classList.add('hidden');
+  }
+}
+
+async function checkAndLoadCreatorSubmission() {
+  if (!currentProposal) {
+    logAgent("AGENT 3", "No active proposal selected. Please select a syndicate or creator first.", "text-amber-400");
+    return;
+  }
+  const creatorTag = currentProposal.creators[0]?.gamer_tag || "Creator";
+  logAgent("AGENT 3: VERIFIER", `Polling for live deliverable evidence from @${creatorTag}...`, "text-purple-300");
+  try {
+    const resp = await fetch(`/api/v1/creator/collaboration/${currentProposal.id}`);
+    if (!resp.ok) return;
+    const msgs = await resp.json();
+    const uploadMsg = msgs.slice().reverse().find(m => m.attachment_url);
+    if (uploadMsg && uploadMsg.attachment_url) {
+      logAgent("AGENT 3: VERIFIER", `Found creator broadcast deliverable: ${uploadMsg.attachment_url}. Running multimodal consensus!`, "text-emerald-400 font-bold");
+      const previewImg = document.getElementById('visionStreamPreview');
+      if (previewImg) previewImg.src = uploadMsg.attachment_url + "?t=" + Date.now();
+      await executeMultimodalVerification();
+    } else {
+      logAgent("AGENT 3: VERIFIER", `No uploaded media found yet for deal ${currentProposal.id}. Click 'Creator Portal' in the top header to submit a stream frame or preset deliverable!`, "text-amber-300");
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 
