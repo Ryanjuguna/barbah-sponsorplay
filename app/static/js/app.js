@@ -442,6 +442,187 @@ async function reloadCreatorsGrid() {
 }
 
 // =========================================================================
+// AUTONOMOUS AUTO-PILOT & CROSS-PORTAL EVENT LISTENER
+// =========================================================================
+let isAutoPilotActive = false;
+let autoPilotTimer = null;
+let creatorEvidencePoller = null;
+let lastSeenCreatorAttachment = null;
+let autoAdvanceTimer = null;
+
+function loadCampaignPreset(preset) {
+  if (preset === 'safaricom') {
+    document.getElementById('inputBrandName').value = "Safaricom 5G Home Gaming";
+    document.getElementById('inputCorporatePIN').value = "P051234567A";
+    document.getElementById('inputBrief').value = "We want to promote our low-latency 5G Home Internet to university gamers and grassroots esports communities across Nairobi and Eldoret. Need tournament broadcast integration, logo overlay, shoutcaster verbal callouts, and campus derby activations. Target: 10,000 youth reached.";
+    document.getElementById('inputBudgetUSD').value = 750;
+    document.getElementById('inputBudgetKES').value = `KES ${(750 * USD_TO_KES_RATE).toLocaleString()}`;
+    document.getElementById('inputTargetReach').value = 10000;
+  } else if (preset === 'monster') {
+    document.getElementById('inputBrandName').value = "Monster Energy East Africa";
+    document.getElementById('inputCorporatePIN').value = "P059876543B";
+    document.getElementById('inputBrief').value = "High-octane energy drink sponsorship for Nairobi fighting game community and Tekken 8 college derbies. Require branded stage banners, live stream HUD overlay, and shoutcaster energy break callouts.";
+    document.getElementById('inputBudgetUSD').value = 600;
+    document.getElementById('inputBudgetKES').value = `KES ${(600 * USD_TO_KES_RATE).toLocaleString()}`;
+    document.getElementById('inputTargetReach').value = 8000;
+  } else if (preset === 'redbull') {
+    document.getElementById('inputBrandName').value = "Red Bull Kenya Esports";
+    document.getElementById('inputCorporatePIN').value = "P051122334C";
+    document.getElementById('inputBrief').value = "Grassroots LAN qualifiers sponsorship across Nairobi East and informal settlement gaming dens. Need tournament bracket sponsorship, physical roll-up banners, and live tournament broadcast integration.";
+    document.getElementById('inputBudgetUSD').value = 450;
+    document.getElementById('inputBudgetKES').value = `KES ${(450 * USD_TO_KES_RATE).toLocaleString()}`;
+    document.getElementById('inputTargetReach').value = 6000;
+  }
+  logAgent("CAMPAIGN PRESET", `Loaded ${preset.toUpperCase()} brief and parameters into Step 1.`, "text-[#4fd8e6] font-bold");
+}
+
+function toggleAutoPilot() {
+  if (isAutoPilotActive) {
+    stopAutoPilot();
+  } else {
+    startAutoPilot();
+  }
+}
+
+function startAutoPilot() {
+  isAutoPilotActive = true;
+  const rawBudget = parseFloat(document.getElementById('inputBudgetUSD').value) || 0;
+  if (rawBudget <= 0) {
+    loadCampaignPreset('safaricom');
+  }
+  updateAutoPilotUI(true, "Scouting Talent");
+  logAgent("AUTO-PILOT", "Autonomous Auto-Pilot ENGAGED. Executing full campaign lifecycle end-to-end...", "text-emerald-400 font-black");
+  runStep1Deconstruct();
+}
+
+function stopAutoPilot() {
+  isAutoPilotActive = false;
+  if (autoPilotTimer) {
+    clearTimeout(autoPilotTimer);
+    autoPilotTimer = null;
+  }
+  if (autoAdvanceTimer) {
+    clearTimeout(autoAdvanceTimer);
+    autoAdvanceTimer = null;
+  }
+  if (window._countdownInterval) {
+    clearInterval(window._countdownInterval);
+  }
+  updateAutoPilotUI(false, "PAUSED");
+  logAgent("AUTO-PILOT", "Auto-Pilot paused. Switched to interactive manual control.", "text-amber-400 font-bold");
+}
+
+function updateAutoPilotUI(active, stepText = "") {
+  const badge = document.getElementById('autoPilotBadge');
+  const btn = document.getElementById('btnAutoPilot');
+  const btnText = document.getElementById('btnAutoPilotText');
+  
+  if (!badge || !btn || !btnText) return;
+  
+  if (active) {
+    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse";
+    badge.innerText = `ACTIVE: ${stepText.toUpperCase()}`;
+    btn.className = "w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black text-xs shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2 transition-all cursor-pointer";
+    btnText.innerText = "Pause Auto-Pilot";
+  } else {
+    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-gray-300 border border-white/20";
+    badge.innerText = stepText ? stepText.toUpperCase() : "READY";
+    btn.className = "w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 transition-all cursor-pointer";
+    btnText.innerText = "Start Auto-Pilot (1-Click Run)";
+  }
+}
+
+// Cascading Auto-Advance Helper (Solution B)
+function triggerCascadingAutoAdvance(callback, nextStepLabel) {
+  if (isAutoPilotActive) return;
+  
+  const certNotice = document.getElementById('autoAdvanceNotice');
+  if (certNotice) {
+    let timeLeft = 3;
+    certNotice.classList.remove('hidden');
+    certNotice.innerHTML = `
+      <div class="flex items-center justify-between text-xs text-purple-300 bg-purple-950/40 border border-purple-500/30 p-2.5 rounded-lg mt-2">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Auto-advancing to ${nextStepLabel} in <strong id="autoAdvanceCountdown">${timeLeft}s</strong>...</span>
+        <div class="flex items-center space-x-2">
+          <button onclick="executeNowAutoAdvance()" class="text-emerald-400 font-bold hover:underline">Proceed Now &rarr;</button>
+          <button onclick="cancelAutoAdvance()" class="text-amber-400 hover:underline">Pause</button>
+        </div>
+      </div>
+    `;
+    
+    window._pendingAutoAdvanceFn = callback;
+    if (window._countdownInterval) clearInterval(window._countdownInterval);
+    window._countdownInterval = setInterval(() => {
+      timeLeft -= 1;
+      const el = document.getElementById('autoAdvanceCountdown');
+      if (el) el.innerText = `${timeLeft}s`;
+      if (timeLeft <= 0) {
+        clearInterval(window._countdownInterval);
+        if (window._pendingAutoAdvanceFn) {
+          const fn = window._pendingAutoAdvanceFn;
+          window._pendingAutoAdvanceFn = null;
+          fn();
+        }
+      }
+    }, 1000);
+  }
+}
+
+function executeNowAutoAdvance() {
+  if (window._countdownInterval) clearInterval(window._countdownInterval);
+  const certNotice = document.getElementById('autoAdvanceNotice');
+  if (certNotice) certNotice.classList.add('hidden');
+  if (window._pendingAutoAdvanceFn) {
+    const fn = window._pendingAutoAdvanceFn;
+    window._pendingAutoAdvanceFn = null;
+    fn();
+  }
+}
+
+function cancelAutoAdvance() {
+  if (window._countdownInterval) clearInterval(window._countdownInterval);
+  window._pendingAutoAdvanceFn = null;
+  const certNotice = document.getElementById('autoAdvanceNotice');
+  if (certNotice) certNotice.classList.add('hidden');
+  logAgent("EVENT TRIGGER", "Auto-advance paused for manual inspection.", "text-amber-400");
+}
+
+// Cross-Portal Real-Time Ingestion Poller (Solution D)
+function startCreatorEvidenceListener() {
+  if (creatorEvidencePoller) clearInterval(creatorEvidencePoller);
+  
+  creatorEvidencePoller = setInterval(async () => {
+    if (!currentProposal || !currentProposal.id) return;
+    try {
+      const resp = await fetch(`/api/v1/creator/collaboration/${currentProposal.id}`);
+      if (!resp.ok) return;
+      const msgs = await resp.json();
+      const creatorUpload = msgs.slice().reverse().find(m => m.attachment_url && m.sender_type === "CREATOR");
+      if (creatorUpload && creatorUpload.attachment_url && creatorUpload.attachment_url !== lastSeenCreatorAttachment) {
+        lastSeenCreatorAttachment = creatorUpload.attachment_url;
+        logAgent("CROSS-PORTAL EVENT TRIGGER", `Live deliverable detected from ${creatorUpload.sender_name}! Media: ${creatorUpload.attachment_url}`, "text-emerald-400 font-bold");
+        
+        const step4Card = document.getElementById('card-step-4');
+        if (step4Card && step4Card.classList.contains('hidden')) {
+          renderVerificationStep();
+          setStepActive(4);
+        }
+        
+        const previewImg = document.getElementById('visionStreamPreview');
+        if (previewImg) {
+          previewImg.src = creatorUpload.attachment_url + "?t=" + Date.now();
+        }
+        
+        logAgent("AGENT 3: VERIFIER", `Autonomous verification triggered by creator upload event...`, "text-purple-300 font-bold");
+        await executeMultimodalVerification();
+      }
+    } catch (e) {
+      // Quiet fail
+    }
+  }, 2500);
+}
+
+// =========================================================================
 // TAB 1: 5-STEP WIZARD LOGIC
 // =========================================================================
 
@@ -583,6 +764,19 @@ function renderDeconstructionResults(result) {
     switchPathwayTab('solo');
   } else {
     switchPathwayTab('syndicates');
+  }
+
+  // Auto-Pilot Step Trigger: Auto-select recommended option
+  if (isAutoPilotActive) {
+    updateAutoPilotUI(true, "Selecting Top Syndicate in 1.2s");
+    autoPilotTimer = setTimeout(() => {
+      if (!isAutoPilotActive) return;
+      if (isSoloRec && result.solo_matches && result.solo_matches.length > 0) {
+        sponsorSoloCreator(result.solo_matches[0].creator.id);
+      } else if (result.syndicates && result.syndicates.length > 0) {
+        selectSyndicate(result.syndicates[0].id);
+      }
+    }, 1200);
   }
 
   container.scrollIntoView({ behavior: 'smooth' });
@@ -938,6 +1132,14 @@ function renderStep2Proposal(proposal) {
       <span>Sponsor Action: Initialize PayPal Milestone Ledger &rarr;</span>
     </button>
   `;
+
+  if (isAutoPilotActive) {
+    updateAutoPilotUI(true, "Initializing Milestone Ledger in 1.2s");
+    autoPilotTimer = setTimeout(() => {
+      if (!isAutoPilotActive) return;
+      initializePayPalEscrow();
+    }, 1200);
+  }
 }
 
 // STEP 3: PAYPAL ORDERS V2 MILESTONE LEDGER CHECKOUT
@@ -1032,6 +1234,14 @@ function renderStep3PayPal(order) {
       </button>
     </div>
   `;
+
+  if (isAutoPilotActive) {
+    updateAutoPilotUI(true, "Securing Funds via PayPal in 1.2s");
+    autoPilotTimer = setTimeout(() => {
+      if (!isAutoPilotActive) return;
+      capturePayPalOrder();
+    }, 1200);
+  }
 }
 
 async function capturePayPalOrder() {
@@ -1049,6 +1259,9 @@ async function capturePayPalOrder() {
     document.getElementById('btnCapturePayPal').disabled = true;
     document.getElementById('btnCapturePayPal').className = "w-full py-3.5 px-4 rounded-xl bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center space-x-2 opacity-90 cursor-default";
     document.getElementById('btnCapturePayPal').innerHTML = `<i class="fa-solid fa-check"></i> <span>Milestones Funded & Secured via PayPal Ledger</span>`;
+
+    // Start Real-Time Cross-Portal Evidence Listener (Solution D)
+    startCreatorEvidenceListener();
 
     // Proceed to Step 4: Multimodal Verification
     setTimeout(() => {
@@ -1144,6 +1357,14 @@ function renderVerificationStep() {
 
   // Automatically run OpenCV analysis on entry
   runOpenCVVisionAnalysis('PASS');
+
+  if (isAutoPilotActive) {
+    updateAutoPilotUI(true, "Verifying AI Vision & Proof in 1.4s");
+    autoPilotTimer = setTimeout(() => {
+      if (!isAutoPilotActive) return;
+      executeMultimodalVerification();
+    }, 1400);
+  }
 }
 
 async function runOpenCVVisionAnalysis(scenario = 'PASS') {
@@ -1415,11 +1636,25 @@ function renderProofCertificate(cert) {
       ${cert.community_impact_notes ? `<div class="text-gray-400 font-sans text-xs bg-black/40 p-2 rounded border border-white/5"><strong class="text-cyan-300 block mb-0.5">Community Engagement Telemetry:</strong>${cert.community_impact_notes}</div>` : ''}
     </div>
     <div class="pt-2">
-      <button onclick="renderStep5Payout()" class="w-full py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all">
+      <button onclick="renderStep5Payout()" class="w-full py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all cursor-pointer">
         Proceed to KRA eTIMS Fiscal Invoicing & PayPal Payout &rarr;
       </button>
+      <div id="autoAdvanceNotice" class="hidden"></div>
     </div>
   `;
+
+  if (isAutoPilotActive) {
+    updateAutoPilotUI(true, "KRA eTIMS Fiscalizing & Disbursing in 1.4s");
+    autoPilotTimer = setTimeout(() => {
+      if (!isAutoPilotActive) return;
+      renderStep5Payout();
+      executeFinalDisbursementAndTax();
+    }, 1400);
+  } else {
+    triggerCascadingAutoAdvance(() => {
+      renderStep5Payout();
+    }, "KRA eTIMS & Payout");
+  }
 }
 
 // =========================================================================
@@ -1562,6 +1797,16 @@ function renderFinalTaxInvoice(result) {
       height: 100
     });
   }, 100);
+
+  if (isAutoPilotActive) {
+    updateAutoPilotUI(true, "Compiling Barbah MetaTwin ESG in 1.4s");
+    autoPilotTimer = setTimeout(() => {
+      switchTab('impact');
+      isAutoPilotActive = false;
+      updateAutoPilotUI(false, "COMPLETED");
+      logAgent("AUTO-PILOT", "Full Campaign Lifecycle Executed Autonomously! All 6 Agents Succeeded.", "text-emerald-400 font-black");
+    }, 1400);
+  }
 }
 
 function setStepActive(stepNum) {

@@ -269,31 +269,51 @@
               </div>
             </div>
 
-            <!-- 1-Click High Impact Preset Scenarios (Hackathon Demo Supercharger) -->
-            <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2.5">
+            <!-- 1-Click Fast-Track Deliverable Verification (Instant AI Audit & Payout Trigger) -->
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-sky-950/30 to-[#080d1e] border border-purple-500/30 space-y-2.5 shadow-lg">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-gray-200 flex items-center gap-1.5">
-                  <i class="fa-solid fa-bolt text-[#e4ff4f]"></i>
-                  <span>1-Click Preset Broadcast Evidence (Instant Verification Demo):</span>
+                  <i class="fa-solid fa-bolt text-[#e4ff4f] animate-pulse"></i>
+                  <span>1-Click Fast-Track AI Verification (Zero-Friction Trigger):</span>
                 </span>
-                <span class="text-[10px] text-gray-400 font-mono">Zero friction</span>
+                <span class="text-[10px] text-purple-300 font-mono font-bold bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30">1-CLICK SUBMIT & CLAIM</span>
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button type="button" onclick="selectPresetScenario('PASS')" class="p-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-left transition-all">
-                  <span class="text-xs font-bold text-purple-300 block">Safaricom 5G Stream</span>
-                  <span class="text-[10px] text-emerald-400 font-mono">Pass (4.12% occupancy)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button type="button" onclick="fastTrackSubmitDeliverable('PASS')" class="p-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/40 text-left transition-all group cursor-pointer shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-purple-300 flex items-center gap-1.5">
+                      <i class="fa-solid fa-video text-purple-400"></i> 1080p Stream (OpenCV)
+                    </span>
+                    <span class="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">FAST TRACK</span>
+                  </div>
+                  <span class="text-[11px] text-gray-400 block mt-1">Instant submission, OpenCV occupancy audit, & auto-payout</span>
                 </button>
-                <button type="button" onclick="selectPresetScenario('LOW_OCCUPANCY')" class="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-left transition-all">
-                  <span class="text-xs font-bold text-amber-300 block">Sub-Threshold Test</span>
-                  <span class="text-[10px] text-amber-400 font-mono">Fail (2.10% occupancy)</span>
+                <button type="button" onclick="fastTrackSubmitDeliverable('VENUE')" class="p-3 rounded-xl bg-sky-500/10 hover:bg-sky-500/25 border border-sky-500/40 text-left transition-all group cursor-pointer shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-sky-300 flex items-center gap-1.5">
+                      <i class="fa-solid fa-camera text-sky-400"></i> Venue Banner (Claude AI)
+                    </span>
+                    <span class="text-[10px] text-sky-400 font-mono font-bold bg-sky-500/10 px-1.5 py-0.5 rounded">FAST TRACK</span>
+                  </div>
+                  <span class="text-[11px] text-gray-400 block mt-1">Physical roll-up banner staging, crowd audit, & auto-payout</span>
                 </button>
-                <button type="button" onclick="selectPresetScenario('VENUE')" class="p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-left transition-all">
-                  <span class="text-xs font-bold text-sky-300 block">Lounge Physical Banner</span>
-                  <span class="text-[10px] text-sky-400 font-mono">Physical Staging</span>
+                <button type="button" onclick="fastTrackSubmitDeliverable('BRACKET')" class="p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/40 text-left transition-all group cursor-pointer shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-rose-300 flex items-center gap-1.5">
+                      <i class="fa-solid fa-trophy text-rose-400"></i> Tournament Bracket
+                    </span>
+                    <span class="text-[10px] text-rose-400 font-mono font-bold bg-rose-500/10 px-1.5 py-0.5 rounded">FAST TRACK</span>
+                  </div>
+                  <span class="text-[11px] text-gray-400 block mt-1">Challonge / Start.gg playoff verification & auto-payout</span>
                 </button>
-                <button type="button" onclick="selectPresetScenario('BRACKET')" class="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-left transition-all">
-                  <span class="text-xs font-bold text-rose-300 block">Tournament Bracket</span>
-                  <span class="text-[10px] text-rose-400 font-mono">Challonge / Start.gg</span>
+                <button type="button" onclick="selectPresetScenario('LOW_OCCUPANCY')" class="p-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-left transition-all cursor-pointer shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Sub-Threshold Test
+                    </span>
+                    <span class="text-[10px] text-amber-400 font-mono bg-amber-500/10 px-1.5 py-0.5 rounded">TEST FAIL</span>
+                  </div>
+                  <span class="text-[11px] text-gray-400 block mt-1">Simulate 2.10% occupancy failure for audit remedy preview</span>
                 </button>
               </div>
             </div>

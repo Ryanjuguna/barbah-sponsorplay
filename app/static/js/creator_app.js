@@ -353,6 +353,110 @@ function renderMilestonesList(milestones) {
   });
 }
 
+// =========================================================================
+// 1-CLICK FAST-TRACK DELIVERABLE VERIFICATION & AUTO-CLAIM TRIGGER
+// =========================================================================
+async function fastTrackSubmitDeliverable(scenario) {
+  if (!currentActiveProposal) {
+    try {
+      const resp = await fetch(`/api/v1/creator/offers/${currentCreatorId}`);
+      if (resp.ok) {
+        const offers = await resp.json();
+        if (offers && offers.length > 0) {
+          logCreatorAgent("AUTO-ACCEPT", `Auto-accepting offer from ${offers[0].brand_name} to fast-track verification...`, "text-sky-300 font-bold");
+          await executeOfferAcceptance(offers[0].id);
+        } else {
+          alert("Please accept an offer or select an active deal first!");
+          return;
+        }
+      }
+    } catch (e) {
+      alert("Please accept an offer or select an active deal first!");
+      return;
+    }
+  }
+
+  let deliverableType = "LIVE_STREAM_VOD";
+  let notes = "Verified broadcast overlay via 1-click fast track.";
+  if (scenario === "VENUE") {
+    deliverableType = "VENUE_PHOTO";
+    notes = "On-site physical roll-up banner staging in Nairobi LAN lounge.";
+  } else if (scenario === "BRACKET") {
+    deliverableType = "TOURNAMENT_BRACKET";
+    notes = "Start.gg & Challonge tournament playoffs bracket certification.";
+  } else if (scenario === "LOW_OCCUPANCY") {
+    deliverableType = "LIVE_STREAM_VOD";
+    notes = "Sub-threshold test frame for error remedy simulation.";
+  }
+
+  const delivTypeSelect = document.getElementById('selectDeliverableType');
+  if (delivTypeSelect) delivTypeSelect.value = deliverableType;
+
+  selectedPresetScenario = scenario;
+  selectedBase64Image = null;
+
+  logCreatorAgent("FAST-TRACK", `1-Click Fast Track engaged for ${deliverableType} [Scenario: ${scenario}]. Submitting to Agent 3...`, "text-[#4fd8e6] font-bold");
+
+  const milestoneId = document.getElementById('selectDeliverableMilestone')?.value || (currentActiveProposal.milestones && currentActiveProposal.milestones[0].id) || "MLS-01";
+
+  const payload = {
+    proposal_id: currentActiveProposal.id,
+    milestone_id: milestoneId,
+    creator_id: currentCreatorId,
+    deliverable_type: deliverableType,
+    media_url: null,
+    image_base64: null,
+    preset_scenario: scenario,
+    notes: notes,
+    brand_name: currentActiveProposal.brand_name
+  };
+
+  const btn = document.getElementById('btnSubmitDeliverable');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Agent 3 Ingesting & Verifying Multimodal Proof...</span>`;
+  }
+
+  try {
+    const resp = await fetch('/api/v1/creator/deliverables/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || "Verification failed");
+    }
+
+    const data = await resp.json();
+    const cert = data.certificate;
+
+    logCreatorAgent("CONSENSUS", `Multimodal Consensus: ${cert.verification_decision} (${cert.overall_confidence_percent}%) [Engine: ${cert.verification_engine || 'OPENCV'}]`, "text-emerald-300 font-extrabold");
+    logCreatorAgent("PROOF SEAL", `Sealed Cryptographic Hash: ${cert.cryptographic_hash.substring(0, 24)}...`, "text-purple-300 font-mono");
+
+    // Render Verification Result Card
+    renderVerificationCertificate(cert, data.milestone);
+
+    // Refresh Dashboard Data
+    await loadCreatorDashboard(currentCreatorId);
+
+    // Auto-Disbursement alert if PASSED
+    if (cert.verification_decision === "PASSED") {
+      logCreatorAgent("AUTO-DISBURSEMENT", `Deliverable verified! Programmatic payout of $${((data.milestone ? data.milestone.amount_usd : 200) * 0.95).toFixed(2)} USD ready in ledger. Click 'Claim Payout Now' or let sponsor execute final release.`, "text-emerald-400 font-bold");
+    }
+
+  } catch (err) {
+    console.error("Fast track submission failed:", err);
+    logCreatorAgent("ERROR", `Deliverable verification failed: ${err.message}`, "text-red-400");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Post Deliverable & Trigger Agent 3 Multimodal Verification</span>`;
+    }
+  }
+}
+
 // Preset Scenario Selector for Zero-Friction Demo
 function selectPresetScenario(scenario) {
   selectedPresetScenario = scenario;
