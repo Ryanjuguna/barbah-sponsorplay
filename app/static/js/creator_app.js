@@ -244,7 +244,7 @@ function renderActiveDealView(data) {
       <div>
         <div class="flex items-center space-x-2">
           <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-            ${isFunded ? 'PAYPAL ESCROW COMMITTED' : 'PENDING SPONSOR FUNDING'}
+            ${isFunded ? 'PAYPAL MILESTONE LEDGER FUNDED' : 'PENDING SPONSOR FUNDING'}
           </span>
           <span class="text-xs text-gray-400 font-mono">Deal ID: ${proposal.id}</span>
         </div>
@@ -315,7 +315,7 @@ function renderMilestonesList(milestones) {
       badgeText = "VERIFIED (READY FOR PAYOUT)";
     } else if (isInLedger) {
       badgeClass = "bg-sky-500/20 text-sky-300 border-sky-500/40";
-      badgeText = "ESCROW COMMITTED";
+      badgeText = "MILESTONES FUNDED";
     }
 
     card.className = `p-3.5 rounded-2xl border ${isVerified ? 'border-purple-500/40 bg-purple-950/20' : 'border-white/[0.06] bg-white/[0.02]'} space-y-2 text-xs transition-all`;
@@ -758,7 +758,7 @@ function renderEarningsDashboard(data) {
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       
       <div class="glass-panel p-5 rounded-3xl border border-white/[0.08] space-y-1">
-        <span class="text-xs text-gray-400 uppercase tracking-wider font-mono font-medium">Guaranteed Escrow in Ledger</span>
+        <span class="text-xs text-gray-400 uppercase tracking-wider font-mono font-medium">Guaranteed Milestone Ledger Funds</span>
         <div class="text-2xl font-black text-[#4fd8e6] font-mono">${formatMoney(data.ledger_escrow_usd)}</div>
         <span class="text-[11px] text-gray-500">Locked in PayPal Orders v2 multiparty ledger</span>
       </div>
