@@ -314,6 +314,9 @@ function formatMoney(amountUSD) {
 
 // Tab Switching
 function switchTab(tabName) {
+  if (window._countdownInterval) clearInterval(window._countdownInterval);
+  window._pendingAutoAdvanceFn = null;
+
   ['demo', 'explorer', 'radar', 'invoices', 'impact'].forEach(t => {
     const el = document.getElementById(`view-${t}`);
     const tabEl = document.getElementById(`tab-${t}`);
@@ -442,10 +445,8 @@ async function reloadCreatorsGrid() {
 }
 
 // =========================================================================
-// AUTONOMOUS AUTO-PILOT & CROSS-PORTAL EVENT LISTENER
+// SOLUTION B: CASCADING AUTO-ADVANCE & CROSS-PORTAL EVENT TRIGGERS
 // =========================================================================
-let isAutoPilotActive = false;
-let autoPilotTimer = null;
 let creatorEvidencePoller = null;
 let lastSeenCreatorAttachment = null;
 let autoAdvanceTimer = null;
@@ -476,102 +477,46 @@ function loadCampaignPreset(preset) {
   logAgent("CAMPAIGN PRESET", `Loaded ${preset.toUpperCase()} brief and parameters into Step 1.`, "text-[#4fd8e6] font-bold");
 }
 
-function toggleAutoPilot() {
-  if (isAutoPilotActive) {
-    stopAutoPilot();
-  } else {
-    startAutoPilot();
-  }
-}
-
-function startAutoPilot() {
-  isAutoPilotActive = true;
-  const rawBudget = parseFloat(document.getElementById('inputBudgetUSD').value) || 0;
-  if (rawBudget <= 0) {
-    loadCampaignPreset('safaricom');
-  }
-  updateAutoPilotUI(true, "Scouting Talent");
-  logAgent("AUTO-PILOT", "Autonomous Auto-Pilot ENGAGED. Executing full campaign lifecycle end-to-end...", "text-emerald-400 font-black");
-  runStep1Deconstruct();
-}
-
-function stopAutoPilot() {
-  isAutoPilotActive = false;
-  if (autoPilotTimer) {
-    clearTimeout(autoPilotTimer);
-    autoPilotTimer = null;
-  }
-  if (autoAdvanceTimer) {
-    clearTimeout(autoAdvanceTimer);
-    autoAdvanceTimer = null;
-  }
-  if (window._countdownInterval) {
-    clearInterval(window._countdownInterval);
-  }
-  updateAutoPilotUI(false, "PAUSED");
-  logAgent("AUTO-PILOT", "Auto-Pilot paused. Switched to interactive manual control.", "text-amber-400 font-bold");
-}
-
-function updateAutoPilotUI(active, stepText = "") {
-  const badge = document.getElementById('autoPilotBadge');
-  const btn = document.getElementById('btnAutoPilot');
-  const btnText = document.getElementById('btnAutoPilotText');
-  
-  if (!badge || !btn || !btnText) return;
-  
-  if (active) {
-    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse";
-    badge.innerText = `ACTIVE: ${stepText.toUpperCase()}`;
-    btn.className = "w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-black text-xs shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2 transition-all cursor-pointer";
-    btnText.innerText = "Pause Auto-Pilot";
-  } else {
-    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-gray-300 border border-white/20";
-    badge.innerText = stepText ? stepText.toUpperCase() : "READY";
-    btn.className = "w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 transition-all cursor-pointer";
-    btnText.innerText = "Start Auto-Pilot (1-Click Run)";
-  }
-}
-
 // Cascading Auto-Advance Helper (Solution B)
-function triggerCascadingAutoAdvance(callback, nextStepLabel) {
-  if (isAutoPilotActive) return;
+function triggerCascadingAutoAdvance(callback, nextStepLabel, targetContainerId = 'autoAdvanceNotice') {
+  const noticeEl = document.getElementById(targetContainerId);
+  if (!noticeEl) return;
   
-  const certNotice = document.getElementById('autoAdvanceNotice');
-  if (certNotice) {
-    let timeLeft = 3;
-    certNotice.classList.remove('hidden');
-    certNotice.innerHTML = `
-      <div class="flex items-center justify-between text-xs text-purple-300 bg-purple-950/40 border border-purple-500/30 p-2.5 rounded-lg mt-2">
-        <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Auto-advancing to ${nextStepLabel} in <strong id="autoAdvanceCountdown">${timeLeft}s</strong>...</span>
-        <div class="flex items-center space-x-2">
-          <button onclick="executeNowAutoAdvance()" class="text-emerald-400 font-bold hover:underline">Proceed Now &rarr;</button>
-          <button onclick="cancelAutoAdvance()" class="text-amber-400 hover:underline">Pause</button>
-        </div>
+  let timeLeft = 3;
+  noticeEl.classList.remove('hidden');
+  noticeEl.innerHTML = `
+    <div class="flex items-center justify-between text-xs text-purple-300 bg-purple-950/40 border border-purple-500/30 p-2.5 rounded-lg mt-2 shadow-sm">
+      <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Auto-advancing to ${nextStepLabel} in <strong id="${targetContainerId}Countdown">${timeLeft}s</strong>...</span>
+      <div class="flex items-center space-x-2">
+        <button onclick="executeNowAutoAdvance('${targetContainerId}')" class="text-emerald-400 font-bold hover:underline cursor-pointer">Proceed Now &rarr;</button>
+        <button onclick="cancelAutoAdvance('${targetContainerId}')" class="text-amber-400 hover:underline cursor-pointer">Pause</button>
       </div>
-    `;
-    
-    window._pendingAutoAdvanceFn = callback;
-    if (window._countdownInterval) clearInterval(window._countdownInterval);
-    window._countdownInterval = setInterval(() => {
-      timeLeft -= 1;
-      const el = document.getElementById('autoAdvanceCountdown');
-      if (el) el.innerText = `${timeLeft}s`;
-      if (timeLeft <= 0) {
-        clearInterval(window._countdownInterval);
-        if (window._pendingAutoAdvanceFn) {
-          const fn = window._pendingAutoAdvanceFn;
-          window._pendingAutoAdvanceFn = null;
-          fn();
-        }
+    </div>
+  `;
+  
+  window._pendingAutoAdvanceFn = callback;
+  if (window._countdownInterval) clearInterval(window._countdownInterval);
+  window._countdownInterval = setInterval(() => {
+    timeLeft -= 1;
+    const el = document.getElementById(`${targetContainerId}Countdown`);
+    if (el) el.innerText = `${timeLeft}s`;
+    if (timeLeft <= 0) {
+      clearInterval(window._countdownInterval);
+      const nEl = document.getElementById(targetContainerId);
+      if (nEl) nEl.classList.add('hidden');
+      if (window._pendingAutoAdvanceFn) {
+        const fn = window._pendingAutoAdvanceFn;
+        window._pendingAutoAdvanceFn = null;
+        fn();
       }
-    }, 1000);
-  }
+    }
+  }, 1000);
 }
 
-function executeNowAutoAdvance() {
+function executeNowAutoAdvance(targetContainerId = 'autoAdvanceNotice') {
   if (window._countdownInterval) clearInterval(window._countdownInterval);
-  const certNotice = document.getElementById('autoAdvanceNotice');
-  if (certNotice) certNotice.classList.add('hidden');
+  const noticeEl = document.getElementById(targetContainerId);
+  if (noticeEl) noticeEl.classList.add('hidden');
   if (window._pendingAutoAdvanceFn) {
     const fn = window._pendingAutoAdvanceFn;
     window._pendingAutoAdvanceFn = null;
@@ -579,12 +524,12 @@ function executeNowAutoAdvance() {
   }
 }
 
-function cancelAutoAdvance() {
+function cancelAutoAdvance(targetContainerId = 'autoAdvanceNotice') {
   if (window._countdownInterval) clearInterval(window._countdownInterval);
   window._pendingAutoAdvanceFn = null;
-  const certNotice = document.getElementById('autoAdvanceNotice');
-  if (certNotice) certNotice.classList.add('hidden');
-  logAgent("EVENT TRIGGER", "Auto-advance paused for manual inspection.", "text-amber-400");
+  const noticeEl = document.getElementById(targetContainerId);
+  if (noticeEl) noticeEl.classList.add('hidden');
+  logAgent("EVENT TRIGGER", "Auto-advance paused for manual inspection.", "text-amber-400 font-bold");
 }
 
 // Cross-Portal Real-Time Ingestion Poller (Solution D)
@@ -764,19 +709,6 @@ function renderDeconstructionResults(result) {
     switchPathwayTab('solo');
   } else {
     switchPathwayTab('syndicates');
-  }
-
-  // Auto-Pilot Step Trigger: Auto-select recommended option
-  if (isAutoPilotActive) {
-    updateAutoPilotUI(true, "Selecting Top Syndicate in 1.2s");
-    autoPilotTimer = setTimeout(() => {
-      if (!isAutoPilotActive) return;
-      if (isSoloRec && result.solo_matches && result.solo_matches.length > 0) {
-        sponsorSoloCreator(result.solo_matches[0].creator.id);
-      } else if (result.syndicates && result.syndicates.length > 0) {
-        selectSyndicate(result.syndicates[0].id);
-      }
-    }, 1200);
   }
 
   container.scrollIntoView({ behavior: 'smooth' });
@@ -1132,14 +1064,6 @@ function renderStep2Proposal(proposal) {
       <span>Sponsor Action: Initialize PayPal Milestone Ledger &rarr;</span>
     </button>
   `;
-
-  if (isAutoPilotActive) {
-    updateAutoPilotUI(true, "Initializing Milestone Ledger in 1.2s");
-    autoPilotTimer = setTimeout(() => {
-      if (!isAutoPilotActive) return;
-      initializePayPalEscrow();
-    }, 1200);
-  }
 }
 
 // STEP 3: PAYPAL ORDERS V2 MILESTONE LEDGER CHECKOUT
@@ -1228,20 +1152,12 @@ function renderStep3PayPal(order) {
         </div>
       </div>
 
-      <button onclick="capturePayPalOrder()" id="btnCapturePayPal" class="w-full py-3.5 px-4 rounded-xl bg-[#0070ba] hover:bg-[#003087] text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all">
+      <button onclick="capturePayPalOrder()" id="btnCapturePayPal" class="w-full py-3.5 px-4 rounded-xl bg-[#0070ba] hover:bg-[#003087] text-white font-extrabold text-sm shadow-lg shadow-sky-500/20 flex items-center justify-center space-x-2 transition-all cursor-pointer">
         <i class="fa-brands fa-paypal text-lg"></i>
         <span>Authorize & Fund $${grossNum.toFixed(2)} USD in PayPal Milestone Ledger</span>
       </button>
     </div>
   `;
-
-  if (isAutoPilotActive) {
-    updateAutoPilotUI(true, "Securing Funds via PayPal in 1.2s");
-    autoPilotTimer = setTimeout(() => {
-      if (!isAutoPilotActive) return;
-      capturePayPalOrder();
-    }, 1200);
-  }
 }
 
 async function capturePayPalOrder() {
@@ -1357,14 +1273,6 @@ function renderVerificationStep() {
 
   // Automatically run OpenCV analysis on entry
   runOpenCVVisionAnalysis('PASS');
-
-  if (isAutoPilotActive) {
-    updateAutoPilotUI(true, "Verifying AI Vision & Proof in 1.4s");
-    autoPilotTimer = setTimeout(() => {
-      if (!isAutoPilotActive) return;
-      executeMultimodalVerification();
-    }, 1400);
-  }
 }
 
 async function runOpenCVVisionAnalysis(scenario = 'PASS') {
@@ -1643,17 +1551,12 @@ function renderProofCertificate(cert) {
     </div>
   `;
 
-  if (isAutoPilotActive) {
-    updateAutoPilotUI(true, "KRA eTIMS Fiscalizing & Disbursing in 1.4s");
-    autoPilotTimer = setTimeout(() => {
-      if (!isAutoPilotActive) return;
-      renderStep5Payout();
-      executeFinalDisbursementAndTax();
-    }, 1400);
-  } else {
+  if (cert.verification_decision === "PASSED") {
     triggerCascadingAutoAdvance(() => {
       renderStep5Payout();
-    }, "KRA eTIMS & Payout");
+    }, "KRA eTIMS & Payout", "autoAdvanceNotice");
+  } else {
+    cancelAutoAdvance("autoAdvanceNotice");
   }
 }
 
@@ -1662,6 +1565,8 @@ function renderProofCertificate(cert) {
 // =========================================================================
 
 function renderStep5Payout() {
+  if (window._countdownInterval) clearInterval(window._countdownInterval);
+  window._pendingAutoAdvanceFn = null;
   setStepActive(5);
   document.getElementById('card-step-5').classList.remove('hidden');
   document.getElementById('card-step-5').scrollIntoView({ behavior: 'smooth' });
@@ -1783,10 +1688,11 @@ function renderFinalTaxInvoice(result) {
         <div><span class="text-gray-400">PayPal Payout Item:</span> <span class="font-mono text-sky-400 font-bold">${result.paypal_payout_id}</span></div>
         <div><span class="text-gray-400">Destination Wallet:</span> <span class="font-mono text-emerald-400">${result.payout_recipient || document.getElementById('payoutRecipientEmail')?.value || 'Beneficiary Wallet'}</span></div>
       </div>
-      <button onclick="switchTab('impact')" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-rose-600 text-white font-bold text-xs shadow hover:opacity-90">
+      <button onclick="switchTab('impact')" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-rose-600 text-white font-bold text-xs shadow hover:opacity-90 cursor-pointer">
         View Barbah MetaTwin ESG Report &rarr;
       </button>
     </div>
+    <div id="autoAdvanceTaxNotice" class="hidden"></div>
   `;
 
   // Generate QR Code
@@ -1798,15 +1704,10 @@ function renderFinalTaxInvoice(result) {
     });
   }, 100);
 
-  if (isAutoPilotActive) {
-    updateAutoPilotUI(true, "Compiling Barbah MetaTwin ESG in 1.4s");
-    autoPilotTimer = setTimeout(() => {
-      switchTab('impact');
-      isAutoPilotActive = false;
-      updateAutoPilotUI(false, "COMPLETED");
-      logAgent("AUTO-PILOT", "Full Campaign Lifecycle Executed Autonomously! All 6 Agents Succeeded.", "text-emerald-400 font-black");
-    }, 1400);
-  }
+  triggerCascadingAutoAdvance(() => {
+    switchTab('impact');
+    logAgent("WORKFLOW COMPLETE", "Full Campaign Lifecycle Finalized. Viewing Barbah MetaTwin ESG Impact Ledger.", "text-emerald-400 font-bold");
+  }, "Barbah MetaTwin ESG Impact Dossier", "autoAdvanceTaxNotice");
 }
 
 function setStepActive(stepNum) {
