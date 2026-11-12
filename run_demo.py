@@ -24,11 +24,12 @@ def main():
     print("Postman Collection: postman/SponsorPlay_API_Collection.json")
     print("=" * 75)
     
+    reload_mode = bool(settings.DEBUG and settings.ENV == "development")
     uvicorn.run(
         "app.main:app",
         host=host,
         port=port,
-        reload=True
+        reload=reload_mode
     )
 
 if __name__ == "__main__":

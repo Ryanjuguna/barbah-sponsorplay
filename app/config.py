@@ -15,7 +15,7 @@ class Settings(BaseModel):
     APP_VERSION: str = "2.0.0-hackathon-final"
     ENV: str = os.getenv("ENV", "development")
     DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     
     # Financial Configuration
