@@ -54,3 +54,6 @@ Thumbs.db
 
 # Generated Computer Vision Proof Images
 app/static/proofs/*.jpg
+
+# Screen Recordings & Video Demos
+*.mp4

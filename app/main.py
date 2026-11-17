@@ -20,6 +20,15 @@ from app.api.scout_radar import router as radar_router
 from app.api.notifications import router as notifications_router
 from app.api.creator_portal import router as creator_router
 from app.api.auth import router as auth_router
+from app.api.cms import router as cms_router
+from app.integrations.wordpress_client import wp_client
+from app.models.database import db
+
+# Initial sync of WordPress Studio lounges and creators into talent registry
+try:
+    wp_client.sync_to_creator_registry(db)
+except Exception:
+    pass
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -48,6 +57,7 @@ app.include_router(radar_router)
 app.include_router(notifications_router)
 app.include_router(creator_router)
 app.include_router(auth_router)
+app.include_router(cms_router)
 
 # Mount Static Assets Directory
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
