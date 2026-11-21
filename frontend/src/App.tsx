@@ -12,6 +12,7 @@ import { BrandDashboard } from '@/pages/BrandDashboard';
 import { CreatorDashboard } from '@/pages/CreatorDashboard';
 import { CreatorDeliverables } from '@/pages/CreatorDeliverables';
 import { BrandBrief } from '@/pages/BrandBrief';
+import { CampaignDetail } from '@/pages/CampaignDetail';
 import { getSessionToken, getSessionRole } from '@/lib/api';
 
 type Route =
@@ -22,6 +23,7 @@ type Route =
   | 'brand-brief'
   | 'brand-campaigns'
   | 'brand-tax'
+  | 'brand-campaign-detail'
   | 'creator-offers'
   | 'creator-deliverables'
   | 'creator-certificates';
@@ -42,13 +44,22 @@ export function App() {
 
   const handleNavigate = (path: string) => {
     const pathname = path.split('?')[0];
+
+    // Handle dynamic campaign detail route: /brand/campaigns/:id
+    const campaignDetailMatch = pathname.match(/^\/brand\/campaigns\/(.+)$/);
+    if (campaignDetailMatch) {
+      setRoute('brand-campaign-detail');
+      window.history.pushState({}, '', path);
+      return;
+    }
+
     const map: Record<string, Route> = {
       '/': 'landing',
       '/login': 'login',
       '/brand': 'brand',
       '/creator': 'creator',
       '/brand/brief': 'brand-brief',
-      '/brand/campaigns': 'brand-campaigns',
+      '/brand/campaigns': 'brand',
       '/brand/tax': 'brand-tax',
       '/creator/offers': 'creator-offers',
       '/creator/deliverables': 'creator-deliverables',
@@ -75,7 +86,14 @@ export function App() {
 
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname;
+      const pathname = window.location.pathname;
+
+      // Handle dynamic campaign detail route
+      if (pathname.match(/^\/brand\/campaigns\/.+/)) {
+        setRoute('brand-campaign-detail');
+        return;
+      }
+
       const map: Record<string, Route> = {
         '/': 'landing',
         '/login': 'login',
@@ -84,7 +102,7 @@ export function App() {
         '/creator': 'creator',
         '/creator/deliverables': 'creator-deliverables',
       };
-      const r = map[path];
+      const r = map[pathname];
       if (r) setRoute(r);
     };
     window.addEventListener('popstate', handlePopState);
@@ -116,6 +134,15 @@ export function App() {
           {route === 'brand' && (
             <main className="min-h-[calc(100vh-4rem)]">
               <BrandDashboard onNavigate={handleNavigate} />
+            </main>
+          )}
+
+          {route === 'brand-campaign-detail' && (
+            <main className="min-h-[calc(100vh-4rem)]">
+              <CampaignDetail
+                onNavigate={handleNavigate}
+                campaignId={window.location.pathname.split('/').pop() || ''}
+              />
             </main>
           )}
 
