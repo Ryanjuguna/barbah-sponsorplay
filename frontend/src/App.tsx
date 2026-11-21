@@ -67,6 +67,12 @@ export function App() {
     window.history.pushState({}, '', userRole === 'brand' ? '/brand' : '/creator');
   };
 
+  const handleLogout = () => {
+    setRole(null);
+    setRoute('landing');
+    window.history.pushState({}, '', '/');
+  };
+
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
@@ -91,7 +97,7 @@ export function App() {
     <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       {!isAuthenticated && route === 'landing' ? (
         <>
-          <Navbar role={null} onRoleChange={handleLogin} onNavigate={handleNavigate} />
+          <Navbar role={null} onRoleChange={handleLogin} onNavigate={handleNavigate} onLogout={handleLogout} />
           <main>
             <Landing onNavigate={handleNavigate} />
           </main>
@@ -99,7 +105,7 @@ export function App() {
         </>
       ) : (
         <>
-          <Navbar role={role} onRoleChange={handleLogin} onNavigate={handleNavigate} />
+          <Navbar role={role} onRoleChange={handleLogin} onNavigate={handleNavigate} onLogout={handleLogout} />
 
           {route === 'login' && (
             <main className="min-h-[calc(100vh-4rem)]">

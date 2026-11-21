@@ -15,12 +15,14 @@ interface NavbarProps {
   role?: 'brand' | 'creator' | null;
   onRoleChange?: (role: 'brand' | 'creator') => void;
   onNavigate?: (path: string) => void;
+  onLogout?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   role,
   onRoleChange,
   onNavigate,
+  onLogout,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -31,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     document.cookie =
       'dhamini_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     setIsMobileMenuOpen(false);
-    onNavigate?.('/');
+    onLogout?.();
   };
 
   const handleLoginAs = (userRole: 'brand' | 'creator') => {
