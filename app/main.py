@@ -72,6 +72,20 @@ FRONTEND_ASSETS = os.path.join(FRONTEND_DIST, "assets")
 if os.path.exists(FRONTEND_ASSETS):
     app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS), name="assets")
 
+@app.get("/favicon.svg")
+def serve_favicon():
+    fav = os.path.join(FRONTEND_DIST, "favicon.svg")
+    if os.path.exists(fav):
+        return FileResponse(fav, media_type="image/svg+xml")
+    return Response(status_code=404)
+
+@app.get("/icons.svg")
+def serve_icons():
+    icons = os.path.join(FRONTEND_DIST, "icons.svg")
+    if os.path.exists(icons):
+        return FileResponse(icons, media_type="image/svg+xml")
+    return Response(status_code=404)
+
 def get_frontend_or_fallback(fallback_file: str):
     if os.path.exists(FRONTEND_INDEX):
         return FileResponse(FRONTEND_INDEX)
