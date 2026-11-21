@@ -41,7 +41,7 @@ export function App() {
   }, []);
 
   const handleNavigate = (path: string) => {
-    const pathname = new URL(path, window.location.origin).pathname;
+    const pathname = path.split('?')[0];
     const map: Record<string, Route> = {
       '/': 'landing',
       '/login': 'login',
