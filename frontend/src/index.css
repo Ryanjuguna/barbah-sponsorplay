@@ -1,0 +1,406 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@1..144,1..1000&display=swap');
+@import "tailwindcss";
+
+/* ============================================================================
+   DHAMINI DESIGN SYSTEM — Modern Savanna
+   Palette inspired by African earth: terracotta, deep savanna green, gold.
+   Competent, cohesive, not over-stimulating.
+   ============================================================================ */
+
+@layer base {
+  :root {
+    /* ---- Color Palette ---- */
+    --background: 0 0 6%;
+    --foreground: 210 40 96%;
+
+    --card: 0 0 12%;
+    --card-foreground: 210 40 96%;
+
+    --popover: 0 0 12%;
+    --popover-foreground: 210 40 96%;
+
+    /* Primary: Terracotta / Burnt Clay (#c2410c) */
+    --primary: 18 89 39%;
+    --primary-foreground: 210 40 98%;
+
+    /* Secondary: Deep Savanna Green (#14532d) */
+    --secondary: 150 47 18%;
+    --secondary-foreground: 210 40 96%;
+
+    /* Accent: African Gold / Amber (#d97706) */
+    --accent: 37 84 43%;
+    --accent-foreground: 210 40 98%;
+
+    --muted: 215 16 27%;
+    --muted-foreground: 215 14 65%;
+
+    --destructive: 0 62 30%;
+    --destructive-foreground: 210 40 98%;
+
+    --border: 215 16 30%;
+    --input: 215 16 27%;
+    --ring: 18 89 39%;
+
+    --radius: 0.75rem;
+
+    /* ---- Semantic colors ---- */
+    --brand-terracotta: #c2410c;
+    --brand-terracotta-glow: rgba(194, 65, 12, 0.25);
+    --brand-green: #14532d;
+    --brand-green-glow: rgba(20, 83, 45, 0.2);
+    --brand-gold: #d97706;
+    --brand-gold-glow: rgba(217, 119, 6, 0.25);
+    --brand-slate: #0f111a;
+    --brand-surface: #1f2937;
+    --brand-text: #f3f4f6;
+    --brand-text-muted: #94a3b8;
+    --brand-border: #374151;
+
+    /* ---- Typography ---- */
+    --font-sans: 'Google Sans Flex', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* ---- Motion ---- */
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ---- Shadows ---- */
+    --shadow-terracotta: 0 10px 25px -5px rgba(194, 65, 12, 0.15);
+    --shadow-green: 0 10px 25px -5px rgba(20, 83, 45, 0.12);
+    --shadow-gold: 0 10px 25px -5px rgba(217, 119, 6, 0.15);
+  }
+
+  .dark {
+    /* Same values — Dhamini is dark-first */
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+}
+
+@layer components {
+  /* ---- Glass card ---- */
+  .d-card {
+    position: relative;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    background-color: color-mix(in srgb, hsl(var(--card)) 90%, transparent);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+  }
+
+  .d-card:hover {
+    border-color: color-mix(in srgb, hsl(var(--primary)) 40%, transparent);
+    box-shadow: var(--shadow-terracotta);
+  }
+
+  /* ---- Primary button ---- */
+  .d-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-sm transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  .d-btn-primary:hover {
+    background-color: color-mix(in srgb, hsl(var(--primary)) 90%, transparent);
+    box-shadow: var(--shadow-terracotta);
+  }
+  .d-btn-primary:focus-visible {
+    ring-color: hsl(var(--ring));
+  }
+
+  /* ---- Secondary button ---- */
+  .d-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-sm transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    border: 1px solid hsl(var(--border));
+    background-color: color-mix(in srgb, hsl(var(--secondary)) 30%, transparent);
+    color: hsl(var(--secondary-foreground));
+  }
+  .d-btn-secondary:hover {
+    background-color: color-mix(in srgb, hsl(var(--secondary)) 50%, transparent);
+    border-color: color-mix(in srgb, hsl(var(--secondary)) 60%, transparent);
+  }
+  .d-btn-secondary:focus-visible {
+    ring-color: hsl(var(--ring));
+  }
+
+  /* ---- Ghost button ---- */
+  .d-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-sm transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    color: hsl(var(--muted-foreground));
+  }
+  .d-btn-ghost:hover {
+    background-color: hsl(var(--muted));
+  }
+  .d-btn-ghost:focus-visible {
+    ring-color: hsl(var(--ring));
+  }
+
+  /* ---- Gold accent button (CTA) ---- */
+  .d-btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold text-sm tracking-wide transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+  .d-btn-gold:hover {
+    background-color: color-mix(in srgb, hsl(var(--accent)) 90%, transparent);
+    box-shadow: var(--shadow-gold);
+  }
+  .d-btn-gold:focus-visible {
+    ring-color: hsl(var(--ring));
+  }
+
+  /* ---- Badge base ---- */
+  .d-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: colors 0.2s ease;
+  }
+
+  .d-badge-terracotta {
+    border-color: color-mix(in srgb, hsl(var(--primary)) 30%, transparent);
+    background-color: color-mix(in srgb, hsl(var(--primary)) 10%, transparent);
+    color: hsl(var(--primary));
+  }
+
+  .d-badge-green {
+    border-color: color-mix(in srgb, hsl(var(--secondary)) 30%, transparent);
+    background-color: color-mix(in srgb, hsl(var(--secondary)) 10%, transparent);
+    color: hsl(var(--secondary));
+  }
+
+  .d-badge-gold {
+    border-color: color-mix(in srgb, hsl(var(--accent)) 30%, transparent);
+    background-color: color-mix(in srgb, hsl(var(--accent)) 10%, transparent);
+    color: hsl(var(--accent));
+  }
+
+  .d-badge-slate {
+    border-color: hsl(var(--border));
+    background-color: color-mix(in srgb, hsl(var(--muted)) 50%, transparent);
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* ---- Input ---- */
+  .d-input {
+    display: flex;
+    height: 2.75rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+    transition: all 0.2s ease;
+  }
+  .d-input::placeholder {
+    color: color-mix(in srgb, hsl(var(--muted-foreground)) 60%, transparent);
+  }
+  .d-input:focus {
+    outline: none;
+    ring-color: hsl(var(--ring));
+    border-color: hsl(var(--ring));
+  }
+  .d-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ---- KPI Card ---- */
+  .d-kpi {
+    @apply p-5 overflow-hidden;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    background-color: color-mix(in srgb, hsl(var(--card)) 90%, transparent);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+  }
+  .d-kpi:hover {
+    border-color: color-mix(in srgb, hsl(var(--primary)) 40%, transparent);
+    box-shadow: var(--shadow-terracotta);
+  }
+
+  .d-kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .d-kpi-value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    color: hsl(var(--foreground));
+    margin-top: 0.25rem;
+  }
+
+  .d-kpi-trend {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  /* ---- Mouse-follow ambient glow ---- */
+  .ambient-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .glow-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(120px);
+    opacity: 0.3;
+    transition: opacity 1s ease-out;
+  }
+
+  /* ---- Section separator ---- */
+  .d-section {
+    position: relative;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    border-top-color: color-mix(in srgb, hsl(var(--border)) 50%, transparent);
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  @media (min-width: 1024px) {
+    .d-section {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+  }
+
+  .d-section-header {
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  .d-section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, hsl(var(--primary)) 20%, transparent);
+    background-color: color-mix(in srgb, hsl(var(--primary)) 10%, transparent);
+    color: hsl(var(--primary));
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .d-section-title {
+    font-size: 1.875rem;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    color: hsl(var(--foreground));
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+  }
+  @media (min-width: 1024px) {
+    .d-section-title {
+      font-size: 3rem;
+    }
+  }
+
+  .d-section-subtitle {
+    font-size: 1.125rem;
+    color: hsl(var(--muted-foreground));
+    max-width: 56rem;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.625;
+  }
+}
+
+@layer utilities {
+  /* Text gradient for headings */
+  .text-gradient-terracotta {
+    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)));
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-green {
+    background-image: linear-gradient(to right, hsl(var(--secondary)), #10b981);
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Glassmorphism utilities */
+  .glass {
+    background-color: color-mix(in srgb, hsl(var(--card)) 80%, transparent);
+    backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in srgb, hsl(var(--border)) 50%, transparent);
+  }
+
+  /* Reveal animation */
+  .reveal {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition: all 0.7s ease-out;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered children */
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  .stagger.visible > * {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.5s ease-out;
+  }
+
+  /* Scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+}
