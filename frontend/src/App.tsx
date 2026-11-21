@@ -41,6 +41,7 @@ export function App() {
   }, []);
 
   const handleNavigate = (path: string) => {
+    const pathname = new URL(path, window.location.origin).pathname;
     const map: Record<string, Route> = {
       '/': 'landing',
       '/login': 'login',
@@ -53,7 +54,7 @@ export function App() {
       '/creator/deliverables': 'creator-deliverables',
       '/creator/certificates': 'creator-certificates',
     };
-    const r = map[path];
+    const r = map[pathname];
     if (r) {
       setRoute(r);
       window.history.pushState({}, '', path);
