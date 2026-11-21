@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import {
   ArrowRight,
   ShieldCheck,
@@ -9,7 +9,6 @@ import {
   Play,
   Link,
   Users,
-  Gamepad2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import {
@@ -20,14 +19,12 @@ import {
   CardTitle,
 } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Footer } from '@/components/layout/Footer';
 
 interface LandingProps {
   onNavigate: (path: string) => void;
 }
 
 export const Landing = ({ onNavigate }: LandingProps) => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -35,11 +32,8 @@ export const Landing = ({ onNavigate }: LandingProps) => {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
@@ -162,74 +156,10 @@ export const Landing = ({ onNavigate }: LandingProps) => {
         ))}
       </div>
 
-      {/* Navbar (simple marketing version) */}
-      <nav className={`sticky top-0 z-40 w-full border-b border-[hsl(var(--border))]/50 bg-[hsl(var(--background))]/80 backdrop-blur-md transition-colors duration-300 ${
-        isScrolled ? 'shadow-sm' : ''
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => onNavigate('/')}
-            >
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[hsl(var(--primary))] to-[hsl(var(--accent))] flex items-center justify-center shadow-[var(--shadow-terracotta)]">
-                <Gamepad2 className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-[hsl(var(--accent))] bg-clip-text text-transparent">
-                DHAMINI
-              </span>
-            </div>
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[hsl(var(--muted-foreground))]">
-              <a
-                href="#how-it-works"
-                className="hover:text-[hsl(var(--foreground))] transition-colors"
-                onClick={() => onNavigate('#how-it-works')}
-              >
-                How It Works
-              </a>
-              <a
-                href="#for-brands"
-                className="hover:text-[hsl(var(--foreground))] transition-colors"
-                onClick={() => onNavigate('#for-brands')}
-              >
-                For Brands
-              </a>
-              <a
-                href="#for-creators"
-                className="hover:text-[hsl(var(--foreground))] transition-colors"
-                onClick={() => onNavigate('#for-creators')}
-              >
-                For Creators
-              </a>
-              <a
-                href="#compliance"
-                className="hover:text-[hsl(var(--foreground))] transition-colors"
-                onClick={() => onNavigate('#compliance')}
-              >
-                Compliance
-              </a>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={() => handleLoginAs('brand')}>
-                Brand Login
-              </Button>
-              <Button variant="gold" size="sm" onClick={() => handleLoginAs('creator')}>
-                Creator Login
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="relative px-4 pt-20 pb-32 sm:pt-24 sm:pb-36 lg:pt-40 lg:pb-48 overflow-hidden">
           <div className="max-w-7xl mx-auto text-center relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[hsl(var(--primary))]/10 border border-[hsl(var(--primary))]/20 text-[hsl(var(--primary))] text-[10px] font-semibold tracking-wider uppercase mb-6">
-              <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--primary))] animate-pulse" />
-              <span>Kenya • Nairobi Gaming Ecosystem</span>
-            </div>
-
             <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-[hsl(var(--foreground))] mb-6 leading-tight">
               Sponsor the next{' '}
               <span className="text-gradient-terracotta">
@@ -603,8 +533,6 @@ export const Landing = ({ onNavigate }: LandingProps) => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

@@ -64,23 +64,42 @@ STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# Mount React Frontend Build (Dhamini SPA)
+FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+FRONTEND_INDEX = os.path.join(FRONTEND_DIST, "index.html")
+FRONTEND_ASSETS = os.path.join(FRONTEND_DIST, "assets")
+
+if os.path.exists(FRONTEND_ASSETS):
+    app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS), name="assets")
+
+def get_frontend_or_fallback(fallback_file: str):
+    if os.path.exists(FRONTEND_INDEX):
+        return FileResponse(FRONTEND_INDEX)
+    f = os.path.join(STATIC_DIR, fallback_file)
+    if os.path.exists(f):
+        return FileResponse(f)
+    return None
+
 @app.get("/")
 @app.get("/login")
 def serve_login():
     """Serves the primary Authentication & Role Selection Gateway (first page entry point)."""
-    login_file = os.path.join(STATIC_DIR, "login.html")
-    if os.path.exists(login_file):
-        return FileResponse(login_file)
+    res = get_frontend_or_fallback("login.html")
+    if res:
+        return res
     return {"app": settings.APP_NAME, "page": "LOGIN_GATEWAY"}
 
 @app.get("/brand")
 @app.get("/dashboard")
 @app.get("/sponsor")
+@app.get("/brand/brief")
+@app.get("/brand/campaigns")
+@app.get("/brand/tax")
 def serve_brand_dashboard():
-    """Serves the interactive Corporate Brand / Sponsor single-page dashboard."""
-    index_file = os.path.join(STATIC_DIR, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
+    """Serves the interactive Corporate Brand / Sponsor dashboard."""
+    res = get_frontend_or_fallback("index.html")
+    if res:
+        return res
     return {
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
@@ -89,19 +108,31 @@ def serve_brand_dashboard():
     }
 
 @app.get("/creator")
+@app.get("/creator/offers")
+@app.get("/creator/deliverables")
+@app.get("/creator/certificates")
 def serve_creator():
     """Serves the interactive Beneficiary / Creator Portal."""
-    creator_file = os.path.join(STATIC_DIR, "creator.html")
-    if os.path.exists(creator_file):
-        return FileResponse(creator_file)
-    index_file = os.path.join(STATIC_DIR, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
+    res = get_frontend_or_fallback("creator.html")
+    if res:
+        return res
     return {
         "app": settings.APP_NAME,
         "role": "CREATOR_PORTAL",
         "status": "ONLINE"
     }
+
+@app.get("/prototype/brand")
+def serve_prototype_brand():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/prototype/creator")
+def serve_prototype_creator():
+    return FileResponse(os.path.join(STATIC_DIR, "creator.html"))
+
+@app.get("/prototype/login")
+def serve_prototype_login():
+    return FileResponse(os.path.join(STATIC_DIR, "login.html"))
 
 @app.get("/health")
 @app.get("/api/health")
