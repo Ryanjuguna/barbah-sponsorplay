@@ -111,13 +111,50 @@ export interface SyndicateMember {
 
 export interface SyndicateRecommendation {
   syndicate_id: string;
-  name: string;
-  description: string;
-  total_budget_usd: number;
-  members: SyndicateMember[];
+  campaign_id?: string;
+  title: string;
+  name?: string;
+  rationale: string;
+  description?: string;
+  total_cost_usd: number;
+  total_budget_usd?: number;
+  total_cost_kes?: number;
+  expected_reach: number;
+  creators: CreatorProfile[];
+  members?: SyndicateMember[];
+  synergy_score: number;
+  match_score?: number;
+  etims_compliance_mode: string;
+  audience_overlap?: number;
+  community_density?: number;
+}
+
+export interface SoloCreatorMatch {
+  creator: CreatorProfile;
   match_score: number;
-  audience_overlap: number;
-  community_density: number;
+  match_rationale: string;
+  recommended_deliverables: string[];
+  total_cost_usd: number;
+  total_cost_kes: number;
+}
+
+export interface AIStrategicAnalysis {
+  target_summary: string;
+  detected_intent: string;
+  recommended_path: 'SYNDICATE' | 'SOLO' | string;
+  recommendation_title: string;
+  verdict_rationale: string;
+  syndicate_score: number;
+  solo_score: number;
+  reach_comparison: Record<string, any>;
+}
+
+export interface BriefDeconstructionResult {
+  campaign_id: string;
+  brand_name: string;
+  ai_analysis: AIStrategicAnalysis;
+  syndicates: SyndicateRecommendation[];
+  solo_matches: SoloCreatorMatch[];
 }
 
 /* ---- Proposal / Milestone ---- */
@@ -126,7 +163,10 @@ export interface Milestone {
   milestone_number: number;
   title: string;
   description: string;
+  percentage?: number;
   amount_usd: number;
+  amount_kes?: number;
+  deliverables?: string[];
   status: 'DRAFT' | 'COMMITTED_IN_LEDGER' | 'PENDING_FUNDING' | 'IN_PROGRESS' | 'VERIFIED' | 'REQUIRES_REVISION' | 'FAILED' | 'DISBURSED' | 'PAID';
   verification_criteria?: Record<string, any>;
   deliverable_type?: string;
@@ -135,18 +175,56 @@ export interface Milestone {
 export interface Proposal {
   id: string;
   campaign_id: string;
+  brand_name?: string;
   campaign?: CampaignBrief;
   creator_id?: string;
   syndicate_id?: string;
   creators?: CreatorProfile[];
   status: string;
   total_budget_usd: number;
+  total_budget_kes?: number;
   platform_fee_usd: number;
+  platform_fee_kes?: number;
+  gross_beneficiary_usd?: number;
+  gross_beneficiary_kes?: number;
+  withholding_tax_usd?: number;
+  withholding_tax_kes?: number;
   net_creator_disbursement_usd: number;
+  net_creator_disbursement_kes?: number;
   milestones: Milestone[];
   beneficiary_emails?: string[];
-  created_at: string;
-  updated_at: string;
+  legal_clauses?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+/* ---- Disbursement Result ---- */
+export interface DisbursementResult {
+  status: string;
+  milestone_id: string;
+  creator_id: string;
+  gross_amount_kes: number;
+  withholding_tax_kes: number;
+  net_paid_kes: number;
+  net_paid_usd: number;
+  paypal_payout_id: string;
+  payout_recipient: string;
+  payout_mode: string;
+  etims_cu_invoice_number: string;
+  qr_code_url: string;
+  tax_invoice_mode: string;
+}
+
+/* ---- MetaTwin Impact Report ---- */
+export interface MetaTwinReport {
+  campaign_id: string;
+  proposal_id: string;
+  total_youth_reach: number;
+  collegiate_gamers_empowered: number;
+  informal_settlement_community_share: number;
+  female_gamer_inclusion_rate: number;
+  esg_assurance_hash: string;
+  generated_at?: string;
 }
 
 /* ---- Proof of Play Certificate ---- */

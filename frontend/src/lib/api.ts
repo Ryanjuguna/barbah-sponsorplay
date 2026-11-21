@@ -18,6 +18,10 @@ import type {
   DeliverableSubmissionRequest,
   MilestonePayoutResult,
   UserRole,
+  BriefDeconstructionResult,
+  ProofOfPlayCertificate,
+  DisbursementResult,
+  MetaTwinReport,
 } from '@/types/index';
 
 const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
@@ -137,8 +141,8 @@ export async function listSeedCampaigns(): Promise<CampaignBrief[]> {
   return request<CampaignBrief[]>('/api/v1/campaigns/seed');
 }
 
-export async function deconstructBrief(brief: CampaignBrief): Promise<any> {
-  return request<any>('/api/v1/campaigns/deconstruct', {
+export async function deconstructBrief(brief: CampaignBrief): Promise<BriefDeconstructionResult> {
+  return request<BriefDeconstructionResult>('/api/v1/campaigns/deconstruct', {
     method: 'POST',
     body: JSON.stringify(brief),
   });
@@ -168,6 +172,80 @@ export async function createProposal(payload: {
 
 export async function getProposal(proposalId: string): Promise<Proposal> {
   return request<Proposal>(`/api/v1/campaigns/proposal/${proposalId}`);
+}
+
+/* ---- Milestone Ledger & Payments ---- */
+
+export async function createMilestoneOrder(proposalId: string): Promise<any> {
+  return request<any>('/api/v1/payments/create-milestone-order', {
+    method: 'POST',
+    body: JSON.stringify({ proposal_id: proposalId }),
+  });
+}
+
+export async function capturePayPalOrder(orderId: string): Promise<any> {
+  return request<any>(`/api/v1/payments/capture-order/${orderId}`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
+export async function disburseMilestone(payload: {
+  proposal_id: string;
+  milestone_id: string;
+  certificate_id: string;
+  recipient_email?: string;
+}): Promise<DisbursementResult> {
+  return request<DisbursementResult>('/api/v1/payments/disburse-milestone', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+/* ---- Verification & Proof-of-Play ---- */
+
+export async function analyzeFrame(payload: {
+  brand_name?: string;
+  scenario?: string;
+  frame_path?: string;
+  image_base64?: string;
+}): Promise<any> {
+  return request<any>('/api/v1/verification/analyze-frame', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function auditVenue(payload: {
+  brand_name?: string;
+  scenario?: string;
+  image_base64?: string;
+  context_notes?: string;
+}): Promise<any> {
+  return request<any>('/api/v1/verification/audit-venue', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function submitVerificationDeliverable(payload: {
+  milestone_id: string;
+  creator_id: string;
+  deliverable_type: string;
+  media_url: string;
+  notes?: string;
+  simulated_metrics?: Record<string, any>;
+}): Promise<ProofOfPlayCertificate> {
+  return request<ProofOfPlayCertificate>('/api/v1/verification/submit-deliverable', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+/* ---- Impact & MetaTwin ---- */
+
+export async function getImpactDossier(proposalId: string): Promise<MetaTwinReport> {
+  return request<MetaTwinReport>(`/api/v1/impact/metatwin/${proposalId}`);
 }
 
 /* ---- Creator Portal ---- */
@@ -261,6 +339,13 @@ export const api = {
   submitBrief,
   createProposal,
   getProposal,
+  createMilestoneOrder,
+  capturePayPalOrder,
+  disburseMilestone,
+  analyzeFrame,
+  auditVenue,
+  submitVerificationDeliverable,
+  getImpactDossier,
   getCreatorProfile,
   updateCreatorProfile,
   getCreatorDashboard,

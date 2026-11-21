@@ -32,13 +32,39 @@ export function App() {
   const [route, setRoute] = useState<Route>('landing');
   const [role, setRole] = useState<'brand' | 'creator' | null>(null);
 
-  /* Restore session from cookie on mount */
+  /* Restore session from cookie or URL on mount */
   useEffect(() => {
     const token = getSessionToken();
     const savedRole = getSessionRole();
+    const currentPath = window.location.pathname;
+
     if (token && savedRole) {
       setRole(savedRole);
-      setRoute(savedRole === 'brand' ? 'brand' : 'creator');
+      if (currentPath === '/brand/brief') {
+        setRoute('brand-brief');
+      } else if (currentPath === '/creator/deliverables') {
+        setRoute('creator-deliverables');
+      } else if (currentPath.match(/^\/brand\/campaigns\/.+/)) {
+        setRoute('brand-campaign-detail');
+      } else {
+        setRoute(savedRole === 'brand' ? 'brand' : 'creator');
+      }
+    } else if (currentPath.startsWith('/brand')) {
+      setRole('brand');
+      if (currentPath === '/brand/brief') {
+        setRoute('brand-brief');
+      } else if (currentPath.match(/^\/brand\/campaigns\/.+/)) {
+        setRoute('brand-campaign-detail');
+      } else {
+        setRoute('brand');
+      }
+    } else if (currentPath.startsWith('/creator')) {
+      setRole('creator');
+      setRoute(currentPath === '/creator/deliverables' ? 'creator-deliverables' : 'creator');
+    } else if (currentPath === '/login') {
+      setRoute('login');
+    } else {
+      setRoute('landing');
     }
   }, []);
 
@@ -60,14 +86,19 @@ export function App() {
       '/creator': 'creator',
       '/brand/brief': 'brand-brief',
       '/brand/campaigns': 'brand',
-      '/brand/tax': 'brand-tax',
-      '/creator/offers': 'creator-offers',
+      '/brand/tax': 'brand',
+      '/creator/offers': 'creator',
       '/creator/deliverables': 'creator-deliverables',
-      '/creator/certificates': 'creator-certificates',
+      '/creator/certificates': 'creator',
     };
     const r = map[pathname];
     if (r) {
       setRoute(r);
+      if (pathname.startsWith('/brand') && !role) {
+        setRole('brand');
+      } else if (pathname.startsWith('/creator') && !role) {
+        setRole('creator');
+      }
       window.history.pushState({}, '', path);
     }
   };
@@ -86,7 +117,7 @@ export function App() {
 
   useEffect(() => {
     const handlePopState = () => {
-      const pathname = window.location.pathname;
+      const pathname = window.location.pathname.split('?')[0];
 
       // Handle dynamic campaign detail route
       if (pathname.match(/^\/brand\/campaigns\/.+/)) {
