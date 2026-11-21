@@ -121,8 +121,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </a>
                     ))
                 : [
-                    { label: 'For Brands', href: '#brands' },
-                    { label: 'For Creators', href: '#creators' },
+                    { label: 'For Brands', href: '#for-brands' },
+                    { label: 'For Creators', href: '#for-creators' },
                     { label: 'How It Works', href: '#how-it-works' },
                   ].map((link) => (
                     <a
@@ -131,6 +131,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="hover:text-[hsl(var(--foreground))] transition-colors"
                       onClick={(e) => {
                         e.preventDefault();
+                        // Hash links scroll to sections on the same page
+                        if (link.href.startsWith('#')) {
+                          const el = document.getElementById(link.href.slice(1));
+                          if (el) {
+                            el.scrollIntoView({ behavior: 'smooth' });
+                            return;
+                          }
+                        }
                         navigateTo(link.href);
                       }}
                     >
