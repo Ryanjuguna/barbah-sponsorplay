@@ -50,7 +50,7 @@ export const BrandDashboard = ({ onNavigate }: BrandDashboardProps) => {
       value: campaigns.length,
       trend: { label: 'vs last month', value: '+12%', positive: true },
       icon: <Briefcase className="h-5 w-5" />,
-      iconColor: 'text-blue-400',
+      iconColor: 'text-[hsl(var(--primary))]',
     },
     {
       title: 'Budget Committed',
@@ -77,7 +77,7 @@ export const BrandDashboard = ({ onNavigate }: BrandDashboardProps) => {
       value: creators.length,
       trend: { label: 'Active syndicates', value: '3', positive: true },
       icon: <Users className="h-5 w-5" />,
-      iconColor: 'text-purple-400',
+      iconColor: 'text-[hsl(var(--accent))]',
     },
   ];
 
@@ -210,7 +210,7 @@ export const BrandDashboard = ({ onNavigate }: BrandDashboardProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className={statusFilter === 'draft' ? 'bg-red-900/20 text-red-400' : ''}
+              className={statusFilter === 'draft' ? 'bg-red-500/20 text-red-400' : ''}
               onClick={() => setStatusFilter('draft')}
             >
               Draft

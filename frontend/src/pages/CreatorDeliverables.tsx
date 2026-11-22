@@ -240,7 +240,7 @@ export const CreatorDeliverables = ({ onNavigate }: CreatorDeliverablesProps) =>
                         <button
                           type="button"
                           onClick={removeImage}
-                          className="text-xs text-red-400 hover:text-red-300 underline"
+                          className="text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]/90 underline"
                         >
                           Remove
                         </button>
@@ -296,7 +296,7 @@ export const CreatorDeliverables = ({ onNavigate }: CreatorDeliverablesProps) =>
               <CardHeader>
                 <div className="flex items-center gap-2">
                   {submissionResult.decision === 'PASSED' ? (
-                    <ShieldCheck className="h-6 w-6 text-emerald-400" />
+                    <ShieldCheck className="h-6 w-6 text-[hsl(var(--primary))]" />
                   ) : (
                     <FileText className="h-6 w-6 text-amber-400" />
                   )}
@@ -408,22 +408,22 @@ export const CreatorDeliverables = ({ onNavigate }: CreatorDeliverablesProps) =>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           <InfoCard
             icon={Smartphone}
-            iconColor="text-blue-400"
-            bg="bg-blue-900/20"
+            iconColor="text-[hsl(var(--primary))]"
+            bg="bg-[hsl(var(--secondary))]/20"
             title="Paste Stream Link"
             desc="Twitch, YouTube, TikTok, or any public stream URL."
           />
           <InfoCard
             icon={Upload}
-            iconColor="text-purple-400"
-            bg="bg-purple-900/20"
+            iconColor="text-[hsl(var(--accent))]"
+            bg="bg-[hsl(var(--accent))]/20"
             title="Upload Screenshot"
             desc="JPG, PNG, or WEBP frame from your stream."
           />
           <InfoCard
             icon={Download}
-            iconColor="text-emerald-400"
-            bg="bg-emerald-900/20"
+            iconColor="text-[hsl(var(--primary))]"
+            bg="bg-[hsl(var(--primary))]/20"
             title="Get Paid"
             desc="Verified milestones trigger instant PayPal payout + M-Pesa."
           />

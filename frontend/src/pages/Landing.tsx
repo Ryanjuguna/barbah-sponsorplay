@@ -62,14 +62,14 @@ export const Landing = ({ onNavigate }: LandingProps) => {
       value: '10%',
       sub: 'PayPal milestone ledger escrow',
       icon: Zap,
-      color: 'text-blue-400',
+      color: 'text-[hsl(var(--secondary))]',
     },
     {
       label: 'AI Agents',
       value: '6',
       sub: 'Verification & matching swarm',
       icon: Bot,
-      color: 'text-purple-400',
+      color: 'text-[hsl(var(--accent))]',
     },
   ];
 
@@ -202,12 +202,12 @@ export const Landing = ({ onNavigate }: LandingProps) => {
               </div>
               <div className="w-px h-4 bg-[hsl(var(--border))]" />
               <div className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-blue-400" />
+                <DollarSign className="h-5 w-5 text-[hsl(var(--secondary))]" />
                 <span>PayPal Milestone Escrow</span>
               </div>
               <div className="w-px h-4 bg-[hsl(var(--border))]" />
               <div className="flex items-center gap-2">
-                <Bot className="h-5 w-5 text-purple-400" />
+                <Bot className="h-5 w-5 text-[hsl(var(--accent))]" />
                 <span>6 AI Verification Agents</span>
               </div>
             </div>
@@ -292,7 +292,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-emerald-900/20 text-emerald-400 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-lg bg-[hsl(var(--primary))]/20 text-[hsl(var(--primary))] flex items-center justify-center">
                       <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
@@ -303,7 +303,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-900/20 text-blue-400 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-lg bg-[hsl(var(--secondary))]/20 text-[hsl(var(--secondary))] flex items-center justify-center">
                       <DollarSign className="h-4 w-4" />
                     </div>
                     <div>
@@ -314,7 +314,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-purple-900/20 text-purple-400 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-lg bg-[hsl(var(--accent))]/20 text-[hsl(var(--accent))] flex items-center justify-center">
                       <Users className="h-4 w-4" />
                     </div>
                     <div>
@@ -418,7 +418,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-emerald-900/20 text-emerald-400 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-lg bg-[hsl(var(--primary))]/20 text-[hsl(var(--primary))] flex items-center justify-center">
                       <Trophy className="h-4 w-4" />
                     </div>
                     <div>
@@ -429,7 +429,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-900/20 text-blue-400 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-lg bg-[hsl(var(--secondary))]/20 text-[hsl(var(--secondary))] flex items-center justify-center">
                       <Link className="h-4 w-4" />
                     </div>
                     <div>
@@ -460,7 +460,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
               <div className="hidden sm:block">
                 <div className="flex items-center gap-4 text-sm text-[hsl(var(--muted-foreground))]">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-blue-400" />
+                    <DollarSign className="h-4 w-4 text-[hsl(var(--secondary))]" />
                     <span>International Payments</span>
                   </div>
                   <div className="w-px h-5 bg-[hsl(var(--border))]" />

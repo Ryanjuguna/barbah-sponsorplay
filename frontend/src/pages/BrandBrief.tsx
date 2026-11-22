@@ -363,7 +363,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                         isActive
                           ? 'bg-[hsl(var(--primary))] text-white shadow-md'
                           : isPassed
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                          ? 'bg-[hsl(var(--secondary))]/20 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/40'
                           : 'bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))] border border-[hsl(var(--border))]'
                       }`}
                     >
@@ -518,11 +518,11 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 flex items-start gap-3">
-                  <ShieldCheck className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                <div className="p-4 rounded-xl bg-[hsl(var(--secondary))]/10 border border-[hsl(var(--secondary))]/20 text-xs text-[hsl(var(--secondary))] flex items-start gap-3">
+                  <ShieldCheck className="h-5 w-5 text-[hsl(var(--secondary))] shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-sm text-blue-200">Solution B: Intentional Checkpoint Guarantee</p>
-                    <p className="text-blue-300/90 mt-0.5">
+                    <p className="font-bold text-sm text-[hsl(var(--secondary))]">Solution B: Intentional Checkpoint Guarantee</p>
+                    <p className="text-[hsl(var(--secondary))]/90 mt-0.5">
                       The workflow will pause for your review at Stage 2 (Syndicate vs. Solo Selection) and Stage 5 (AI Proof-of-Play Verification Trigger). Funds remain locked in the PayPal programmatic milestone ledger until deliverables pass multimodal audit.
                     </p>
                   </div>
@@ -725,7 +725,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                             {c.name} (@{c.gamer_tag})
                           </h3>
                           <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">{solo.match_rationale}</p>
-                          <p className="text-xs text-blue-400 mt-1">
+                          <p className="text-xs text-[hsl(var(--secondary))] mt-1">
                             Deliverables: {solo.recommended_deliverables?.join(' &bull; ')}
                           </p>
                         </div>
@@ -781,7 +781,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                    <div className="p-2 rounded-xl bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))]">
                       <FileText className="h-5 w-5" />
                     </div>
                     <div>
@@ -815,15 +815,15 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Facilitation & Escrow</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))]">
-                    <p className="text-[10px] uppercase font-bold text-blue-400">5% Withholding Tax</p>
-                    <p className="text-lg font-black text-blue-400 font-mono">
+                    <p className="text-[10px] uppercase font-bold text-[hsl(var(--secondary))]">5% Withholding Tax</p>
+                    <p className="text-lg font-black text-[hsl(var(--secondary))] font-mono">
                       {formatUSD(proposal.withholding_tax_usd || proposal.total_budget_usd * 0.9 * 0.05)}
                     </p>
                     <p className="text-[10px] text-[hsl(var(--muted-foreground))]">KRA Section 16 Remitted</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))]">
-                    <p className="text-[10px] uppercase font-bold text-emerald-400">Net Creator Payout</p>
-                    <p className="text-lg font-black text-emerald-400 font-mono">
+                    <p className="text-[10px] uppercase font-bold text-[hsl(var(--primary))]">Net Creator Payout</p>
+                    <p className="text-lg font-black text-[hsl(var(--primary))] font-mono">
                       {formatUSD(proposal.net_creator_disbursement_usd)}
                     </p>
                     <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Disbursed upon verification</p>
@@ -861,7 +861,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-200 flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-[hsl(var(--accent))]/10 border border-[hsl(var(--accent))]/20 text-xs text-[hsl(var(--accent))] flex items-center justify-between">
                   <span>Automated Beneficiary Notification Dispatched to: creator@sponsorplay.ke</span>
                   <Badge variant="green">Email Dispatch ID Logged</Badge>
                 </div>
@@ -896,7 +896,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
+                    <div className="p-2 rounded-xl bg-[hsl(var(--secondary))]/10 text-[hsl(var(--secondary))]">
                       <DollarSign className="h-5 w-5" />
                     </div>
                     <div>
@@ -916,7 +916,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                 <div className="p-4 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] space-y-3 font-mono text-xs">
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">PayPal Order ID:</span>
-                    <span className="text-blue-400 font-bold">{paypalOrder.order_id}</span>
+                    <span className="text-[hsl(var(--secondary))] font-bold">{paypalOrder.order_id}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Ledger Gross Amount:</span>
@@ -928,7 +928,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[hsl(var(--muted-foreground))]">Disbursement Mode:</span>
-                    <span className="text-emerald-400">DELAYED_UNTIL_VERIFIED</span>
+                    <span className="text-[hsl(var(--primary))]">DELAYED_UNTIL_VERIFIED</span>
                   </div>
                 </div>
 
@@ -940,7 +940,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     <Button
                       variant="primary"
                       size="lg"
-                      className="w-full font-bold cursor-pointer bg-blue-600 hover:bg-blue-500"
+                      className="w-full font-bold cursor-pointer bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--secondary))]"
                       isLoading={isLoading}
                       disabled={isLoading}
                       onClick={handleCaptureFunds}
@@ -950,15 +950,15 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-[hsl(var(--primary))]/10 border border-[hsl(var(--primary))]/30 text-[hsl(var(--primary))] text-xs flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-[hsl(var(--primary))] shrink-0" />
                       <span>Funds successfully locked in milestone ledger. Ready for creator execution & verification.</span>
                     </div>
                     <Button
                       variant="primary"
                       size="sm"
-                      className="font-bold cursor-pointer bg-emerald-600 hover:bg-emerald-500"
+                      className="font-bold cursor-pointer bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]"
                       onClick={() => setStep('verification')}
                     >
                       Proceed to Proof-of-Play (AI Vision) &rarr;
@@ -979,7 +979,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                    <div className="p-2 rounded-xl bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))]">
                       <Eye className="h-5 w-5" />
                     </div>
                     <div>
@@ -1083,18 +1083,18 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                         <span className="text-base font-bold text-[hsl(var(--primary))]">
                           {proofCertificate.logo_screen_ratio_percent || 4.12}%
                         </span>
-                        <span className="text-[10px] text-emerald-400 block">&ge; 3.5% Required Threshold</span>
+                        <span className="text-[10px] text-[hsl(var(--primary))] block">&ge; 3.5% Required Threshold</span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-[hsl(var(--background))]/50 border border-[hsl(var(--border))]">
                         <span className="text-[hsl(var(--muted-foreground))] block text-[10px]">Whisper Audio STT</span>
-                        <span className="text-base font-bold text-blue-400">
+                        <span className="text-base font-bold text-[hsl(var(--secondary))]">
                           {proofCertificate.verbal_slogans_detected?.length || 2} Slogans
                         </span>
                         <span className="text-[10px] text-[hsl(var(--muted-foreground))] block">Audible Verbal Plugs</span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-[hsl(var(--background))]/50 border border-[hsl(var(--border))]">
                         <span className="text-[hsl(var(--muted-foreground))] block text-[10px]">Brand Safety</span>
-                        <span className="text-base font-bold text-emerald-400">
+                        <span className="text-base font-bold text-[hsl(var(--primary))]">
                           {proofCertificate.brand_safety_status || 'SAFE'}
                         </span>
                         <span className="text-[10px] text-[hsl(var(--muted-foreground))] block">Zero Competitor Collisions</span>
@@ -1112,7 +1112,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                       <Button
                         variant="primary"
                         size="md"
-                        className="font-bold cursor-pointer bg-emerald-600 hover:bg-emerald-500"
+                        className="font-bold cursor-pointer bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]"
                         onClick={handleExecuteDisbursement}
                       >
                         Proceed to KRA eTIMS Fiscal Invoicing & PayPal Payout &rarr;
@@ -1130,11 +1130,11 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
         {/* ========================================================================= */}
         {step === 'payout' && disbursementResult && (
           <div className="space-y-6">
-            <Card padding="lg" className="border-emerald-500/30 shadow-lg">
+            <Card padding="lg" className="border-[hsl(var(--primary))]/30 shadow-lg">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                    <div className="p-2 rounded-xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
                       <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
@@ -1168,11 +1168,11 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[hsl(var(--muted-foreground))]">5% Withholding Tax Remitted:</span>
-                      <span className="text-blue-400 font-bold">{formatKES(disbursementResult.withholding_tax_kes)}</span>
+                      <span className="text-[hsl(var(--secondary))] font-bold">{formatKES(disbursementResult.withholding_tax_kes)}</span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-[hsl(var(--border))]">
                       <span className="font-bold text-[hsl(var(--foreground))]">Net Paid to Creator:</span>
-                      <span className="text-emerald-400 font-black">
+                      <span className="text-[hsl(var(--primary))] font-black">
                         {formatKES(disbursementResult.net_paid_kes)} ({formatUSD(disbursementResult.net_paid_usd)})
                       </span>
                     </div>
@@ -1198,7 +1198,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[hsl(var(--muted-foreground))]">Payout Item ID:</span>
-                      <span className="text-blue-400">{disbursementResult.paypal_payout_id}</span>
+                      <span className="text-[hsl(var(--secondary))]">{disbursementResult.paypal_payout_id}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[hsl(var(--muted-foreground))]">Beneficiary Email:</span>
@@ -1206,9 +1206,9 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[hsl(var(--muted-foreground))]">Local M-Pesa Off-Ramp:</span>
-                      <span className="text-emerald-400">Available Instantly</span>
+                      <span className="text-[hsl(var(--primary))]">Available Instantly</span>
                     </div>
-                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300">
+                    <div className="p-3 rounded-lg bg-[hsl(var(--primary))]/10 border border-[hsl(var(--primary))]/20 text-[11px] text-[hsl(var(--primary))]">
                       Corporate tax deduction guaranteed under Section 16 of the Kenya Income Tax Act with zero disallowed penalties.
                     </div>
                   </div>
@@ -1240,11 +1240,11 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
         {/* ========================================================================= */}
         {step === 'impact' && impactDossier && (
           <div className="space-y-6">
-            <Card padding="lg" className="border-purple-500/30 shadow-lg">
+            <Card padding="lg" className="border-[hsl(var(--accent))]/30 shadow-lg">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                    <div className="p-2 rounded-xl bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))]">
                       <Sparkles className="h-5 w-5" />
                     </div>
                     <div>
@@ -1265,28 +1265,28 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     <p className="text-2xl font-black text-[hsl(var(--primary))] font-mono">
                       {(impactDossier.total_youth_reach || 38000).toLocaleString()}
                     </p>
-                    <p className="text-[10px] text-emerald-400">Verified Competitors</p>
+                    <p className="text-[10px] text-[hsl(var(--primary))]">Verified Competitors</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-center">
                     <p className="text-[10px] uppercase font-bold text-[hsl(var(--muted-foreground))]">Collegiate Gamers</p>
-                    <p className="text-2xl font-black text-blue-400 font-mono">
+                    <p className="text-2xl font-black text-[hsl(var(--secondary))] font-mono">
                       {impactDossier.collegiate_gamers_empowered || 450}
                     </p>
-                    <p className="text-[10px] text-blue-400">Varsity Competitors</p>
+                    <p className="text-[10px] text-[hsl(var(--secondary))]">Varsity Competitors</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-center">
                     <p className="text-[10px] uppercase font-bold text-[hsl(var(--muted-foreground))]">Informal Settlement Share</p>
-                    <p className="text-2xl font-black text-purple-400 font-mono">
+                    <p className="text-2xl font-black text-[hsl(var(--accent))] font-mono">
                       {Math.round(impactDossier.informal_settlement_community_share || 66.7)}%
                     </p>
-                    <p className="text-[10px] text-purple-400">Kibera, Kayole, Eastlands</p>
+                    <p className="text-[10px] text-[hsl(var(--accent))]">Kibera, Kayole, Eastlands</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-center">
                     <p className="text-[10px] uppercase font-bold text-[hsl(var(--muted-foreground))]">ESG Assurance Hash</p>
                     <p className="text-xs font-mono text-[hsl(var(--foreground))] truncate pt-2">
                       {impactDossier.esg_assurance_hash?.slice(0, 16)}...
                     </p>
-                    <p className="text-[10px] text-emerald-400">Cryptographically Sealed</p>
+                    <p className="text-[10px] text-[hsl(var(--primary))]">Cryptographically Sealed</p>
                   </div>
                 </div>
 

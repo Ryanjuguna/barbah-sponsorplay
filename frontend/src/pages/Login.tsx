@@ -240,10 +240,10 @@ export const Login = ({ onNavigate }: LoginProps) => {
                     <Button
                       key={creator.id}
                       variant="ghost"
-                      className="w-full text-left justify-start border border-[hsl(var(--border))] hover:bg-emerald-900/20"
+                      className="w-full text-left justify-start border border-[hsl(var(--border))] hover:bg-[hsl(var(--primary))]/20"
                       onClick={() => handleDemoLogin(creator)}
                     >
-                      <Gamepad2 className="h-4 w-4 mr-3 text-emerald-400" />
+                      <Gamepad2 className="h-4 w-4 mr-3 text-[hsl(var(--primary))]" />
                       <div className="flex-1">
                         <span className="font-medium text-[hsl(var(--foreground))]">
                           {creator.name} (@{creator.gamer_tag})
@@ -252,7 +252,7 @@ export const Login = ({ onNavigate }: LoginProps) => {
                           {creator.type} • {creator.location}
                         </span>
                       </div>
-                      <span className="text-xs text-emerald-400">
+                      <span className="text-xs text-[hsl(var(--primary))]">
                         ${creator.base_rate_usd}
                       </span>
                     </Button>

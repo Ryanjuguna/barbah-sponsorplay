@@ -113,28 +113,28 @@ export const CreatorDashboard = ({ onNavigate }: CreatorDashboardProps) => {
       value: formatUSD(dashboard!.total_earned_usd),
       trend: { label: 'KES equivalent', value: formatKES(dashboard!.total_earned_kes), positive: true },
       icon: <DollarSign className="h-5 w-5" />,
-      iconColor: 'text-emerald-400',
+      iconColor: 'text-[hsl(var(--primary))]',
     },
     {
       title: 'Escrow Balance',
       value: formatUSD(dashboard!.ledger_escrow_usd),
       trend: { label: 'Locked in PayPal ledger', value: 'Secure', positive: true },
       icon: <ShieldCheck className="h-5 w-5" />,
-      iconColor: 'text-blue-400',
+      iconColor: 'text-[hsl(var(--primary))]',
     },
     {
       title: 'Pending Offers',
       value: dashboard!.pending_offers.length,
       trend: { label: 'Awaiting your review', value: '', positive: true },
       icon: <Briefcase className="h-5 w-5" />,
-      iconColor: 'text-amber-400',
+      iconColor: 'text-[hsl(var(--accent))]',
     },
     {
       title: 'Active Deals',
       value: dashboard!.active_deals.length,
       trend: { label: 'Milestones in progress', value: '', positive: true },
       icon: <Trophy className="h-5 w-5" />,
-      iconColor: 'text-purple-400',
+      iconColor: 'text-[hsl(var(--accent))]',
     },
   ];
 
@@ -153,7 +153,7 @@ export const CreatorDashboard = ({ onNavigate }: CreatorDashboardProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 py-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-[hsl(var(--primary))] to-[hsl(var(--accent))] flex items-center justify-center">
                 <span className="text-white font-bold">{c.avatar_text || 'C'}</span>
               </div>
               <div>
@@ -208,15 +208,15 @@ export const CreatorDashboard = ({ onNavigate }: CreatorDashboardProps) => {
                   key={badge.id}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold ${
                     badge.color === 'emerald'
-                      ? 'border-emerald-500/20 bg-emerald-900/10 text-emerald-400'
+                      ? 'border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]'
                       : badge.color === 'sky'
-                      ? 'border-sky-500/20 bg-sky-900/10 text-sky-400'
+                      ? 'border-[hsl(var(--secondary))]/20 bg-[hsl(var(--secondary))]/10 text-[hsl(var(--secondary))]'
                       : badge.color === 'blue'
-                      ? 'border-blue-500/20 bg-blue-900/10 text-blue-400'
+                      ? 'border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))]'
                       : badge.color === 'purple'
-                      ? 'border-purple-500/20 bg-purple-900/10 text-purple-400'
+                      ? 'border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))]'
                       : badge.color === 'amber'
-                      ? 'border-amber-500/20 bg-amber-900/10 text-amber-400'
+                      ? 'border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))]'
                       : 'border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 text-[hsl(var(--muted-foreground))]'
                   }`}
                 >

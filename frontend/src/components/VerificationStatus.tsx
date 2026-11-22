@@ -21,9 +21,9 @@ interface VerificationStatusProps {
 }
 
 const statusColors: Record<VerifyStatus, string> = {
-  IN_PROGRESS: 'bg-amber-900/30 text-amber-300 border-amber-500/40 animate-pulse',
-  VERIFIED: 'bg-emerald-900/30 text-emerald-300 border-emerald-500/40',
-  REQUIRES_REVISION: 'bg-amber-900/30 text-amber-300 border-amber-500/40',
+  IN_PROGRESS: 'bg-[hsl(var(--primary))]/30 text-[hsl(var(--primary))] border-[hsl(var(--primary))]/40 animate-pulse',
+  VERIFIED: 'bg-[hsl(var(--secondary))]/30 text-[hsl(var(--secondary))] border-[hsl(var(--secondary))]/40',
+  REQUIRES_REVISION: 'bg-[hsl(var(--accent))]/30 text-[hsl(var(--accent))] border-[hsl(var(--accent))]/40',
   FAILED: 'bg-red-900/30 text-red-300 border-red-500/40',
 };
 
@@ -35,9 +35,9 @@ const statusLabels: Record<VerifyStatus, string> = {
 };
 
 const statusIcons: Record<VerifyStatus, React.ReactNode> = {
-  IN_PROGRESS: <Loader2 className="h-5 w-5 animate-spin text-amber-400" />,
-  VERIFIED: <CheckCircle2 className="h-5 w-5 text-emerald-400" />,
-  REQUIRES_REVISION: <AlertCircle className="h-5 w-5 text-amber-400" />,
+  IN_PROGRESS: <Loader2 className="h-5 w-5 animate-spin text-[hsl(var(--primary))]" />,
+  VERIFIED: <CheckCircle2 className="h-5 w-5 text-[hsl(var(--secondary))]" />,
+  REQUIRES_REVISION: <AlertCircle className="h-5 w-5 text-[hsl(var(--accent))]" />,
   FAILED: <AlertCircle className="h-5 w-5 text-red-400" />,
 };
 
@@ -249,15 +249,15 @@ export function VerificationStatus({
 
         {/* Simulation Controls */}
         {isSimulating && status !== 'VERIFIED' && status !== 'FAILED' && (
-          <div className="flex items-center justify-between p-3 rounded-xl border border-amber-500/30 bg-amber-900/10">
-            <span className="text-xs text-amber-400 font-semibold flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 rounded-xl border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10">
+            <span className="text-xs text-[hsl(var(--accent))] font-semibold flex items-center gap-2">
               <Monitor className="h-3 w-3" /> Simulating real-time verification…
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleManualVerify}
-              className="text-xs text-amber-400 hover:bg-amber-900/30"
+              className="text-xs text-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/30"
             >
               Restart Simulation
             </Button>
@@ -293,8 +293,8 @@ function MetricCard({
   return (
     <div className="p-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
       <div className="flex items-center justify-between mb-1">
-        <Icon className={`h-4 w-4 ${passing ? 'text-emerald-400' : 'text-[hsl(var(--muted-foreground))]'}`} />
-        <span className={`text-[10px] font-semibold ${passing ? 'text-emerald-400' : 'text-[hsl(var(--muted-foreground))]'}`}>
+        <Icon className={`h-4 w-4 ${passing ? 'text-[hsl(var(--secondary))]' : 'text-[hsl(var(--muted-foreground))]'}`} />
+        <span className={`text-[10px] font-semibold ${passing ? 'text-[hsl(var(--secondary))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
           {passing ? 'PASS' : 'PENDING'}
         </span>
       </div>
