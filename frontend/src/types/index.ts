@@ -3,7 +3,7 @@
    Aligned with FastAPI backend schemas (app/models/schemas.py)
    ============================================================================ */
 
-export type UserRole = 'brand' | 'creator';
+export type UserRole = 'brand' | 'creator' | 'ops';
 
 export interface SimulationAccount {
   id: string;
@@ -43,10 +43,10 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  status: string;
+  status?: string;
   token: string;
   role: UserRole;
-  user: SimulationAccount;
+  user?: SimulationAccount;
   redirect_url: string;
 }
 

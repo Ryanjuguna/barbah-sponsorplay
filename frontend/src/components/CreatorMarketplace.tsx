@@ -128,7 +128,7 @@ export const CreatorMarketplace: React.FC<CreatorMarketplaceProps> = ({
               {/* Region 4: Footer with Isolated Interactive Controls */}
               <footer className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-3">
                 <div className="text-xs">
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Milestone Escrow</span>
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Milestone Funding</span>
                   <span className="text-emerald-400 font-bold">PayPal Eligible</span>
                 </div>
 

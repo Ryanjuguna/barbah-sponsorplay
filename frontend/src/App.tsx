@@ -1,222 +1,194 @@
 /* ============================================================================
-   DHAMINI — App Shell
-   Client-side routing with role-based dashboards
+   DHAMINI — App shell
+
+   Two route families live here:
+
+   1. The product workflow (this is the real application):
+      /brand, /brand/campaigns/:id, /brand/proposals/:id/edit|preview,
+      /ops, /creator, /offer/:token
+
+   2. The legacy prototype pages, kept reachable so nothing is lost while the
+      visual layer is rebuilt around the workflow.
    ============================================================================ */
 
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Landing } from '@/pages/Landing';
 import { Login } from '@/pages/Login';
-import { BrandDashboard } from '@/pages/BrandDashboard';
-import { CreatorDashboard } from '@/pages/CreatorDashboard';
-import { CreatorDeliverables } from '@/pages/CreatorDeliverables';
 import { BrandBrief } from '@/pages/BrandBrief';
-import { CampaignDetail } from '@/pages/CampaignDetail';
-import { getSessionToken, getSessionRole } from '@/lib/api';
+import { CreatorDeliverables } from '@/pages/CreatorDeliverables';
+import { getSessionRole } from '@/lib/api';
+import { logout as workflowLogout } from '@/lib/workflow';
 
-type Route =
-  | 'landing'
-  | 'login'
-  | 'brand'
-  | 'creator'
-  | 'brand-brief'
-  | 'brand-campaigns'
-  | 'brand-tax'
-  | 'brand-campaign-detail'
-  | 'creator-offers'
-  | 'creator-deliverables'
-  | 'creator-certificates';
+import { BrandCampaigns } from '@/pages/workflow/BrandCampaigns';
+import { CampaignWorkspace } from '@/pages/workflow/CampaignWorkspace';
+import { ProposalEditor } from '@/pages/workflow/ProposalEditor';
+import { SendGate } from '@/pages/workflow/SendGate';
+import { OfferPage } from '@/pages/workflow/OfferPage';
+import { OpsQueue } from '@/pages/workflow/OpsQueue';
+import { CreatorHome, CreatorCampaignPage, CreatorMilestonePage } from '@/pages/workflow/CreatorWorkspace';
 
-export function App() {
-  const [route, setRoute] = useState<Route>('landing');
-  const [role, setRole] = useState<'brand' | 'creator' | null>(null);
+type AppRole = 'brand' | 'creator' | 'ops' | null;
 
-  /* Restore session from cookie or URL on mount */
+const PUBLIC_PATHS = ['/', '/login'];
+
+function Guard({ allow, role, children }: { allow: 'brand' | 'creator' | 'ops'; role: AppRole; children: React.ReactNode }) {
+  if (role === allow) return <>{children}</>;
+  if (!role) {
+    const loginRole = allow === 'ops' ? 'brand' : allow;
+    return <Navigate to={`/login?role=${loginRole}`} replace />;
+  }
+  const home = role === 'ops' ? '/ops' : role === 'brand' ? '/brand' : '/creator';
+  return <Navigate to={home} replace />;
+}
+
+function NotFound() {
+  return (
+    <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 text-center">
+      <h1 className="text-3xl font-black">Page not found</h1>
+      <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+        The link may have expired, or the page has moved.
+      </p>
+      <a href="/" className="mt-6 text-sm font-semibold underline">
+        Back to SponsorPlay
+      </a>
+    </main>
+  );
+}
+
+function Shell() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [role, setRole] = useState<AppRole>(() => getSessionRole() as AppRole);
+
   useEffect(() => {
-    const token = getSessionToken();
-    const savedRole = getSessionRole();
-    const currentPath = window.location.pathname;
+    setRole(getSessionRole() as AppRole);
+  }, [location.pathname]);
 
-    if (token && savedRole) {
-      setRole(savedRole);
-      if (currentPath === '/brand/brief') {
-        setRoute('brand-brief');
-      } else if (currentPath === '/creator/deliverables') {
-        setRoute('creator-deliverables');
-      } else if (currentPath.match(/^\/brand\/campaigns\/.+/)) {
-        setRoute('brand-campaign-detail');
-      } else {
-        setRoute(savedRole === 'brand' ? 'brand' : 'creator');
-      }
-    } else if (currentPath.startsWith('/brand')) {
-      setRole('brand');
-      if (currentPath === '/brand/brief') {
-        setRoute('brand-brief');
-      } else if (currentPath.match(/^\/brand\/campaigns\/.+/)) {
-        setRoute('brand-campaign-detail');
-      } else {
-        setRoute('brand');
-      }
-    } else if (currentPath.startsWith('/creator')) {
-      setRole('creator');
-      setRoute(currentPath === '/creator/deliverables' ? 'creator-deliverables' : 'creator');
-    } else if (currentPath === '/login') {
-      setRoute('login');
-    } else {
-      setRoute('landing');
-    }
-  }, []);
-
-  const handleNavigate = (path: string) => {
-    const pathname = path.split('?')[0];
-
-    // Handle dynamic campaign detail route: /brand/campaigns/:id
-    const campaignDetailMatch = pathname.match(/^\/brand\/campaigns\/(.+)$/);
-    if (campaignDetailMatch) {
-      setRoute('brand-campaign-detail');
-      window.history.pushState({}, '', path);
-      return;
-    }
-
-    const map: Record<string, Route> = {
-      '/': 'landing',
-      '/login': 'login',
-      '/brand': 'brand',
-      '/creator': 'creator',
-      '/brand/brief': 'brand-brief',
-      '/brand/campaigns': 'brand',
-      '/brand/tax': 'brand',
-      '/creator/offers': 'creator',
-      '/creator/deliverables': 'creator-deliverables',
-      '/creator/certificates': 'creator',
-    };
-    const r = map[pathname];
-    if (r) {
-      setRoute(r);
-      if (pathname.startsWith('/brand') && !role) {
-        setRole('brand');
-      } else if (pathname.startsWith('/creator') && !role) {
-        setRole('creator');
-      }
-      window.history.pushState({}, '', path);
-    }
+  const onNavigate = (path: string) => {
+    const url = path.startsWith('?') ? `${location.pathname}${path}` : path;
+    navigate(url);
   };
 
-  const handleLogin = (userRole: 'brand' | 'creator') => {
-    setRole(userRole);
-    setRoute(userRole === 'brand' ? 'brand' : 'creator');
-    window.history.pushState({}, '', userRole === 'brand' ? '/brand' : '/creator');
+  const onRoleChange = (next: 'brand' | 'creator') => {
+    setRole(next);
   };
 
-  const handleLogout = () => {
+  const onLogout = () => {
+    workflowLogout();
     setRole(null);
-    setRoute('landing');
-    window.history.pushState({}, '', '/');
+    navigate('/');
   };
 
-  useEffect(() => {
-    const handlePopState = () => {
-      const pathname = window.location.pathname.split('?')[0];
-
-      // Handle dynamic campaign detail route
-      if (pathname.match(/^\/brand\/campaigns\/.+/)) {
-        setRoute('brand-campaign-detail');
-        return;
-      }
-
-      const map: Record<string, Route> = {
-        '/': 'landing',
-        '/login': 'login',
-        '/brand': 'brand',
-        '/brand/brief': 'brand-brief',
-        '/creator': 'creator',
-        '/creator/deliverables': 'creator-deliverables',
-      };
-      const r = map[pathname];
-      if (r) setRoute(r);
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  const isAuthenticated = !!role;
+  const isPublic = PUBLIC_PATHS.includes(location.pathname) || location.pathname.startsWith('/offer/');
+  const navbarRole: 'brand' | 'creator' | 'ops' | null = isPublic ? null : role;
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
-      {!isAuthenticated && route === 'landing' ? (
-        <>
-          <Navbar role={null} onRoleChange={handleLogin} onNavigate={handleNavigate} onLogout={handleLogout} />
-          <main>
-            <Landing onNavigate={handleNavigate} />
-          </main>
-          <Footer />
-        </>
-      ) : (
-        <>
-          <Navbar role={role} onRoleChange={handleLogin} onNavigate={handleNavigate} onLogout={handleLogout} />
+      <Navbar
+        role={navbarRole}
+        onRoleChange={onRoleChange}
+        onNavigate={onNavigate}
+        onLogout={onLogout}
+      />
 
-          {route === 'login' && (
-            <main className="min-h-[calc(100vh-4rem)]">
-              <Login onNavigate={handleNavigate} />
-            </main>
-          )}
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<Landing onNavigate={onNavigate} />} />
+        <Route path="/login" element={<Login onNavigate={onNavigate} />} />
+        <Route path="/offer/:token" element={<OfferPage />} />
 
-          {route === 'brand' && (
-            <main className="min-h-[calc(100vh-4rem)]">
-              <BrandDashboard onNavigate={handleNavigate} />
-            </main>
-          )}
+        {/* Brand */}
+        <Route
+          path="/brand"
+          element={
+            <Guard allow="brand" role={role}>
+              <BrandCampaigns />
+            </Guard>
+          }
+        />
+        <Route
+          path="/brand/campaigns/:campaignId"
+          element={
+            <Guard allow="brand" role={role}>
+              <CampaignWorkspace />
+            </Guard>
+          }
+        />
+        <Route
+          path="/brand/proposals/:proposalId/edit"
+          element={
+            <Guard allow="brand" role={role}>
+              <ProposalEditor />
+            </Guard>
+          }
+        />
+        <Route
+          path="/brand/proposals/:proposalId/preview"
+          element={
+            <Guard allow="brand" role={role}>
+              <SendGate />
+            </Guard>
+          }
+        />
 
-          {route === 'brand-campaign-detail' && (
-            <main className="min-h-[calc(100vh-4rem)]">
-              <CampaignDetail
-                onNavigate={handleNavigate}
-                campaignId={window.location.pathname.split('/').pop() || ''}
-              />
-            </main>
-          )}
+        {/* Ops */}
+        <Route
+          path="/ops"
+          element={
+            <Guard allow="ops" role={role}>
+              <OpsQueue />
+            </Guard>
+          }
+        />
 
-          {route === 'brand-brief' && (
-            <main className="min-h-[calc(100vh-4rem)]">
-              <BrandBrief onNavigate={handleNavigate} />
-            </main>
-          )}
+        {/* Creator */}
+        <Route
+          path="/creator"
+          element={
+            <Guard allow="creator" role={role}>
+              <CreatorHome />
+            </Guard>
+          }
+        />
+        <Route
+          path="/creator/campaigns/:proposalId"
+          element={
+            <Guard allow="creator" role={role}>
+              <CreatorCampaignPage />
+            </Guard>
+          }
+        />
+        <Route
+          path="/creator/milestones/:milestoneId"
+          element={
+            <Guard allow="creator" role={role}>
+              <CreatorMilestonePage />
+            </Guard>
+          }
+        />
 
-          {route === 'creator' && (
-            <main className="min-h-[calc(100vh-4rem)]">
-              <CreatorDashboard onNavigate={handleNavigate} />
-            </main>
-          )}
+        {/* Legacy prototype pages */}
+        <Route path="/brand/brief" element={<BrandBrief onNavigate={onNavigate} />} />
+        <Route path="/brand/campaigns" element={<Navigate to="/brand" replace />} />
+        <Route path="/creator/deliverables" element={<CreatorDeliverables onNavigate={onNavigate} />} />
 
-          {route === 'creator-deliverables' && (
-            <main className="min-h-[calc(100vh-4rem)]">
-              <CreatorDeliverables onNavigate={handleNavigate} />
-            </main>
-          )}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
 
-          {!isAuthenticated && (route === 'brand' || route === 'creator') && (
-            <main className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold mb-2">Please log in</h2>
-                <p className="text-[hsl(var(--muted-foreground))] mb-6">
-                  You need to select a role to access the dashboard.
-                </p>
-                <button
-                  onClick={() => {
-                    setRoute('landing');
-                    window.history.pushState({}, '', '/');
-                  }}
-                  className="text-[hsl(var(--primary))] hover:underline font-medium"
-                >
-                  Back to home
-                </button>
-              </div>
-            </main>
-          )}
-        </>
-      )}
+      <Footer />
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <Shell />
+    </BrowserRouter>
   );
 }
 

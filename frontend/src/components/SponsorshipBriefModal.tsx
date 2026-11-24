@@ -47,7 +47,7 @@ export const SponsorshipBriefModal: React.FC<BriefModalProps> = ({ isOpen, onClo
               </h2>
             </div>
             <p className="text-xs text-slate-400">
-              Our Campaign Architect & Financial Agents will auto-generate your 3-phase PayPal milestone escrow ledger and KRA eTIMS invoice.
+              Our Campaign Architect & Financial Agents will auto-generate your 3-phase milestone ledger and KRA eTIMS invoice.
             </p>
 
             <div>
@@ -64,7 +64,7 @@ export const SponsorshipBriefModal: React.FC<BriefModalProps> = ({ isOpen, onClo
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Escrow Budget (KES)</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Campaign Budget (KES)</label>
                 <input
                   type="number"
                   value={budget}

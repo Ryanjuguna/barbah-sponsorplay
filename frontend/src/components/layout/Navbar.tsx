@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/Button';
 
 interface NavbarProps {
-  role?: 'brand' | 'creator' | null;
+  role?: 'brand' | 'creator' | 'ops' | null;
   onRoleChange?: (role: 'brand' | 'creator') => void;
   onNavigate?: (path: string) => void;
   onLogout?: () => void;
@@ -56,6 +56,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     { label: 'Certificates', href: '/creator/certificates', icon: Trophy },
   ];
 
+  const opsLinks = [
+    { label: 'Review Queue', href: '/ops', icon: ShieldCheck },
+    { label: 'Campaigns', href: '/ops/campaigns', icon: Trophy },
+  ];
+
+  const links = role === 'brand' ? brandLinks : role === 'creator' ? creatorLinks : opsLinks;
+
   const isAuthenticated = !!role;
 
   const navigateTo = (href: string) => {
@@ -85,7 +92,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               {isAuthenticated && (
                 <p className="text-[11px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                  {role === 'brand' ? 'Brand Sponsor Portal' : 'Creator Portal'}
+                  {role === 'brand'
+                    ? 'Brand Sponsor Portal'
+                    : role === 'creator'
+                    ? 'Creator Portal'
+                    : 'Ops Review'}
                 </p>
               )}
             </div>
@@ -95,33 +106,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-6 text-sm font-medium text-[hsl(var(--muted-foreground))]">
               {isAuthenticated
-                ? role === 'brand'
-                  ? brandLinks.map((link) => (
-                      <a
-                        key={link.label}
-                        href={link.href}
-                        className="hover:text-[hsl(var(--foreground))] transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigateTo(link.href);
-                        }}
-                      >
-                        {link.label}
-                      </a>
-                    ))
-                  : creatorLinks.map((link) => (
-                      <a
-                        key={link.label}
-                        href={link.href}
-                        className="hover:text-[hsl(var(--foreground))] transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigateTo(link.href);
-                        }}
-                      >
-                        {link.label}
-                      </a>
-                    ))
+                ? links.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="hover:text-[hsl(var(--foreground))] transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateTo(link.href);
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ))
                 : [
                     { label: 'For Brands', href: '#for-brands' },
                     { label: 'For Creators', href: '#for-creators' },
@@ -195,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-3">
             {isAuthenticated ? (
               <>
-                {(role === 'brand' ? brandLinks : creatorLinks).map((link) => (
+                {links.map((link) => (
                   <a
                     key={link.label}
                     href={link.href}

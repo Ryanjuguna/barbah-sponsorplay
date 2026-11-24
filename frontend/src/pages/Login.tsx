@@ -4,6 +4,7 @@ import {
   Gamepad2,
   ArrowRight,
   Lock,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -14,40 +15,80 @@ interface LoginProps {
   onNavigate: (path: string) => void;
 }
 
+type LoginRole = 'brand' | 'creator' | 'ops';
+
+interface QuickAccount {
+  id: string;
+  name: string;
+  email: string;
+  role: LoginRole;
+  detail?: string;
+}
+
+const QUICK_ACCOUNTS: Record<LoginRole, QuickAccount[]> = {
+  brand: [
+    {
+      id: 'brand-simulation-account',
+      name: 'Safaricom 5G Gaming Hub',
+      email: 'brand@sponsorplay.ke',
+      role: 'brand',
+      detail: 'Anchor campaign · Kampala syndicate',
+    },
+    {
+      id: 'apex-brand-simulation-account',
+      name: 'Apex Gaming Lounge',
+      email: 'partnerships@apexgaming.co.ke',
+      role: 'brand',
+      detail: 'Second brand · independent campaigns',
+    },
+  ],
+  creator: [
+    {
+      id: 'creator-simulation-account',
+      name: 'Demo Creator',
+      email: 'creator@sponsorplay.ke',
+      role: 'creator',
+      detail: 'Seeded creator account',
+    },
+  ],
+  ops: [
+    {
+      id: 'ops-simulation-account',
+      name: 'Barbah Ops',
+      email: 'ops@sponsorplay.ke',
+      role: 'ops',
+      detail: 'Evidence review queue',
+    },
+  ],
+};
+
 export const Login = ({ onNavigate }: LoginProps) => {
-  const [role, setRole] = useState<'brand' | 'creator' | null>(null);
+  const [role, setRole] = useState<LoginRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [demoAccounts, setDemoAccounts] = useState<any[]>([]);
 
   /* Read role from URL query params */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlRole = params.get('role');
-    if (urlRole === 'brand' || urlRole === 'creator') {
+    if (urlRole === 'brand' || urlRole === 'creator' || urlRole === 'ops') {
       setRole(urlRole);
     }
   }, []);
 
-  useEffect(() => {
-    api.getDemoAccounts().then((data) => {
-      setDemoAccounts(data.creators || []);
-    });
-  }, []);
-
-  const handleRoleSelect = (r: 'brand' | 'creator') => {
+  const handleRoleSelect = (r: LoginRole) => {
     setRole(r);
     setError(null);
     onNavigate(`/login?role=${r}`);
   };
 
-  const handleDemoLogin = async (account: any) => {
+  const handleDemoLogin = async (account: QuickAccount) => {
     setIsLoading(true);
     setError(null);
     try {
       const res = await api.login({
         role: account.role,
-        demo_id: account.id || account.demo_id,
+        demo_id: account.id,
       });
       window.location.href = res.redirect_url;
     } catch (err: any) {
@@ -78,25 +119,14 @@ export const Login = ({ onNavigate }: LoginProps) => {
     }
   };
 
-  const brandDemo = {
-    id: 'brand-simulation-account',
-    name: 'Safaricom 5G Gaming Hub',
-    email: 'brand@sponsorplay.ke',
-    role: 'brand' as const,
-    avatar_text: 'SAF',
-    location: 'Nairobi HQ, Kenya',
-    budget_usd: 10000,
-    tier: 'ENTERPRISE_SPONSOR',
-  };
-
   const getRoleConfig = () => {
     if (role === 'brand') {
       return {
         title: 'Brand Sponsor Login',
         subtitle:
-          'Access campaign management, milestone tracking, and KRA eTIMS tax invoices.',
+          'Draft the proposal, approve the milestones, and track committed funding through to payout.',
         icon: Briefcase,
-        primaryAction: 'Start Sponsoring',
+        primaryAction: 'Open Brand Workspace',
       };
     }
     if (role === 'creator') {
@@ -106,6 +136,15 @@ export const Login = ({ onNavigate }: LoginProps) => {
           'Review offers, upload deliverables, track payouts, and build your Skills Passport.',
         icon: Gamepad2,
         primaryAction: 'Open Creator Portal',
+      };
+    }
+    if (role === 'ops') {
+      return {
+        title: 'Operations Review Login',
+        subtitle:
+          'Inspect submitted evidence and record the human decision before any payout moves.',
+        icon: ShieldCheck,
+        primaryAction: 'Open Review Queue',
       };
     }
     return null;
@@ -163,7 +202,7 @@ export const Login = ({ onNavigate }: LoginProps) => {
               </p>
               <ul className="text-xs text-[hsl(var(--muted-foreground))] space-y-1">
                 <li>• Campaign briefs</li>
-                <li>• Milestone escrow</li>
+                <li>• Milestone funding</li>
                 <li>• eTIMS invoices</li>
                 <li>• Impact dashboards</li>
               </ul>

@@ -29,7 +29,7 @@ export const CampaignGrid: React.FC<CampaignGridProps> = ({
               Active Sponsorship Campaigns
             </h2>
             <p className="text-slate-400 text-sm mt-1 max-w-xl">
-              Corporate campaigns featuring programmed 3-phase escrow (30/40/30) and automated KRA eTIMS compliance receipts.
+              Corporate campaigns featuring programmed 3-phase milestone funding (30/40/30) and automated KRA eTIMS compliance receipts.
             </p>
           </div>
         </div>
@@ -58,7 +58,7 @@ export const CampaignGrid: React.FC<CampaignGridProps> = ({
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
                     <ShieldCheck className="h-3.5 w-3.5" />
-                    <span>PayPal Escrow Locked</span>
+                    <span>Committed Balance</span>
                   </span>
                   <span className="text-xs font-mono text-emerald-400 font-bold">30 / 40 / 30% Split</span>
                 </div>

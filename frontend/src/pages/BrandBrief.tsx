@@ -812,7 +812,7 @@ export const BrandBrief: React.FC<BrandBriefProps> = ({ onNavigate }) => {
                     <p className="text-lg font-black text-amber-400 font-mono">
                       {formatUSD(proposal.platform_fee_usd)}
                     </p>
-                    <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Facilitation & Escrow</p>
+                    <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Facilitation & Funding</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))]">
                     <p className="text-[10px] uppercase font-bold text-[hsl(var(--secondary))]">5% Withholding Tax</p>

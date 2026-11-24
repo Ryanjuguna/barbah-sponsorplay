@@ -60,7 +60,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
     {
       label: 'Platform Fee',
       value: '10%',
-      sub: 'PayPal milestone ledger escrow',
+      sub: 'Milestone-based committed balance',
       icon: Zap,
       color: 'text-[hsl(var(--secondary))]',
     },
@@ -171,7 +171,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
             <p className="text-lg sm:text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mb-10 leading-relaxed">
               The first sponsorship marketplace built for African gaming. Brands
               reach verified grassroots talent through AI-matched syndicates,
-              PayPal milestone escrow, and certified KRA eTIMS tax invoices —
+              a committed campaign balance, and certified KRA eTIMS tax invoices -
               competent, compliant, and built to scale.
             </p>
 
@@ -203,7 +203,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
               <div className="w-px h-4 bg-[hsl(var(--border))]" />
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-[hsl(var(--secondary))]" />
-                <span>PayPal Milestone Escrow</span>
+                <span>Committed Campaign Balance</span>
               </div>
               <div className="w-px h-4 bg-[hsl(var(--border))]" />
               <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                 <p className="text-lg text-[hsl(var(--muted-foreground))] mb-8 leading-relaxed max-w-lg">
                   Corporate sponsors need more than vanity metrics. Dhamini delivers
                   certified KRA eTIMS tax invoices on every campaign, PayPal milestone
-                  escrow with AI-verified deliverables, and full impact reporting — so
+                  a committed balance with AI-assisted verification, and full impact reporting - so
                   every shilling is accounted for.
                 </p>
                 <div className="space-y-4">
@@ -307,7 +307,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                       <DollarSign className="h-4 w-4" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-[hsl(var(--foreground))]">Milestone Escrow</h4>
+                      <h4 className="font-bold text-[hsl(var(--foreground))]">Committed Balance</h4>
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         Funds released only after AI-verified Proof-of-Play.
                       </p>
@@ -394,7 +394,7 @@ export const Landing = ({ onNavigate }: LandingProps) => {
                         <span className="font-bold text-[hsl(var(--foreground))]">$0.00</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-[hsl(var(--muted-foreground))]">Escrow Balance</span>
+                        <span className="text-[hsl(var(--muted-foreground))]">Committed Balance</span>
                         <span className="font-bold text-[hsl(var(--foreground))]">$0.00</span>
                       </div>
                     </div>

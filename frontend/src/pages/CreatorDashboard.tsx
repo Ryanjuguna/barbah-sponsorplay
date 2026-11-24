@@ -116,7 +116,7 @@ export const CreatorDashboard = ({ onNavigate }: CreatorDashboardProps) => {
       iconColor: 'text-[hsl(var(--primary))]',
     },
     {
-      title: 'Escrow Balance',
+      title: 'Committed Balance',
       value: formatUSD(dashboard!.ledger_escrow_usd),
       trend: { label: 'Locked in PayPal ledger', value: 'Secure', positive: true },
       icon: <ShieldCheck className="h-5 w-5" />,

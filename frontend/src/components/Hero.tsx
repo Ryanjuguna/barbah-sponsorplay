@@ -34,7 +34,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCreators, onExploreCampaign
         {/* Subtitle */}
         <p className="mt-6 text-base sm:text-xl text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
           Connecting major corporate sponsors with Nairobi's gaming lounges, campus clubs, and competitive streamers via automated multi-agent AI verification,{' '}
-          <span className="text-blue-400 font-semibold">PayPal Milestone Escrow</span>, and{' '}
+          <span className="text-blue-400 font-semibold">Committed Campaign Balance</span>, and{' '}
           <span className="text-red-400 font-semibold">KRA eTIMS Tax Compliance</span>.
         </p>
 
@@ -74,7 +74,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCreators, onExploreCampaign
               <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">PayPal Ledger</span>
             </div>
             <div className="text-2xl font-black text-white">30 / 40 / 30%</div>
-            <p className="text-xs text-slate-400 mt-1">Milestone-based programmatic escrow</p>
+            <p className="text-xs text-slate-400 mt-1">Milestone-based committed funding</p>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm">

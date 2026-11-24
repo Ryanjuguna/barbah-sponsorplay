@@ -32,8 +32,10 @@ const TOKEN_COOKIE = 'dhamini_session';
 const ROLE_COOKIE = 'dhamini_role';
 
 export function setSession(token: string, role: UserRole) {
-  document.cookie = `${TOKEN_COOKIE}=${token}; path=/; SameSite=Strict; Secure; Max-Age=${60 * 60 * 24 * 7}`;
-  document.cookie = `${ROLE_COOKIE}=${role}; path=/; SameSite=Strict; Secure; Max-Age=${60 * 60 * 24 * 7}`;
+  // No `Secure` flag: the pitch demo runs on plain http (localhost or a LAN IP),
+  // and a Secure cookie would be silently dropped there.
+  document.cookie = `${TOKEN_COOKIE}=${token}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}`;
+  document.cookie = `${ROLE_COOKIE}=${role}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}`;
 }
 
 export function getSessionToken(): string | null {
@@ -102,16 +104,35 @@ async function request<T>(
 
 /* ---- Auth ---- */
 
+/** Demo ids from the legacy login screen mapped to seeded workflow accounts. */
+const DEMO_IDENTIFIERS: Record<string, string> = {
+  'brand-simulation-account': 'brand@sponsorplay.ke',
+  'apex-brand-simulation-account': 'partnerships@apexgaming.co.ke',
+  'ops-simulation-account': 'ops@sponsorplay.ke',
+};
+
 export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const res = await request<LoginResponse>('/api/v1/auth/login', {
+  const identifier =
+    data.identifier || (data.demo_id ? DEMO_IDENTIFIERS[data.demo_id] || data.demo_id : '');
+
+  const res = await request<{
+    token: string;
+    principal: { is_ops: boolean; is_brand: boolean; email: string; name: string };
+    redirect_url: string;
+  }>('/api/v1/auth/workflow-login', {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify({ identifier, password: data.password || 'Password123!' }),
   });
 
-  // Persist session in secure cookie
-  setSession(res.token, res.role);
+  const role: UserRole = res.principal.is_ops ? 'ops' : res.principal.is_brand ? 'brand' : 'creator';
+  setSession(res.token, role);
 
-  return res;
+  return {
+    status: 'ok',
+    token: res.token,
+    role,
+    redirect_url: res.redirect_url,
+  };
 }
 
 export async function logout(): Promise<void> {

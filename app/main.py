@@ -4,10 +4,10 @@ PayPal AI Hackathon - Track 02: Sponsor Play
 """
 
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 from app.config import settings
 from app.integrations.paypal_client import paypal_client
@@ -21,6 +21,8 @@ from app.api.notifications import router as notifications_router
 from app.api.creator_portal import router as creator_router
 from app.api.auth import router as auth_router
 from app.api.cms import router as cms_router
+from app.api.workflow import router as workflow_router
+from app.workflow.errors import DomainError
 from app.integrations.wordpress_client import wp_client
 from app.models.database import db
 
@@ -58,6 +60,12 @@ app.include_router(notifications_router)
 app.include_router(creator_router)
 app.include_router(auth_router)
 app.include_router(cms_router)
+app.include_router(workflow_router)
+
+
+@app.exception_handler(DomainError)
+async def domain_error_handler(request: Request, exc: DomainError):
+    return JSONResponse(status_code=exc.status_code, content=exc.as_dict())
 
 # Mount Static Assets Directory
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -163,3 +171,31 @@ def health_check():
 def paypal_mode():
     """Reports whether PayPal calls are hitting a live sandbox or a simulated fallback."""
     return {"mode": paypal_client.mode()}
+
+
+# --------------------------------------------------------------------------
+# SPA fallback
+#
+# Client-side routes (/offer/:token, /ops, /brand/campaigns/:id, ...) must serve
+# the React shell on a direct load. This is deliberately last so it never
+# shadows an API route.
+# --------------------------------------------------------------------------
+
+_RESERVED_PREFIXES = (
+    "api/",
+    "static/",
+    "assets/",
+    "docs",
+    "redoc",
+    "openapi.json",
+)
+
+
+@app.get("/{full_path:path}")
+def spa_fallback(full_path: str):
+    if full_path.startswith(_RESERVED_PREFIXES):
+        return JSONResponse({"detail": "Not found"}, status_code=404)
+    res = get_frontend_or_fallback("index.html")
+    if res:
+        return res
+    return JSONResponse({"detail": "Not found"}, status_code=404)
